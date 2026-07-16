@@ -1,48 +1,50 @@
-const socket = io();
+const API_URL = "http://bot.ndz.web.id";
+
+const socket = io(API_URL, {
+  transports: ["websocket", "polling"]
+});
 
 const serverStatus = document.getElementById("serverStatus");
-const connectBtn = document.getElementById("connectBtn");
-const number = document.getElementById("number");
 const sessions = document.getElementById("sessions");
 const logs = document.getElementById("logs");
+const connectBtn = document.getElementById("connectBtn");
+const numberInput = document.getElementById("number");
 
-function addLog(text) {
+function log(text) {
   const div = document.createElement("div");
-  div.textContent = "[" + new Date().toLocaleTimeString() + "] " + text;
+  div.className = "log";
+  div.innerHTML = `[${new Date().toLocaleTimeString()}] ${text}`;
   logs.prepend(div);
 }
 
 socket.on("connect", () => {
   serverStatus.className = "online";
   serverStatus.innerHTML = "🟢 SERVER ONLINE";
-  addLog("Terhubung ke server.");
+  log("Terhubung ke API");
   loadSessions();
 });
 
 socket.on("disconnect", () => {
   serverStatus.className = "offline";
   serverStatus.innerHTML = "🔴 SERVER OFFLINE";
-  addLog("Koneksi ke server terputus.");
+  log("Koneksi API terputus");
+});
+
+socket.on("pairing", (data) => {
+  log(`Pairing ${data.number}: ${data.code}`);
+  loadSessions();
 });
 
 socket.on("status", () => {
   loadSessions();
 });
 
-socket.on("logout", () => {
-  loadSessions();
-});
-
-socket.on("pairing", () => {
-  loadSessions();
-});
-
-connectBtn.onclick = async () => {
+connectBtn.addEventListener("click", async () => {
   
-  const phone = number.value.trim();
+  const number = numberInput.value.trim();
   
-  if (!phone) {
-    return alert("Masukkan nomor WhatsApp.");
+  if (!number) {
+    return alert("Masukkan nomor WhatsApp");
   }
   
   connectBtn.disabled = true;
@@ -50,21 +52,23 @@ connectBtn.onclick = async () => {
   
   try {
     
-    const res = await fetch("/api/connect", {
+    const req = await fetch(`${API_URL}/api/connect`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        number: phone
+        number
       })
     });
     
-    const json = await res.json();
+    const res = await req.json();
     
-    addLog("Membuat session " + phone);
+    if (!res.success) {
+      alert(res.message || "Gagal");
+    }
     
-    loadSessions();
+    log("Membuat session " + number);
     
   } catch (e) {
     
@@ -75,48 +79,45 @@ connectBtn.onclick = async () => {
   connectBtn.disabled = false;
   connectBtn.innerText = "Hubungkan";
   
-};
+});
 
 async function loadSessions() {
   
-  const res = await fetch("/api/sessions");
-  const data = await res.json();
+  const req = await fetch(`${API_URL}/api/sessions`);
+  const data = await req.json();
   
   sessions.innerHTML = "";
   
-  if (data.length === 0) {
-    sessions.innerHTML = "Belum ada bot.";
+  if (!data.length) {
+    sessions.innerHTML = "<p>Belum ada bot.</p>";
     return;
   }
   
   data.forEach(bot => {
     
-    const card = document.createElement("div");
-    card.className = "bot-card";
+    const div = document.createElement("div");
     
-    card.innerHTML = `
-        <div class="bot-title">${bot.number}</div>
+    div.className = "bot-card";
+    
+    div.innerHTML = `
+        <h3>${bot.number}</h3>
 
-        <div class="status">
-        ${bot.connected ? "🟢 Connected" : "🟡 Waiting Pair"}
-        </div>
+        <p>${bot.connected ? "🟢 Connected" : "🟡 Waiting Pairing"}</p>
 
         <div class="code">
-        ${bot.pairingCode || "Menunggu Pairing"}
+            ${bot.pairingCode || "Menunggu Pairing Code"}
         </div>
 
-        <button class="restart"
-        onclick="restartBot('${bot.sessionId}')">
+        <button onclick="restartBot('${bot.sessionId}')">
         Restart
         </button>
 
-        <button class="logout"
-        onclick="logoutBot('${bot.sessionId}')">
+        <button onclick="logoutBot('${bot.sessionId}')">
         Logout
         </button>
         `;
     
-    sessions.appendChild(card);
+    sessions.appendChild(div);
     
   });
   
@@ -124,7 +125,7 @@ async function loadSessions() {
 
 async function restartBot(id) {
   
-  await fetch("/api/restart", {
+  await fetch(`${API_URL}/api/restart`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -134,15 +135,13 @@ async function restartBot(id) {
     })
   });
   
-  addLog("Restart " + id);
-  
-  loadSessions();
+  log("Restart " + id);
   
 }
 
 async function logoutBot(id) {
   
-  await fetch("/api/logout", {
+  await fetch(`${API_URL}/api/logout`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -152,9 +151,7 @@ async function logoutBot(id) {
     })
   });
   
-  addLog("Logout " + id);
-  
-  loadSessions();
+  log("Logout " + id);
   
 }
 
