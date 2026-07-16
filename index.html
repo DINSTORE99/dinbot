@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DINSTORE BOT PANEL</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🤖 DINSTORE BOT</h1>
+
+<div class="card">
+
+<h3>Status Server</h3>
+
+<div id="serverStatus" class="offline">
+🔴 OFFLINE
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Tambah Bot</h3>
+
+<input
+id="number"
+type="text"
+placeholder="628xxxxxxxxxx"
+/>
+
+<button id="connectBtn">
+Hubungkan
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>Daftar Bot</h3>
+
+<div id="sessions">
+
+Belum ada bot.
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Log</h3>
+
+<div id="logs">
+
+<div>Menunggu koneksi...</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
