@@ -1,0 +1,115 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: #f5f7fb;
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  padding: 30px;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #111827;
+}
+
+.subtitle {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.card,
+.pairing-card,
+.session-card {
+  padding: 20px;
+  margin-top: 15px;
+  border-radius: 15px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #111827;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+input:focus {
+  border-color: #2563eb;
+}
+
+input::placeholder {
+  color: #9ca3af;
+}
+
+.pairing-code {
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 26px;
+  font-weight: bold;
+  letter-spacing: 5px;
+  user-select: all;
+}
+
+.pairing-card p {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.session-card code {
+  color: #2563eb;
+  font-size: 13px;
+}
+
+.message {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 14px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #d97706;
+  font-size: 14px;
+}
+
+.status.connected {
+  color: #16a34a;
+  background: #f0fdf4;
+}
