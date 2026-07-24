@@ -1,74 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DINSTORE BOT PANEL</title>
+  <head>
+    <meta charset="UTF-8" />
 
-<link rel="stylesheet" href="style.css">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
 
-<script src="/socket.io/socket.io.js"></script>
-</head>
+    <meta
+      name="description"
+      content="DIN WhatsApp Bot Panel - Kelola koneksi WhatsApp Bot"
+    />
 
-<body>
+    <meta name="theme-color" content="#0f172a" />
 
-<div class="container">
+    <title>DIN WhatsApp Bot Panel</title>
+  </head>
 
-<h1>🤖 DINSTORE BOT</h1>
+  <body>
+    <div id="root"></div>
 
-<div class="card">
-
-<h3>Status Server</h3>
-
-<div id="serverStatus" class="offline">
-🔴 OFFLINE
-</div>
-
-</div>
-
-<div class="card">
-
-<h3>Tambah Bot</h3>
-
-<input
-id="number"
-type="text"
-placeholder="628xxxxxxxxxx"
-/>
-
-<button id="connectBtn">
-Hubungkan
-</button>
-
-</div>
-
-<div class="card">
-
-<h3>Daftar Bot</h3>
-
-<div id="sessions">
-
-Belum ada bot.
-
-</div>
-
-</div>
-
-<div class="card">
-
-<h3>Log</h3>
-
-<div id="logs">
-
-<div>Menunggu koneksi...</div>
-
-</div>
-
-</div>
-
-</div>
-
-<script src="app.js"></script>
-
-</body>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
