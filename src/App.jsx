@@ -1,32 +1,49 @@
 import { useEffect, useState } from "react";
+import "./style.css";
 
 const API_URL = "https://bot.ndz.web.id";
 
-function App() {
+export default function App() {
+  const [serverOnline, setServerOnline] = useState(false);
+  const [sessions, setSessions] = useState([]);
   const [number, setNumber] = useState("");
-  const [sessionId, setSessionId] = useState("");
   const [pairingCode, setPairingCode] = useState("");
-  const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [sidebar, setSidebar] = useState(false);
 
-  // ==============================
-  // CONNECT WHATSAPP
-  // ==============================
+  const loadStatus = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/status`);
+      const data = await res.json();
 
-  const connectWhatsApp = async () => {
-    if (!number) {
+      setServerOnline(data.server === "online");
+      setSessions(data.sessions || []);
+    } catch {
+      setServerOnline(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStatus();
+
+    const interval = setInterval(loadStatus, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const connectBot = async () => {
+    if (!number.trim()) {
       setMessage("Masukkan nomor WhatsApp terlebih dahulu.");
       return;
     }
 
     setLoading(true);
-    setMessage("");
     setPairingCode("");
-    setConnected(false);
+    setMessage("");
 
     try {
-      const response = await fetch(`${API_URL}/api/pair`, {
+      const res = await fetch(`${API_URL}/api/pair`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,230 +53,479 @@ function App() {
         }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok || !data.success) {
-        throw new Error(
-          data.message || "Gagal menghubungkan WhatsApp"
-        );
+      if (!data.success) {
+        setMessage(data.message || "Gagal menghubungkan bot.");
+        return;
       }
 
-      setSessionId(data.sessionId);
       setMessage(
-        "Bot sedang diproses. Menunggu kode pairing..."
+        "Bot berhasil dijalankan. Menunggu kode pairing..."
       );
 
+      checkPairing(data.sessionId);
     } catch (error) {
-      setMessage(error.message);
+      setMessage("Tidak dapat terhubung ke server bot.");
     } finally {
       setLoading(false);
     }
   };
 
-  // ==============================
-  // CEK PAIRING CODE
-  // ==============================
-
-  useEffect(() => {
-    if (!sessionId) return;
+  const checkPairing = (sessionId) => {
+    let count = 0;
 
     const interval = setInterval(async () => {
+      count++;
+
       try {
-        const response = await fetch(
+        const res = await fetch(
           `${API_URL}/api/pairing/${sessionId}`
         );
 
-        const data = await response.json();
+        const data = await res.json();
 
         if (data.code) {
           setPairingCode(data.code);
-        }
-
-        if (data.connected) {
-          setConnected(true);
-          setMessage(
-            "WhatsApp berhasil terhubung!"
-          );
-
           clearInterval(interval);
         }
 
-      } catch (error) {
-        console.log(
-          "Gagal mengecek pairing:",
-          error
-        );
+        if (data.connected) {
+          setPairingCode("");
+          setMessage("WhatsApp berhasil terhubung.");
+          clearInterval(interval);
+          loadStatus();
+        }
+
+        if (count >= 30) {
+          clearInterval(interval);
+        }
+      } catch {
+        clearInterval(interval);
       }
     }, 2000);
+  };
 
-    return () => clearInterval(interval);
-
-  }, [sessionId]);
-
-  // ==============================
-  // LOGOUT
-  // ==============================
-
-  const logoutWhatsApp = async () => {
-    if (!sessionId) return;
+  const logoutBot = async (sessionId) => {
+    if (!confirm("Yakin ingin logout session ini?")) {
+      return;
+    }
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/logout`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            sessionId,
-          }),
-        }
-      );
+      await fetch(`${API_URL}/api/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionId,
+        }),
+      });
 
-      const data = await response.json();
-
-      if (data.success) {
-        setConnected(false);
-        setPairingCode("");
-        setSessionId("");
-        setMessage(
-          "WhatsApp berhasil logout."
-        );
-      } else {
-        setMessage(
-          data.message ||
-          "Gagal logout."
-        );
-      }
-
-    } catch (error) {
-      setMessage(
-        "Gagal terhubung ke server."
-      );
+      loadStatus();
+    } catch {
+      setMessage("Gagal logout session.");
     }
   };
 
+  const restartBot = async (sessionId, session) => {
+    try {
+      setMessage("Memulai ulang bot...");
+
+      await fetch(`${API_URL}/api/pair`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          number: session.number,
+        }),
+      });
+
+      setMessage("Bot sedang dimulai ulang.");
+      loadStatus();
+    } catch {
+      setMessage("Gagal restart bot.");
+    }
+  };
+
+  const connectedCount = sessions.filter(
+    (item) => item.connected
+  ).length;
+
   return (
-    <div className="app">
+    <div className="dashboard">
 
-      <div className="container">
+      {/* SIDEBAR OVERLAY */}
 
-        <h1>
-          DIN WhatsApp Bot
-        </h1>
+      <div
+        className={`sidebar-overlay ${
+          sidebar ? "show" : ""
+        }`}
+        onClick={() => setSidebar(false)}
+      />
 
-        <p className="subtitle">
-          Hubungkan WhatsApp Bot melalui Pairing Code
-        </p>
+      {/* SIDEBAR */}
 
-        {/* STATUS */}
+      <aside className={`sidebar ${sidebar ? "open" : ""}`}>
 
-        <div
-          className={
-            connected
-              ? "status connected"
-              : "status"
-          }
-        >
-          <span className="status-dot"></span>
+        <div className="logo">
+          <div className="logo-icon">
+            DB
+          </div>
 
-          {connected
-            ? "WhatsApp Terhubung"
-            : "WhatsApp Belum Terhubung"}
+          <div>
+            <h2>DIN BOT</h2>
+            <span>Admin Panel</span>
+          </div>
         </div>
 
-        {/* FORM */}
+        <nav>
 
-        {!connected && (
-          <div className="card">
+          <a className="nav-item active">
+            <span>▣</span>
+            Dashboard
+          </a>
 
-            <label>
-              Nomor WhatsApp
-            </label>
+          <a className="nav-item">
+            <span>◉</span>
+            WhatsApp Bot
+          </a>
 
-            <input
-              type="text"
-              placeholder="628123456789"
-              value={number}
-              onChange={(e) =>
-                setNumber(e.target.value)
-              }
-            />
+          <a className="nav-item">
+            <span>☁</span>
+            Server
+          </a>
+
+          <a className="nav-item">
+            <span>⚙</span>
+            Pengaturan
+          </a>
+
+        </nav>
+
+        <div className="sidebar-footer">
+          <span className="online-dot" />
+          System Online
+        </div>
+
+      </aside>
+
+      {/* MAIN */}
+
+      <main className="main">
+
+        {/* HEADER */}
+
+        <header className="header">
+
+          <button
+            className="menu-button"
+            onClick={() => setSidebar(true)}
+          >
+            ☰
+          </button>
+
+          <div>
+            <h1>Dashboard</h1>
+            <p>
+              Kelola WhatsApp Bot kamu dari satu tempat.
+            </p>
+          </div>
+
+          <div className="header-user">
+            <div className="avatar">
+              D
+            </div>
+
+            <div>
+              <strong>Administrator</strong>
+              <small>Admin</small>
+            </div>
+          </div>
+
+        </header>
+
+        {/* CONTENT */}
+
+        <section className="content">
+
+          {/* STAT CARDS */}
+
+          <div className="stats-grid">
+
+            <div className="stat-card">
+
+              <div className="stat-icon blue">
+                ◉
+              </div>
+
+              <div>
+                <span>Server Status</span>
+
+                <strong>
+                  {serverOnline
+                    ? "Online"
+                    : "Offline"}
+                </strong>
+
+                <small>
+                  API Bot Server
+                </small>
+              </div>
+
+            </div>
+
+            <div className="stat-card">
+
+              <div className="stat-icon green">
+                ✓
+              </div>
+
+              <div>
+                <span>WhatsApp Aktif</span>
+
+                <strong>
+                  {connectedCount}
+                </strong>
+
+                <small>
+                  Bot terhubung
+                </small>
+              </div>
+
+            </div>
+
+            <div className="stat-card">
+
+              <div className="stat-icon purple">
+                ◫
+              </div>
+
+              <div>
+                <span>Total Session</span>
+
+                <strong>
+                  {sessions.length}
+                </strong>
+
+                <small>
+                  Semua session
+                </small>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* PAIRING */}
+
+          <div className="section-title">
+            <div>
+              <h2>Hubungkan WhatsApp</h2>
+              <p>
+                Gunakan nomor WhatsApp untuk mendapatkan
+                pairing code.
+              </p>
+            </div>
+          </div>
+
+          <div className="pair-card">
+
+            <div className="pair-form">
+
+              <label>
+                Nomor WhatsApp
+              </label>
+
+              <input
+                type="text"
+                placeholder="628123456789"
+                value={number}
+                onChange={(e) =>
+                  setNumber(e.target.value)
+                }
+              />
+
+              <button
+                className="primary-button"
+                onClick={connectBot}
+                disabled={loading}
+              >
+                {loading
+                  ? "Memproses..."
+                  : "Dapatkan Pairing Code"}
+              </button>
+
+            </div>
+
+            {pairingCode && (
+
+              <div className="pair-result">
+
+                <span>
+                  Pairing Code
+                </span>
+
+                <strong>
+                  {pairingCode}
+                </strong>
+
+                <p>
+                  Buka WhatsApp → Perangkat Tertaut →
+                  Tautkan dengan nomor telepon.
+                </p>
+
+              </div>
+
+            )}
+
+          </div>
+
+          {message && (
+
+            <div className="notification">
+              {message}
+            </div>
+
+          )}
+
+          {/* SESSION */}
+
+          <div className="section-title session-title">
+
+            <div>
+              <h2>WhatsApp Sessions</h2>
+
+              <p>
+                Daftar bot WhatsApp yang terhubung.
+              </p>
+            </div>
 
             <button
-              onClick={connectWhatsApp}
-              disabled={loading}
+              className="refresh-button"
+              onClick={loadStatus}
             >
-              {loading
-                ? "Menghubungkan..."
-                : "Hubungkan WhatsApp"}
+              ↻ Refresh
             </button>
 
           </div>
-        )}
 
-        {/* PAIRING CODE */}
+          <div className="sessions">
 
-        {pairingCode && !connected && (
-          <div className="pairing-card">
+            {sessions.length === 0 ? (
 
-            <h2>
-              Kode Pairing
-            </h2>
+              <div className="empty">
 
-            <div className="pairing-code">
-              {pairingCode}
-            </div>
+                <div className="empty-icon">
+                  ◫
+                </div>
 
-            <p>
-              Buka WhatsApp → Perangkat Tertaut
-              → Tautkan Perangkat
-              → Tautkan dengan Nomor Telepon
-            </p>
+                <h3>
+                  Belum ada session
+                </h3>
+
+                <p>
+                  Hubungkan WhatsApp untuk membuat
+                  session baru.
+                </p>
+
+              </div>
+
+            ) : (
+
+              sessions.map((session) => (
+
+                <div
+                  className="session-card"
+                  key={session.sessionId}
+                >
+
+                  <div className="session-info">
+
+                    <div className="whatsapp-icon">
+                      WA
+                    </div>
+
+                    <div>
+
+                      <h3>
+                        {session.name ||
+                          "WhatsApp Bot"}
+                      </h3>
+
+                      <p>
+                        +{session.number}
+                      </p>
+
+                      <small>
+                        Session ID:{" "}
+                        {session.sessionId}
+                      </small>
+
+                    </div>
+
+                  </div>
+
+                  <div className="session-right">
+
+                    <span
+                      className={
+                        session.connected
+                          ? "badge connected"
+                          : "badge disconnected"
+                      }
+                    >
+                      <span />
+                      {session.connected
+                        ? "Connected"
+                        : "Disconnected"}
+                    </span>
+
+                    <div className="actions">
+
+                      <button
+                        className="restart"
+                        onClick={() =>
+                          restartBot(
+                            session.sessionId,
+                            session
+                          )
+                        }
+                      >
+                        ↻
+                        <span>
+                          Restart
+                        </span>
+                      </button>
+
+                      <button
+                        className="logout"
+                        onClick={() =>
+                          logoutBot(
+                            session.sessionId
+                          )
+                        }
+                      >
+                        Logout
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ))
+
+            )}
 
           </div>
-        )}
 
-        {/* SESSION */}
+        </section>
 
-        {sessionId && (
-          <div className="session-card">
-
-            <p>
-              <b>Session ID:</b>
-            </p>
-
-            <code>
-              {sessionId}
-            </code>
-
-          </div>
-        )}
-
-        {/* LOGOUT */}
-
-        {connected && (
-          <button
-            className="logout"
-            onClick={logoutWhatsApp}
-          >
-            Logout WhatsApp
-          </button>
-        )}
-
-        {/* MESSAGE */}
-
-        {message && (
-          <div className="message">
-            {message}
-          </div>
-        )}
-
-      </div>
+      </main>
 
     </div>
   );
 }
-
-export default App;
