@@ -24,6 +24,17 @@ export default function App() {
     }
   };
 
+function App() {
+  return (
+    <div className="app">
+      <h1>DIN WhatsApp Bot Panel</h1>
+      <p>Panel berhasil tampil</p>
+    </div>
+  );
+}
+
+export default App;
+  
   useEffect(() => {
     loadStatus();
 
