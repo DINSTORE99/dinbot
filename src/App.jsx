@@ -982,8 +982,8 @@ function App() {
     D
 </div>
         <div className="brand-info">
-          <h2>DINSTORE</h2>
-          <span>WhatsApp Bot</span>
+          <h2>DIN-STORE</h2>
+          <span>WhatsApp Bot v 1.02.</span>
         </div>
       </div>
 
@@ -1058,7 +1058,7 @@ function App() {
           </div>
 
           <div className="copyright">
-            DINSTORE © 2026
+            PANEL-BOT © 2026
           </div>
 
         </div>
