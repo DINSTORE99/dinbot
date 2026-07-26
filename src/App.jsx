@@ -806,24 +806,31 @@ function App() {
 
               </div>
 
-              <div className="pairing-code">
-                {pairingCode}
-              </div>
+             <div
+  className="pairing-code"
+  onClick={copyPairingCode}
+  title="Klik untuk menyalin"
+>
+  DINSTORE-{pairingCode}
+</div>
 
-              <button
-                className={
-                  copied
-                    ? "copy-button copied"
-                    : "copy-button"
-                }
-                onClick={
-                  copyPairingCode
-                }
-              >
-                {copied
-                  ? "✓ Kode Berhasil Disalin"
-                  : "📋 Salin Pairing Code"}
-              </button>
+              const copyPairingCode = async () => {
+  if (!pairingCode) return;
+
+  try {
+    await navigator.clipboard.writeText(`DINSTORE-${pairingCode}`);
+
+    setCopied(true);
+    setMessage("DINSTORE Pairing Code berhasil disalin.");
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2500);
+
+  } catch (err) {
+    setMessage("Gagal menyalin pairing code.");
+  }
+};
 
               <p>
                 WhatsApp → Perangkat
