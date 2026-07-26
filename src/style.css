@@ -1490,5 +1490,17 @@ button:disabled {
   .modal-buttons {
     flex-direction: column;
   }
+.brand-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
 
+.brand-logo img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%; /* bulat, hapus jika tidak ingin bulat */
+}
+  
 }
