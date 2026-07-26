@@ -979,12 +979,8 @@ function App() {
     <aside className="sidebar">
       <div className="brand">
         <div className="brand-logo">
-          <img
-            src="https://files.catbox.moe/0sx7ra.jpg"
-            alt="WEBSITE BOT"
-          />
-        </div>
-
+    D
+</div>
         <div className="brand-info">
           <h2>DINSTORE</h2>
           <span>WhatsApp Bot</span>
