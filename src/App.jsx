@@ -809,29 +809,28 @@ fungsi App() {
              <div
   className="pairing-code"
   onClick={copyPairingCode}
-  judul="Klik untuk menyalin"
+  title="Klik untuk menyalin"
 >
-  DISTORE-{pairingCode}
+  DINSTORE-{pairingCode}
 </div>
 
-              const copyPairingCode = async () => {
-  jika (!pairingCode) kembali;
+ const copyPairingCode = async () => {
+  if (!pairingCode) return;
 
-  mencoba {
+  try {
     await navigator.clipboard.writeText(`DINSTORE-${pairingCode}`);
 
     setCopied(true);
-    setMessage("Kode Penyandingan DINSTORE berhasil dibatalkan.");
+    setMessage("DINSTORE Pairing Code berhasil disalin.");
 
     setTimeout(() => {
       setCopied(false);
     }, 2500);
 
-  } tangkap (kesalahan) {
-    setMessage("Gagal menyalin kode pairing.");
+  } catch (err) {
+    setMessage("Gagal menyalin pairing code.");
   }
 };
-
               <p>
                 WhatsApp → Perangkat
                 Tertaut â†' Tautkan dengan
