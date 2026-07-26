@@ -983,7 +983,10 @@ function App() {
         <div className="brand">
 
           <div className="brand-logo">
-    <img src="/logo.png" alt="DIN BOT" />
+  <img
+    src="https://files.catbox.moe/0sx7ra.jpg"
+    alt="WEBSITE BOT"
+  />
 </div>
 
           <div>
