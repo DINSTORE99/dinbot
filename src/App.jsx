@@ -25,9 +25,9 @@ function App() {
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [logoutMessage, setLogoutMessage] = useState("");
 
-  // ==========================================
+  // =====================================================
   // NORMALIZE NOMOR
-  // ==========================================
+  // =====================================================
 
   const normalizeNumber = (number) => {
     let value = String(number || "").replace(/\D/g, "");
@@ -43,9 +43,9 @@ function App() {
     return value;
   };
 
-  // ==========================================
+  // =====================================================
   // MASK NOMOR
-  // ==========================================
+  // =====================================================
 
   const maskNumber = (number) => {
     if (!number) return "-";
@@ -63,9 +63,9 @@ function App() {
     );
   };
 
-  // ==========================================
-  // TOAST
-  // ==========================================
+  // =====================================================
+  // TOAST MESSAGE
+  // =====================================================
 
   const showMessage = (text) => {
     setMessage(text);
@@ -75,9 +75,9 @@ function App() {
     }, 4000);
   };
 
-  // ==========================================
+  // =====================================================
   // LOAD STATUS
-  // ==========================================
+  // =====================================================
 
   const loadStatus = async () => {
     try {
@@ -117,7 +117,7 @@ function App() {
 
     } catch (error) {
       console.error(
-        "KESALAHAN STATUS:",
+        "STATUS ERROR:",
         error
       );
 
@@ -130,9 +130,9 @@ function App() {
     }
   };
 
-  // ==========================================
-  // AUTO REFRESH
-  // ==========================================
+  // =====================================================
+  // AUTO UPDATE
+  // =====================================================
 
   useEffect(() => {
     loadStatus();
@@ -146,9 +146,9 @@ function App() {
     };
   }, []);
 
-  // ==========================================
+  // =====================================================
   // START PAIRING
-  // ==========================================
+  // =====================================================
 
   const startPairing = async () => {
     if (!phoneNumber.trim()) {
@@ -158,7 +158,8 @@ function App() {
       return;
     }
 
-    const number = normalizeNumber(phoneNumber);
+    const number =
+      normalizeNumber(phoneNumber);
 
     if (!number || number.length < 10) {
       showMessage(
@@ -182,7 +183,8 @@ function App() {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
           body: JSON.stringify({
             number,
@@ -190,7 +192,8 @@ function App() {
         }
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       console.log(
         "API PAIR:",
@@ -208,9 +211,11 @@ function App() {
       const sessionId =
         data.sessionId || number;
 
-      setPairingSession(sessionId);
+      setPairingSession(
+        sessionId
+      );
 
-      // Jika kode langsung diberikan backend
+      // Jika kode langsung diberikan
       if (data.pairingCode) {
         setPairingCode(
           data.pairingCode
@@ -224,13 +229,14 @@ function App() {
       }
 
       showMessage(
-        "Permintaan pairing berhasil. Menunggu kode..."
+        "Menunggu kode pairing..."
       );
 
       let attempts = 0;
 
       const timer = setInterval(
         async () => {
+
           attempts++;
 
           try {
@@ -240,7 +246,8 @@ function App() {
                   sessionId
                 )}`,
                 {
-                  cache: "no-store",
+                  cache:
+                    "no-store",
                 }
               );
 
@@ -248,7 +255,7 @@ function App() {
               await response.json();
 
             console.log(
-              "STATUS PAIRING:",
+              "PAIRING STATUS:",
               result
             );
 
@@ -283,14 +290,14 @@ function App() {
 
               if (!result.code) {
                 showMessage(
-                  "Waktu menunggu pairing habis. Silakan coba lagi."
+                  "Waktu menunggu pairing habis."
                 );
               }
             }
 
           } catch (error) {
             console.error(
-              "KESALAHAN CEK PAIRING:",
+              "PAIRING CHECK ERROR:",
               error
             );
           }
@@ -300,8 +307,9 @@ function App() {
       );
 
     } catch (error) {
+
       console.error(
-        "KESALAHAN PAIRING:",
+        "PAIR ERROR:",
         error
       );
 
@@ -314,16 +322,18 @@ function App() {
     }
   };
 
-  // ==========================================
+  // =====================================================
   // COPY PAIRING CODE
-  // ==========================================
+  // =====================================================
 
   const copyPairingCode = async () => {
+
     if (!pairingCode) {
       return;
     }
 
     try {
+
       await navigator.clipboard.writeText(
         pairingCode
       );
@@ -339,8 +349,9 @@ function App() {
       }, 2500);
 
     } catch (error) {
+
       console.error(
-        "KESALAHAN COPY:",
+        "COPY ERROR:",
         error
       );
 
@@ -350,9 +361,9 @@ function App() {
     }
   };
 
-  // ==========================================
+  // =====================================================
   // LOGOUT MODAL
-  // ==========================================
+  // =====================================================
 
   const openLogoutModal = (session) => {
     setLogoutTarget(session);
@@ -361,6 +372,7 @@ function App() {
   };
 
   const closeLogoutModal = () => {
+
     if (logoutLoading) {
       return;
     }
@@ -370,17 +382,20 @@ function App() {
     setLogoutMessage("");
   };
 
-  // ==========================================
+  // =====================================================
   // CONFIRM LOGOUT
-  // ==========================================
+  // =====================================================
 
   const confirmLogout = async () => {
+
     if (!logoutTarget) {
       return;
     }
 
     const input =
-      normalizeNumber(logoutNumber);
+      normalizeNumber(
+        logoutNumber
+      );
 
     const target =
       normalizeNumber(
@@ -403,6 +418,7 @@ function App() {
     }
 
     try {
+
       setLogoutLoading(true);
       setLogoutMessage("");
 
@@ -443,8 +459,9 @@ function App() {
       await loadStatus();
 
     } catch (error) {
+
       console.error(
-        "KESALAHAN LOGOUT:",
+        "LOGOUT ERROR:",
         error
       );
 
@@ -457,26 +474,28 @@ function App() {
     }
   };
 
-  // ==========================================
+  // =====================================================
   // DASHBOARD
-  // ==========================================
+  // =====================================================
 
   const renderDashboard = () => {
     return (
-      <>
+      <div className="page-content">
+
         <header className="topbar">
+
           <div>
             <span className="eyebrow">
-              DIN STORE / DASHBOARD
+              DIN BOT / DASHBOARD
             </span>
 
             <h1>
-              Bot WhatsApp
+              WhatsApp Bot
             </h1>
 
             <p>
               Kelola koneksi WhatsApp
-              dan pairing bot kamu.
+              dan perangkat bot kamu.
             </p>
           </div>
 
@@ -485,21 +504,21 @@ function App() {
             onClick={loadStatus}
             disabled={loading}
           >
-            <span>↻</span>
-
             {loading
               ? "Memuat..."
-              : "Refresh"}
+              : "↻ Refresh"}
           </button>
+
         </header>
 
-        {/* STATUS CARDS */}
+        {/* STATS */}
 
         <section className="stats-grid">
 
           <div className="stat-card">
-            <div className="stat-icon">
-              ◉
+
+            <div className="stat-icon purple">
+              ⚡
             </div>
 
             <div>
@@ -516,20 +535,23 @@ function App() {
               <small
                 className={
                   serverOnline
-                    ? "text-online"
-                    : "text-offline"
+                    ? "online"
+                    : "offline"
                 }
               >
                 ●{" "}
                 {serverOnline
-                  ? "SERVER ONLINE"
+                  ? "SERVER AKTIF"
                   : "SERVER OFFLINE"}
               </small>
             </div>
+
           </div>
 
+
           <div className="stat-card">
-            <div className="stat-icon whatsapp">
+
+            <div className="stat-icon green">
               W
             </div>
 
@@ -547,8 +569,8 @@ function App() {
               <small
                 className={
                   botConnected
-                    ? "text-online"
-                    : "text-waiting"
+                    ? "online"
+                    : "waiting"
                 }
               >
                 ●{" "}
@@ -557,16 +579,19 @@ function App() {
                   : "MENUNGGU"}
               </small>
             </div>
+
           </div>
 
+
           <div className="stat-card">
+
             <div className="stat-icon blue">
               #
             </div>
 
             <div>
               <span>
-                SESSION
+                SESSIONS
               </span>
 
               <h3>
@@ -577,216 +602,434 @@ function App() {
                 SESI TERDAFTAR
               </small>
             </div>
+
           </div>
 
         </section>
 
-        {/* PAIRING */}
 
-        <section className="content-card pairing-card">
+        {/* WELCOME */}
 
-          <div className="section-header">
+        <section className="hero-card">
 
-            <div className="section-number">
-              01
-            </div>
+          <div className="hero-content">
 
-            <div>
-              <span className="eyebrow">
-                HUBUNGKAN PERANGKAT
-              </span>
+            <span className="hero-label">
+              DIN BOT V1.0.0
+            </span>
 
-              <h2>
-                WhatsApp
-              </h2>
+            <h2>
+              Kelola Bot WhatsApp
+              dengan mudah.
+            </h2>
 
-              <p>
-                Masukkan nomor WhatsApp
-                untuk mendapatkan kode pairing.
-              </p>
-            </div>
-
-          </div>
-
-          <div className="pairing-form">
-
-            <div className="phone-input">
-
-              <div className="country-code">
-                +62
-              </div>
-
-              <input
-                type="tel"
-                placeholder="81234567890"
-                value={phoneNumber.replace(
-                  /^62/,
-                  ""
-                )}
-                onChange={(e) => {
-                  const value =
-                    e.target.value.replace(
-                      /\D/g,
-                      ""
-                    );
-
-                  setPhoneNumber(
-                    "62" + value
-                  );
-                }}
-                disabled={pairingLoading}
-              />
-
-            </div>
+            <p>
+              Hubungkan perangkat WhatsApp,
+              lihat kode pairing,
+              dan kelola semua session
+              dari satu tempat.
+            </p>
 
             <button
-              className="pair-button"
-              onClick={startPairing}
-              disabled={
-                pairingLoading ||
-                !serverOnline
+              className="hero-button"
+              onClick={() =>
+                setPage("pairing")
               }
             >
-              {pairingLoading ? (
-                <>
-                  <span className="spinner" />
-                  Memproses...
-                </>
-              ) : (
-                <>
-                  Hubungkan
-                  <span>→</span>
-                </>
-              )}
+              Hubungkan WhatsApp
+              <span>→</span>
             </button>
 
           </div>
 
-          {!serverOnline && (
-            <div className="warning-box">
-              <span>!</span>
-
-              API server sedang offline.
-              Pastikan backend bot berjalan.
+          <div className="hero-orb">
+            <div className="orb-inner">
+              W
             </div>
-          )}
+          </div>
 
-          {/* KODE PAIRING */}
+        </section>
 
-          {pairingCode && (
-            <div className="pairing-result">
 
-              <div className="result-header">
+        {/* SYSTEM INFO */}
+
+        <section className="content-card">
+
+          <div className="section-title">
+
+            <div>
+              <span className="eyebrow">
+                SYSTEM
+              </span>
+
+              <h2>
+                Informasi Sistem
+              </h2>
+            </div>
+
+            <div className="status-pill">
+              <span />
+              {serverOnline
+                ? "ACTIVE"
+                : "OFFLINE"}
+            </div>
+
+          </div>
+
+
+          <div className="info-grid">
+
+            <div className="info-item">
+              <span>
+                Website
+              </span>
+
+              <strong>
+                DIN BOT
+              </strong>
+            </div>
+
+            <div className="info-item">
+              <span>
+                Version
+              </span>
+
+              <strong>
+                V1.0.0
+              </strong>
+            </div>
+
+            <div className="info-item">
+              <span>
+                Platform
+              </span>
+
+              <strong>
+                WhatsApp
+              </strong>
+            </div>
+
+            <div className="info-item">
+              <span>
+                Last Update
+              </span>
+
+              <strong>
+                {lastUpdate}
+              </strong>
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+    );
+  };
+
+  // =====================================================
+  // PAIRING
+  // =====================================================
+
+  const renderPairing = () => {
+
+    return (
+      <div className="page-content">
+
+        <header className="topbar">
+
+          <div>
+            <span className="eyebrow">
+              DIN BOT / PAIRING
+            </span>
+
+            <h1>
+              Hubungkan WhatsApp
+            </h1>
+
+            <p>
+              Masukkan nomor WhatsApp
+              untuk mendapatkan kode pairing.
+            </p>
+          </div>
+
+          <div
+            className={
+              serverOnline
+                ? "server-status online-status"
+                : "server-status offline-status"
+            }
+          >
+            <span />
+            {serverOnline
+              ? "API Online"
+              : "API Offline"}
+          </div>
+
+        </header>
+
+
+        <section className="pairing-layout">
+
+          <div className="content-card pairing-main">
+
+            <div className="step-header">
+
+              <div className="step-number">
+                01
+              </div>
+
+              <div>
+                <span className="eyebrow">
+                  CONNECT DEVICE
+                </span>
+
+                <h2>
+                  Nomor WhatsApp
+                </h2>
+
+                <p>
+                  Gunakan nomor WhatsApp
+                  yang ingin kamu hubungkan
+                  dengan bot.
+                </p>
+              </div>
+
+            </div>
+
+
+            <div className="phone-form">
+
+              <label>
+                Nomor WhatsApp
+              </label>
+
+              <div className="phone-input">
+
+                <div className="country-code">
+                  +62
+                </div>
+
+                <input
+                  type="tel"
+                  placeholder="81234567890"
+                  value={
+                    phoneNumber.replace(
+                      /^62/,
+                      ""
+                    )
+                  }
+                  onChange={(e) => {
+
+                    const value =
+                      e.target.value.replace(
+                        /\D/g,
+                        ""
+                      );
+
+                    setPhoneNumber(
+                      "62" + value
+                    );
+
+                  }}
+                  disabled={
+                    pairingLoading
+                  }
+                />
+
+              </div>
+
+              <button
+                className="pair-button"
+                onClick={
+                  startPairing
+                }
+                disabled={
+                  pairingLoading ||
+                  !serverOnline
+                }
+              >
+
+                {pairingLoading ? (
+                  <>
+                    <span className="spinner" />
+                    Memproses...
+                  </>
+                ) : (
+                  <>
+                    Hubungkan WhatsApp
+                    <span>→</span>
+                  </>
+                )}
+
+              </button>
+
+            </div>
+
+
+            {!serverOnline && (
+
+              <div className="warning-box">
+
+                <span>!</span>
 
                 <div>
-                  <span className="success-label">
-                    ● KODE PAIRING SIAP
-                  </span>
-
-                  <h3>
-                    Hubungkan WhatsApp kamu
-                  </h3>
+                  <strong>
+                    API Server Offline
+                  </strong>
 
                   <p>
-                    Buka WhatsApp →
-                    Perangkat tertaut →
-                    Tautkan dengan nomor telepon.
+                    Pastikan backend bot
+                    sedang berjalan.
                   </p>
                 </div>
+
+              </div>
+
+            )}
+
+          </div>
+
+
+          {/* PAIRING CODE */}
+
+          <div className="content-card code-card">
+
+            <div className="code-card-header">
+
+              <span className="eyebrow">
+                PAIRING CODE
+              </span>
+
+              <div className="code-status">
+                {pairingCode
+                  ? "READY"
+                  : "WAITING"}
+              </div>
+
+            </div>
+
+
+            {pairingCode ? (
+
+              <div className="code-result">
 
                 <div className="success-icon">
                   ✓
                 </div>
 
-              </div>
+                <h2>
+                  Kode Siap!
+                </h2>
 
-              <div className="code-container">
+                <p>
+                  Buka WhatsApp →
+                  Perangkat tertaut →
+                  Tautkan dengan nomor telepon.
+                </p>
 
-                <div className="code-label">
-                  KODE PAIRING
-                </div>
 
-                <div className="code-row">
+                <div className="pairing-code-box">
 
-                  <div className="pairing-code">
+                  <span>
+                    KODE WHATSAPP
+                  </span>
+
+                  <strong>
                     {pairingCode}
-                  </div>
+                  </strong>
 
-                  <button
-                    className={
-                      copied
-                        ? "copy-button copied"
-                        : "copy-button"
-                    }
-                    onClick={
-                      copyPairingCode
-                    }
-                  >
-                    {copied
-                      ? "✓ Tersalin"
-                      : "Copy"}
-                  </button>
+                </div>
+
+
+                <button
+                  className={
+                    copied
+                      ? "copy-button copied"
+                      : "copy-button"
+                  }
+                  onClick={
+                    copyPairingCode
+                  }
+                >
+
+                  {copied
+                    ? "✓ Kode Tersalin"
+                    : "⧉ Copy Code"}
+
+                </button>
+
+
+                <div className="pairing-number">
+
+                  <span>
+                    Session
+                  </span>
+
+                  <strong>
+                    {maskNumber(
+                      pairingSession
+                    )}
+                  </strong>
 
                 </div>
 
               </div>
 
-              <div className="code-info">
+            ) : (
 
-                <span>
-                  Session
-                </span>
+              <div className="empty-code">
 
-                <strong>
-                  {maskNumber(
-                    pairingSession
-                  )}
-                </strong>
+                <div className="empty-code-icon">
+                  #
+                </div>
+
+                <h3>
+                  Menunggu Pairing
+                </h3>
+
+                <p>
+                  Masukkan nomor WhatsApp
+                  lalu tekan tombol
+                  Hubungkan WhatsApp.
+                </p>
 
               </div>
 
-            </div>
-          )}
+            )}
+
+          </div>
 
         </section>
 
-        <div className="dashboard-footer">
-
-          <span>
-            DIN STORE © 2026
-          </span>
-
-          <span>
-            Update terakhir:{" "}
-            {lastUpdate}
-          </span>
-
-        </div>
-      </>
+      </div>
     );
   };
 
-  // ==========================================
+
+  // =====================================================
   // SESSIONS
-  // ==========================================
+  // =====================================================
 
   const renderSessions = () => {
+
     return (
-      <>
+      <div className="page-content">
+
         <header className="topbar">
 
           <div>
             <span className="eyebrow">
-              DIN STORE / SESSIONS
+              DIN BOT / SESSIONS
             </span>
 
             <h1>
-              Sesi WhatsApp
+              WhatsApp Sessions
             </h1>
 
             <p>
               Kelola semua perangkat
-              WhatsApp yang terdaftar.
+              WhatsApp yang terhubung.
             </p>
           </div>
 
@@ -795,45 +1038,49 @@ function App() {
             onClick={loadStatus}
             disabled={loading}
           >
-            <span>↻</span>
-
             {loading
               ? "Memuat..."
-              : "Refresh"}
+              : "↻ Refresh"}
           </button>
 
         </header>
+
 
         <section className="content-card sessions-card">
 
           <div className="sessions-header">
 
             <div>
+
               <span className="eyebrow">
-                MANAJEMEN PERANGKAT
+                DEVICE MANAGEMENT
               </span>
 
               <h2>
-                Daftar Sesi
+                Daftar Sessions
               </h2>
 
               <p>
-                Nomor WhatsApp ditampilkan
-                secara tersamarkan.
+                Semua perangkat WhatsApp
+                yang berhasil terhubung.
               </p>
+
             </div>
 
-            <div className="session-counter">
+            <div className="session-count">
+
               <strong>
                 {sessions.length}
               </strong>
 
               <span>
-                Sesi
+                Sessions
               </span>
+
             </div>
 
           </div>
+
 
           {sessions.length === 0 ? (
 
@@ -844,18 +1091,18 @@ function App() {
               </div>
 
               <h3>
-                Belum ada sesi
+                Belum Ada Session
               </h3>
 
               <p>
                 Belum ada perangkat WhatsApp
-                yang terdaftar.
+                yang terhubung.
               </p>
 
               <button
                 className="empty-button"
                 onClick={() =>
-                  setPage("dashboard")
+                  setPage("pairing")
                 }
               >
                 Hubungkan WhatsApp →
@@ -868,55 +1115,57 @@ function App() {
             <div className="session-list">
 
               {sessions.map(
-                (session, index) => (
+                (session, index) => {
 
-                  <div
-                    className="session-item"
-                    key={
-                      session.sessionId ||
-                      session.number ||
-                      index
-                    }
-                  >
+                  const number =
+                    session.number ||
+                    session.sessionId ||
+                    "";
 
-                    <div className="session-left">
+                  return (
+
+                    <div
+                      className="session-item"
+                      key={
+                        session.sessionId ||
+                        number ||
+                        index
+                      }
+                    >
 
                       <div className="session-avatar">
                         W
                       </div>
 
-                      <div className="session-info">
 
-                        <h3>
-                          {session.name ||
-                            "Bot WhatsApp"}
-                        </h3>
+                      <div className="session-details">
+
+                        <div className="session-name">
+
+                          <h3>
+                            {session.name ||
+                              "Bot WhatsApp"}
+                          </h3>
+
+                          <span className="connected-badge">
+                            ● Connected
+                          </span>
+
+                        </div>
 
                         <p>
+                          {maskNumber(number)}
+                        </p>
+
+                        <small>
+                          Session ID:{" "}
                           {maskNumber(
-                            session.number ||
                             session.sessionId
                           )}
-                        </p>
+                        </small>
 
                       </div>
 
-                    </div>
-
-                    <div className="session-right">
-
-                      <span
-                        className={
-                          session.connected === false
-                            ? "session-status offline"
-                            : "session-status"
-                        }
-                      >
-                        ●{" "}
-                        {session.connected === false
-                          ? "Offline"
-                          : "Online"}
-                      </span>
 
                       <button
                         className="logout-button"
@@ -931,9 +1180,9 @@ function App() {
 
                     </div>
 
-                  </div>
+                  );
 
-                )
+                }
               )}
 
             </div>
@@ -941,49 +1190,74 @@ function App() {
           )}
 
         </section>
-      </>
+
+      </div>
     );
   };
 
-  // ==========================================
-  // APP
-  // ==========================================
+
+  // =====================================================
+  // MAIN
+  // =====================================================
 
   return (
+
     <div className="app">
 
-      <div className="background-effects">
-        <div className="particle p1" />
-        <div className="particle p2" />
-        <div className="particle p3" />
-        <div className="particle p4" />
-        <div className="particle p5" />
+      {/* PARTICLES */}
+
+      <div className="particles">
+
+        {Array.from(
+          { length: 35 }
+        ).map(
+          (_, index) => (
+            <span
+              key={index}
+              className="particle"
+            />
+          )
+        )}
+
       </div>
+
+
+      {/* BACKGROUND GRID */}
+
+      <div className="grid-background" />
+
+
+      {/* HEADER */}
 
       <header className="main-header">
 
         <div className="brand">
+
           <div className="brand-icon">
             D
           </div>
 
           <div>
+
             <strong>
               DIN BOT
             </strong>
 
             <span>
-              WhatsApp Manager
+              V1.0.0
             </span>
+
           </div>
+
         </div>
 
-        <div className="connection-status">
+
+        <div className="header-status">
 
           <span
             className={
               serverOnline
-                ? "status-dot online"
+                ? "status-dot online-dot"
                 : "status-dot"
             }
           />
@@ -996,13 +1270,22 @@ function App() {
 
       </header>
 
+
+      {/* CONTENT */}
+
       <main className="main-container">
 
-        {page === "dashboard"
-          ? renderDashboard()
-          : renderSessions()}
+        {page === "dashboard" &&
+          renderDashboard()}
+
+        {page === "pairing" &&
+          renderPairing()}
+
+        {page === "sessions" &&
+          renderSessions()}
 
       </main>
+
 
       {/* BOTTOM NAV */}
 
@@ -1018,14 +1301,29 @@ function App() {
             setPage("dashboard")
           }
         >
-          <span className="nav-icon">
-            ⌂
-          </span>
-
-          <span>
+          <span>⌂</span>
+          <small>
             Dashboard
-          </span>
+          </small>
         </button>
+
+
+        <button
+          className={
+            page === "pairing"
+              ? "nav-item active"
+              : "nav-item"
+          }
+          onClick={() =>
+            setPage("pairing")
+          }
+        >
+          <span>＋</span>
+          <small>
+            Pairing
+          </small>
+        </button>
+
 
         <button
           className={
@@ -1037,39 +1335,41 @@ function App() {
             setPage("sessions")
           }
         >
-          <span className="nav-icon">
-            ◉
-          </span>
-
-          <span>
+          <span>◉</span>
+          <small>
             Sessions
-          </span>
-
-          {sessions.length > 0 && (
-            <b className="nav-badge">
-              {sessions.length}
-            </b>
-          )}
-
+          </small>
         </button>
 
       </nav>
 
+
       {/* TOAST */}
 
       {message && (
-        <div className="toast show">
-          <span>✓</span>
+
+        <div className="toast">
+
+          <span>
+            ✓
+          </span>
+
           {message}
+
         </div>
+
       )}
+
 
       {/* LOGOUT MODAL */}
 
       {logoutTarget && (
+
         <div
           className="modal-overlay"
-          onClick={closeLogoutModal}
+          onClick={
+            closeLogoutModal
+          }
         >
 
           <div
@@ -1078,13 +1378,6 @@ function App() {
               e.stopPropagation()
             }
           >
-
-            <button
-              className="modal-close"
-              onClick={closeLogoutModal}
-            >
-              ×
-            </button>
 
             <div className="modal-icon">
               !
@@ -1095,53 +1388,61 @@ function App() {
             </h2>
 
             <p>
-              Masukkan nomor WhatsApp
-              untuk menghapus session ini.
+              Untuk menghapus session,
+              masukkan nomor WhatsApp
+              yang terhubung.
             </p>
 
-            <div className="target-number">
-              Session:{" "}
-              <strong>
-                {maskNumber(
-                  logoutTarget.number ||
-                  logoutTarget.sessionId
-                )}
-              </strong>
-            </div>
 
             <input
-              className="logout-input"
               type="tel"
-              placeholder="Masukkan nomor WhatsApp"
-              value={logoutNumber}
+              placeholder="628xxxxxxxxxx"
+              value={
+                logoutNumber
+              }
               onChange={(e) =>
                 setLogoutNumber(
                   e.target.value
                 )
               }
-              disabled={logoutLoading}
+              disabled={
+                logoutLoading
+              }
             />
 
+
             {logoutMessage && (
+
               <div className="logout-error">
                 {logoutMessage}
               </div>
+
             )}
+
 
             <div className="modal-actions">
 
               <button
                 className="cancel-button"
-                onClick={closeLogoutModal}
-                disabled={logoutLoading}
+                onClick={
+                  closeLogoutModal
+                }
+                disabled={
+                  logoutLoading
+                }
               >
                 Batal
               </button>
 
+
               <button
-                className="confirm-logout"
-                onClick={confirmLogout}
-                disabled={logoutLoading}
+                className="confirm-button"
+                onClick={
+                  confirmLogout
+                }
+                disabled={
+                  logoutLoading
+                }
               >
                 {logoutLoading
                   ? "Memproses..."
@@ -1153,9 +1454,11 @@ function App() {
           </div>
 
         </div>
+
       )}
 
     </div>
+
   );
 }
 
