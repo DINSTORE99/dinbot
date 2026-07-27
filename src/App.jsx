@@ -3,30 +3,30 @@ import "./style.css";
 
 const API = "";
 
-function App() 
-useEffect(() => {
-  const audio = new Audio("/musik.mp3");
-  audio.loop = true;
-  audio.volume = 0.5;
+function App() {
+  useEffect(() => {
+    const audio = new Audio("/musik.mp3");
+    audio.loop = true;
+    audio.volume = 0.5;
 
-  audio.play().catch(() => {
-    console.log("Autoplay diblokir browser. Klik halaman untuk memulai musik.");
-  });
+    audio.play().catch(() => {
+      console.log("Autoplay diblokir browser. Klik halaman untuk memulai musik.");
+    });
 
-  const startMusic = () => {
-    audio.play().catch(() => {});
-  };
+    const startMusic = () => {
+      audio.play().catch(() => {});
+    };
 
-  document.addEventListener("click", startMusic, { once: true });
+    document.addEventListener("click", startMusic, { once: true });
 
-  return () => {
-    audio.pause();
-    audio.currentTime = 0;
-    document.removeEventListener("click", startMusic);
-  };
-}, []);
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      document.removeEventListener("click", startMusic);
+    };
+  }, []);
 
-{
+  
   const [page, setPage] = useState("dashboard");
 
   const [serverOnline, setServerOnline] = useState(false);
