@@ -3,7 +3,7 @@ import "./style.css";
 
 const API = "";
 
-function App() {
+export default function App() {
   const [page, setPage] = useState("dashboard");
 
   const [serverOnline, setServerOnline] = useState(false);
@@ -25,9 +25,9 @@ function App() {
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [logoutMessage, setLogoutMessage] = useState("");
 
-  // ==========================================
+  // ================================
   // NORMALIZE NOMOR
-  // ==========================================
+  // ================================
 
   const normalizeNumber = (number) => {
     let value = String(number || "").replace(/\D/g, "");
@@ -43,9 +43,9 @@ function App() {
     return value;
   };
 
-  // ==========================================
+  // ================================
   // MASK NOMOR
-  // ==========================================
+  // ================================
 
   const maskNumber = (number) => {
     if (!number) return "-";
@@ -63,21 +63,18 @@ function App() {
     );
   };
 
-  // ==========================================
+  // ================================
   // LOAD STATUS
-  // ==========================================
+  // ================================
 
   const loadStatus = async () => {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        `${API}/api/status`,
-        {
-          method: "GET",
-          cache: "no-store",
-        }
-      );
+      const response = await fetch(`${API}/api/status`, {
+        method: "GET",
+        cache: "no-store",
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -85,7 +82,7 @@ function App() {
 
       const data = await response.json();
 
-      console.log("STATUS API:", data);
+      console.log("API STATUS:", data);
 
       setServerOnline(
         data.success === true &&
@@ -107,10 +104,7 @@ function App() {
       );
 
     } catch (error) {
-      console.error(
-        "STATUS ERROR:",
-        error
-      );
+      console.error("STATUS ERROR:", error);
 
       setServerOnline(false);
       setBotConnected(false);
@@ -121,9 +115,9 @@ function App() {
     }
   };
 
-  // ==========================================
-  // AUTO REFRESH
-  // ==========================================
+  // ================================
+  // AUTO UPDATE
+  // ================================
 
   useEffect(() => {
     loadStatus();
@@ -132,28 +126,24 @@ function App() {
       loadStatus();
     }, 5000);
 
-    return () => {
-      clearInterval(timer);
-    };
+    return () => clearInterval(timer);
   }, []);
 
-  // ==========================================
+  // ================================
   // START PAIRING
-  // ==========================================
+  // ================================
 
   const startPairing = async () => {
+    const number = normalizeNumber(phoneNumber);
 
-    if (!phoneNumber.trim()) {
+    if (!number) {
       setMessage(
         "Masukkan nomor WhatsApp terlebih dahulu."
       );
       return;
     }
 
-    const number =
-      normalizeNumber(phoneNumber);
-
-    if (!number || number.length < 10) {
+    if (number.length < 10) {
       setMessage(
         "Nomor WhatsApp tidak valid."
       );
@@ -161,37 +151,28 @@ function App() {
     }
 
     try {
-
       setPairingLoading(true);
       setPairingCode("");
       setPairingSession("");
       setCopied(false);
-
-      setMessage(
-        "Menghubungkan ke server..."
-      );
+      setMessage("Menghubungkan ke server...");
 
       const response = await fetch(
         `${API}/api/pair`,
         {
           method: "POST",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            number: number,
+            number,
           }),
         }
       );
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
-      console.log(
-        "PAIR API:",
-        data
-      );
+      console.log("PAIR API:", data);
 
       if (!data.success) {
         setMessage(
@@ -204,97 +185,72 @@ function App() {
       const sessionId =
         data.sessionId || number;
 
-      setPairingSession(
-        sessionId
-      );
+      setPairingSession(sessionId);
 
-      // ==========================================
-      // JIKA CODE LANGSUNG DIKIRIM BACKEND
-      // ==========================================
-
+      // Jika backend langsung mengirim code
       if (data.pairingCode) {
-
         setPairingCode(
-          data.pairingCode
+          String(data.pairingCode)
         );
 
         setMessage(
-          "Kode WhatsApp berhasil dibuat."
+          "Kode pairing berhasil dibuat. Salin kode di bawah lalu masukkan ke WhatsApp."
         );
-
-        setPairingLoading(false);
 
         return;
       }
 
       setMessage(
-        "Menunggu kode pairing WhatsApp..."
+        "Berhasil terhubung ke server. Menunggu kode pairing..."
       );
-
-      // ==========================================
-      // POLLING KODE
-      // ==========================================
 
       let attempts = 0;
 
       const timer = setInterval(
         async () => {
-
           attempts++;
 
           try {
-
-            const response =
+            const statusResponse =
               await fetch(
                 `${API}/api/pairing/${encodeURIComponent(
                   sessionId
                 )}`,
                 {
-                  cache:
-                    "no-store",
+                  cache: "no-store",
                 }
               );
 
             const result =
-              await response.json();
+              await statusResponse.json();
 
             console.log(
               "PAIRING STATUS:",
               result
             );
 
-            // Backend bisa mengirim:
-            // code
-            // pairingCode
-
+            // Support code / pairingCode
             const code =
               result.code ||
               result.pairingCode;
 
             if (code) {
-
               setPairingCode(
-                code
+                String(code)
               );
 
               setMessage(
-                "Kode WhatsApp berhasil dibuat. Salin kode di bawah."
+                "Kode pairing berhasil dibuat. Salin kode di bawah."
               );
 
               clearInterval(timer);
-
-              setPairingLoading(
-                false
-              );
+              return;
             }
 
             if (
               result.connected === true
             ) {
-
-              setBotConnected(
-                true
-              );
+              setBotConnected(true);
 
               setMessage(
                 "WhatsApp berhasil terhubung."
@@ -302,37 +258,23 @@ function App() {
 
               clearInterval(timer);
 
-              setPairingLoading(
-                false
-              );
-
-              loadStatus();
+              await loadStatus();
+              return;
             }
 
-            if (
-              attempts >= 30
-            ) {
-
+            if (attempts >= 30) {
               clearInterval(timer);
 
-              setPairingLoading(
-                false
+              setMessage(
+                "Waktu menunggu pairing habis. Silakan coba lagi."
               );
-
-              if (!code) {
-                setMessage(
-                  "Waktu menunggu kode habis. Silakan coba lagi."
-                );
-              }
             }
 
           } catch (error) {
-
             console.error(
               "PAIRING CHECK ERROR:",
               error
             );
-
           }
 
         },
@@ -340,7 +282,6 @@ function App() {
       );
 
     } catch (error) {
-
       console.error(
         "PAIRING ERROR:",
         error
@@ -350,22 +291,19 @@ function App() {
         "Tidak dapat menghubungi server API."
       );
 
+    } finally {
       setPairingLoading(false);
     }
   };
 
-  // ==========================================
+  // ================================
   // COPY PAIRING CODE
-  // ==========================================
+  // ================================
 
   const copyPairingCode = async () => {
-
-    if (!pairingCode) {
-      return;
-    }
+    if (!pairingCode) return;
 
     try {
-
       await navigator.clipboard.writeText(
         pairingCode
       );
@@ -381,7 +319,6 @@ function App() {
       }, 2500);
 
     } catch (error) {
-
       console.error(
         "COPY ERROR:",
         error
@@ -393,9 +330,9 @@ function App() {
     }
   };
 
-  // ==========================================
+  // ================================
   // LOGOUT MODAL
-  // ==========================================
+  // ================================
 
   const openLogoutModal = (session) => {
     setLogoutTarget(session);
@@ -404,30 +341,22 @@ function App() {
   };
 
   const closeLogoutModal = () => {
-
-    if (logoutLoading) {
-      return;
-    }
+    if (logoutLoading) return;
 
     setLogoutTarget(null);
     setLogoutNumber("");
     setLogoutMessage("");
   };
 
-  // ==========================================
+  // ================================
   // CONFIRM LOGOUT
-  // ==========================================
+  // ================================
 
   const confirmLogout = async () => {
-
-    if (!logoutTarget) {
-      return;
-    }
+    if (!logoutTarget) return;
 
     const input =
-      normalizeNumber(
-        logoutNumber
-      );
+      normalizeNumber(logoutNumber);
 
     const target =
       normalizeNumber(
@@ -436,25 +365,20 @@ function App() {
       );
 
     if (!input) {
-
       setLogoutMessage(
         "Masukkan nomor WhatsApp lengkap."
       );
-
       return;
     }
 
     if (input !== target) {
-
       setLogoutMessage(
         "Nomor tidak cocok dengan sesi."
       );
-
       return;
     }
 
     try {
-
       setLogoutLoading(true);
       setLogoutMessage("");
 
@@ -478,12 +402,10 @@ function App() {
         await response.json();
 
       if (!data.success) {
-
         setLogoutMessage(
           data.message ||
           "Gagal logout sesi."
         );
-
         return;
       }
 
@@ -497,7 +419,6 @@ function App() {
       await loadStatus();
 
     } catch (error) {
-
       console.error(
         "LOGOUT ERROR:",
         error
@@ -508,21 +429,18 @@ function App() {
       );
 
     } finally {
-
       setLogoutLoading(false);
     }
   };
 
-  // ==========================================
+  // ================================
   // DASHBOARD
-  // ==========================================
+  // ================================
 
   const renderDashboard = () => {
-
     return (
       <>
         <header className="topbar">
-
           <div>
             <span className="eyebrow">
               DIN BOT / DASHBOARD
@@ -543,12 +461,11 @@ function App() {
             onClick={loadStatus}
             disabled={loading}
           >
-            ↻{" "}
+            ↻
             {loading
-              ? "Memuat..."
-              : "Refresh"}
+              ? " Memuat..."
+              : " Refresh"}
           </button>
-
         </header>
 
         {/* STATUS */}
@@ -556,13 +473,11 @@ function App() {
         <section className="stats-grid">
 
           <div className="stat-card">
-
             <div className="stat-icon">
               ◉
             </div>
 
             <div>
-
               <span>
                 API SERVER
               </span>
@@ -576,8 +491,8 @@ function App() {
               <small
                 className={
                   serverOnline
-                    ? "online"
-                    : "offline"
+                    ? "text-online"
+                    : "text-offline"
                 }
               >
                 ●{" "}
@@ -585,19 +500,15 @@ function App() {
                   ? "SERVER ONLINE"
                   : "SERVER OFFLINE"}
               </small>
-
             </div>
-
           </div>
 
           <div className="stat-card">
-
             <div className="stat-icon whatsapp">
               W
             </div>
 
             <div>
-
               <span>
                 WHATSAPP
               </span>
@@ -611,8 +522,8 @@ function App() {
               <small
                 className={
                   botConnected
-                    ? "online"
-                    : "waiting"
+                    ? "text-online"
+                    : "text-waiting"
                 }
               >
                 ●{" "}
@@ -620,21 +531,17 @@ function App() {
                   ? "TERHUBUNG"
                   : "MENUNGGU"}
               </small>
-
             </div>
-
           </div>
 
           <div className="stat-card">
-
             <div className="stat-icon blue">
               #
             </div>
 
             <div>
-
               <span>
-                SESSION
+                SESI
               </span>
 
               <h3>
@@ -642,11 +549,9 @@ function App() {
               </h3>
 
               <small>
-                SESSION TERDAFTAR
+                SESI TERDAFTAR
               </small>
-
             </div>
-
           </div>
 
         </section>
@@ -655,29 +560,25 @@ function App() {
 
         <section className="content-card pairing-card">
 
-          <div className="section-heading">
-
+          <div className="section-header">
             <div className="section-number">
               01
             </div>
 
             <div>
-
               <span className="eyebrow">
                 HUBUNGKAN PERANGKAT
               </span>
 
               <h2>
-                WhatsApp Pairing
+                WhatsApp
               </h2>
 
               <p>
                 Masukkan nomor WhatsApp
                 untuk mendapatkan kode pairing.
               </p>
-
             </div>
-
           </div>
 
           <div className="pairing-form">
@@ -692,11 +593,12 @@ function App() {
                 type="tel"
                 placeholder="81234567890"
                 value={
-                  phoneNumber
-                    .replace(/^62/, "")
+                  phoneNumber.replace(
+                    /^62/,
+                    ""
+                  )
                 }
                 onChange={(e) => {
-
                   const value =
                     e.target.value.replace(
                       /\D/g,
@@ -706,11 +608,8 @@ function App() {
                   setPhoneNumber(
                     "62" + value
                   );
-
                 }}
-                disabled={
-                  pairingLoading
-                }
+                disabled={pairingLoading}
               />
 
             </div>
@@ -723,7 +622,6 @@ function App() {
                 !serverOnline
               }
             >
-
               {pairingLoading ? (
                 <>
                   <span className="spinner" />
@@ -735,60 +633,46 @@ function App() {
                   <span>→</span>
                 </>
               )}
-
             </button>
 
           </div>
 
           {!serverOnline && (
-
             <div className="warning-box">
-
               <span>!</span>
-
               API server sedang offline.
               Pastikan backend bot berjalan.
-
             </div>
-
           )}
 
           {message && (
-
             <div className="message-box">
-
               <span>●</span>
-
               {message}
-
             </div>
-
           )}
 
           {/* KODE PAIRING */}
 
           {pairingCode && (
-
             <div className="pairing-result">
 
               <div className="result-header">
 
                 <div>
-
                   <span className="success-label">
-                    ✓ KODE WHATSAPP SIAP
+                    ✓ KODE PAIRING SIAP
                   </span>
 
                   <h3>
-                    Masukkan kode ini
-                    ke WhatsApp kamu
+                    Hubungkan WhatsApp kamu
                   </h3>
 
                   <p>
-                    WhatsApp → Perangkat tertaut
-                    → Tautkan dengan nomor telepon
+                    Buka WhatsApp → Perangkat
+                    tertaut → Tautkan dengan
+                    nomor telepon.
                   </p>
-
                 </div>
 
                 <div className="success-icon">
@@ -821,7 +705,7 @@ function App() {
                   >
                     {copied
                       ? "✓ Tersalin"
-                      : "Copy Code"}
+                      : "Salin"}
                   </button>
 
                 </div>
@@ -829,7 +713,6 @@ function App() {
               </div>
 
               <div className="code-info">
-
                 <span>
                   SESSION
                 </span>
@@ -839,56 +722,48 @@ function App() {
                     pairingSession
                   )}
                 </strong>
-
               </div>
 
             </div>
-
           )}
 
         </section>
 
         <footer className="footer">
-
           <span>
             DIN BOT © 2026
           </span>
 
           <span>
-            Update: {lastUpdate}
+            Update terakhir:{" "}
+            {lastUpdate}
           </span>
-
         </footer>
-
       </>
     );
   };
 
-  // ==========================================
+  // ================================
   // SESSIONS
-  // ==========================================
+  // ================================
 
   const renderSessions = () => {
-
     return (
       <>
         <header className="topbar">
-
           <div>
-
             <span className="eyebrow">
               DIN BOT / SESSIONS
             </span>
 
             <h1>
-              WhatsApp Sessions
+              Sesi WhatsApp
             </h1>
 
             <p>
-              Kelola perangkat WhatsApp
-              yang sudah terhubung.
+              Kelola semua perangkat
+              WhatsApp yang terhubung.
             </p>
-
           </div>
 
           <button
@@ -896,12 +771,11 @@ function App() {
             onClick={loadStatus}
             disabled={loading}
           >
-            ↻{" "}
+            ↻
             {loading
-              ? "Memuat..."
-              : "Refresh"}
+              ? " Memuat..."
+              : " Refresh"}
           </button>
-
         </header>
 
         <section className="content-card sessions-card">
@@ -909,9 +783,8 @@ function App() {
           <div className="sessions-header">
 
             <div>
-
               <span className="eyebrow">
-                DEVICE MANAGEMENT
+                MANAJEMEN PERANGKAT
               </span>
 
               <h2>
@@ -920,13 +793,11 @@ function App() {
 
               <p>
                 Semua perangkat WhatsApp
-                yang terhubung.
+                yang sudah terhubung.
               </p>
-
             </div>
 
             <div className="session-counter">
-
               <strong>
                 {sessions.length}
               </strong>
@@ -934,7 +805,6 @@ function App() {
               <span>
                 Sessions
               </span>
-
             </div>
 
           </div>
@@ -952,8 +822,8 @@ function App() {
               </h3>
 
               <p>
-                Hubungkan WhatsApp
-                dari halaman dashboard.
+                Hubungkan WhatsApp kamu
+                melalui halaman Dashboard.
               </p>
 
               <button
@@ -974,24 +844,17 @@ function App() {
               {sessions.map(
                 (session, index) => {
 
-                  const sessionId =
-                    session.sessionId ||
-                    session.id ||
-                    session.number;
-
-                  const number =
+                  const sessionNumber =
                     session.number ||
-                    sessionId;
-
-                  const connected =
-                    session.connected === true;
+                    session.phoneNumber ||
+                    session.sessionId;
 
                   return (
-
                     <div
                       className="session-item"
                       key={
-                        sessionId ||
+                        session.sessionId ||
+                        sessionNumber ||
                         index
                       }
                     >
@@ -1003,18 +866,16 @@ function App() {
                         </div>
 
                         <div>
-
                           <h3>
                             {session.name ||
-                              "WhatsApp Bot"}
+                              "DIN BOT"}
                           </h3>
 
                           <p>
                             {maskNumber(
-                              number
+                              sessionNumber
                             )}
                           </p>
-
                         </div>
 
                       </div>
@@ -1023,13 +884,13 @@ function App() {
 
                         <span
                           className={
-                            connected
-                              ? "session-badge connected"
-                              : "session-badge disconnected"
+                            session.connected
+                              ? "session-badge online"
+                              : "session-badge offline"
                           }
                         >
                           <span />
-                          {connected
+                          {session.connected
                             ? "Terhubung"
                             : "Terputus"}
                         </span>
@@ -1048,61 +909,60 @@ function App() {
                       </div>
 
                     </div>
-
                   );
                 }
               )}
 
             </div>
-
           )}
 
         </section>
 
+        <footer className="footer">
+          <span>
+            DIN BOT © 2026
+          </span>
+
+          <span>
+            Update terakhir:{" "}
+            {lastUpdate}
+          </span>
+        </footer>
       </>
     );
   };
 
-  // ==========================================
+  // ================================
   // APP
-  // ==========================================
+  // ================================
 
   return (
-
     <div className="app">
 
       <div className="particles">
-
-        {Array.from(
-          { length: 35 }
-        ).map((_, index) => (
-
+        {Array.from({
+          length: 35,
+        }).map((_, index) => (
           <span
             key={index}
             style={{
-              left:
-                `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
               animationDelay:
-                `${Math.random() * 8}s`,
-              animationDuration:
-                `${5 + Math.random() * 8}s`
+                `${Math.random() * 5}s`,
             }}
           />
-
         ))}
-
       </div>
 
       <aside className="sidebar">
 
         <div className="brand">
-
           <div className="brand-logo">
             D
           </div>
 
           <div>
-
             <h2>
               DIN BOT
             </h2>
@@ -1110,9 +970,7 @@ function App() {
             <span>
               WhatsApp Manager
             </span>
-
           </div>
-
         </div>
 
         <nav>
@@ -1127,10 +985,7 @@ function App() {
               setPage("dashboard")
             }
           >
-            <span>
-              ◉
-            </span>
-
+            <span>⌂</span>
             Dashboard
           </button>
 
@@ -1144,10 +999,7 @@ function App() {
               setPage("sessions")
             }
           >
-            <span>
-              W
-            </span>
-
+            <span>W</span>
             Sessions
           </button>
 
@@ -1155,18 +1007,16 @@ function App() {
 
         <div className="sidebar-bottom">
 
-          <div className="api-status">
-
+          <div className="server-status">
             <span
               className={
                 serverOnline
-                  ? "status-dot online-dot"
-                  : "status-dot offline-dot"
+                  ? "status-dot online"
+                  : "status-dot offline"
               }
             />
 
             <div>
-
               <strong>
                 API Server
               </strong>
@@ -1176,9 +1026,7 @@ function App() {
                   ? "Online"
                   : "Offline"}
               </small>
-
             </div>
-
           </div>
 
           <p>
@@ -1200,47 +1048,41 @@ function App() {
       {/* LOGOUT MODAL */}
 
       {logoutTarget && (
-
         <div
           className="modal-overlay"
           onClick={(e) => {
-
             if (
-              e.target ===
-              e.currentTarget
+              e.target === e.currentTarget
             ) {
               closeLogoutModal();
             }
-
           }}
         >
 
-          <div className="modal">
+          <div className="logout-modal">
 
             <button
               className="modal-close"
-              onClick={
-                closeLogoutModal
-              }
+              onClick={closeLogoutModal}
             >
               ×
             </button>
 
-            <div className="modal-icon">
+            <div className="warning-icon">
               !
             </div>
 
             <h2>
-              Logout WhatsApp
+              Logout Session
             </h2>
 
             <p>
-              Masukkan nomor lengkap
-              untuk menghapus session.
+              Masukkan nomor WhatsApp
+              lengkap untuk menghapus
+              session ini.
             </p>
 
-            <div className="target-box">
-
+            <div className="target-session">
               <span>
                 SESSION
               </span>
@@ -1251,16 +1093,13 @@ function App() {
                   logoutTarget.sessionId
                 )}
               </strong>
-
             </div>
 
             <input
               className="logout-input"
               type="tel"
               placeholder="628xxxxxxxxxx"
-              value={
-                logoutNumber
-              }
+              value={logoutNumber}
               onChange={(e) =>
                 setLogoutNumber(
                   e.target.value
@@ -1269,35 +1108,25 @@ function App() {
             />
 
             {logoutMessage && (
-
-              <div className="modal-error">
+              <div className="modal-message">
                 {logoutMessage}
               </div>
-
             )}
 
-            <div className="modal-actions">
+            <div className="modal-buttons">
 
               <button
                 className="cancel-button"
-                onClick={
-                  closeLogoutModal
-                }
-                disabled={
-                  logoutLoading
-                }
+                onClick={closeLogoutModal}
+                disabled={logoutLoading}
               >
                 Batal
               </button>
 
               <button
                 className="confirm-button"
-                onClick={
-                  confirmLogout
-                }
-                disabled={
-                  logoutLoading
-                }
+                onClick={confirmLogout}
+                disabled={logoutLoading}
               >
                 {logoutLoading
                   ? "Memproses..."
@@ -1309,12 +1138,8 @@ function App() {
           </div>
 
         </div>
-
       )}
 
     </div>
-
   );
 }
-
-export default App;
