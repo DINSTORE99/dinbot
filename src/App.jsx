@@ -486,7 +486,7 @@ function App() {
 
           <div>
             <span className="eyebrow">
-              DIN BOT / DASHBOARD
+              PANEL BOT / DASHBOARD
             </span>
 
             <h1>
@@ -1234,7 +1234,7 @@ function App() {
         <div className="brand">
 
           <div className="brand-icon">
-            D
+            🤖
           </div>
 
           <div>
