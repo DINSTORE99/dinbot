@@ -9,20 +9,20 @@ function App() {
     audio.loop = true;
     audio.volume = 0.5;
 
-    audio.play().catch(() => {
-      console.log("Autoplay diblokir browser. Klik halaman untuk memulai musik.");
-    });
-
-    const startMusic = () => {
+    const playMusic = () => {
       audio.play().catch(() => {});
     };
 
-    document.addEventListener("click", startMusic, { once: true });
+    playMusic();
+
+    document.addEventListener("click", playMusic, { once: true });
+    document.addEventListener("touchstart", playMusic, { once: true });
 
     return () => {
       audio.pause();
       audio.currentTime = 0;
-      document.removeEventListener("click", startMusic);
+      document.removeEventListener("click", playMusic);
+      document.removeEventListener("touchstart", playMusic);
     };
   }, []);
 
