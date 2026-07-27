@@ -1234,7 +1234,7 @@ function App() {
         <div className="brand">
 
           <div className="brand-icon">
-            🤖
+            D
           </div>
 
           <div>
