@@ -1,0 +1,379 @@
+.media-downloader {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+  box-sizing: border-box;
+}
+
+.downloader-heading {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.downloader-logo {
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 30px;
+  border-radius: 20px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, .2),
+    rgba(168, 85, 247, .2)
+  );
+
+  border: 1px solid
+    rgba(139, 92, 246, .3);
+}
+
+.downloader-heading h2 {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 800;
+
+  background: linear-gradient(
+    90deg,
+    #60a5fa,
+    #a78bfa
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.downloader-heading p {
+  margin-top: 8px;
+
+  color: #94a3b8;
+
+  font-size: 14px;
+}
+
+.platform-list {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.platform-item {
+  padding: 7px 14px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  border: 1px solid;
+}
+
+.platform-item.facebook {
+  color: #60a5fa;
+  background: rgba(37, 99, 235, .12);
+  border-color: rgba(59, 130, 246, .3);
+}
+
+.platform-item.tiktok {
+  color: #f472b6;
+  background: rgba(236, 72, 153, .12);
+  border-color: rgba(236, 72, 153, .3);
+}
+
+.platform-item.capcut {
+  color: #cbd5e1;
+  background: rgba(100, 116, 139, .12);
+  border-color: rgba(100, 116, 139, .3);
+}
+
+.downloader-form {
+  padding: 25px;
+
+  border-radius: 20px;
+
+  background: rgba(30, 41, 59, .7);
+
+  border: 1px solid
+    rgba(71, 85, 105, .7);
+
+  box-shadow:
+    0 15px 40px
+    rgba(0, 0, 0, .2);
+}
+
+.downloader-form label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #cbd5e1;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.downloader-form input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 14px 16px;
+
+  border-radius: 12px;
+
+  border: 1px solid #475569;
+
+  outline: none;
+
+  color: white;
+
+  background: #0f172a;
+}
+
+.downloader-form input:focus {
+  border-color: #6366f1;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(99, 102, 241, .15);
+}
+
+.downloader-form button {
+  width: 100%;
+
+  margin-top: 15px;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  color: white;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2563eb,
+      #9333ea
+    );
+
+  transition: .3s;
+}
+
+.downloader-form button:hover {
+  transform: translateY(-2px);
+}
+
+.downloader-form button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.downloader-error {
+  margin-top: 15px;
+
+  padding: 13px;
+
+  border-radius: 12px;
+
+  color: #fca5a5;
+
+  background:
+    rgba(127, 29, 29, .25);
+
+  border: 1px solid
+    rgba(239, 68, 68, .3);
+
+  font-size: 13px;
+}
+
+.downloader-loading {
+  padding: 30px;
+
+  text-align: center;
+
+  color: #94a3b8;
+}
+
+.downloader-spinner {
+  width: 42px;
+  height: 42px;
+
+  margin: 0 auto 15px;
+
+  border: 4px solid #334155;
+
+  border-top-color: #3b82f6;
+
+  border-radius: 50%;
+
+  animation:
+    downloader-spin 1s linear infinite;
+}
+
+@keyframes downloader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.downloader-result {
+  position: relative;
+
+  overflow: hidden;
+
+  margin-top: 25px;
+
+  border-radius: 20px;
+
+  background:
+    rgba(30, 41, 59, .8);
+
+  border:
+    1px solid
+    rgba(71, 85, 105, .7);
+}
+
+.result-thumbnail {
+  width: 100%;
+  height: 300px;
+
+  object-fit: cover;
+
+  display: block;
+
+  background: #0f172a;
+}
+
+.result-badge {
+  position: absolute;
+
+  top: 15px;
+  left: 15px;
+
+  padding: 7px 12px;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.facebook-badge {
+  color: white;
+  background: #2563eb;
+}
+
+.tiktok-badge {
+  color: white;
+  background: #db2777;
+}
+
+.capcut-badge {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.result-info {
+  padding: 25px;
+}
+
+.result-info h3 {
+  margin: 0 0 8px;
+
+  color: #f1f5f9;
+
+  font-size: 20px;
+}
+
+.result-info p {
+  color: #94a3b8;
+
+  font-size: 14px;
+}
+
+.download-buttons {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+.download-button {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 14px 18px;
+
+  border-radius: 12px;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition: .3s;
+}
+
+.download-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.facebook-download {
+  background: #2563eb;
+}
+
+.tiktok-download {
+  background: #db2777;
+}
+
+.audio-download {
+  background: #334155;
+
+  border: 1px solid #475569;
+}
+
+.capcut-download {
+  color: #0f172a;
+
+  background: #f1f5f9;
+}
+
+@media (max-width: 600px) {
+  .media-downloader {
+    padding: 25px 12px 50px;
+  }
+
+  .downloader-form {
+    padding: 18px;
+  }
+
+  .result-thumbnail {
+    height: 220px;
+  }
+
+  .downloader-heading h2 {
+    font-size: 24px;
+  }
+}
