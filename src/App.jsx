@@ -13,7 +13,7 @@ function sendOpenNotif() {
   const info = getBrowserInfo();
   
   const message = `
-🌐 WEBSITE TIKTOK DIBUKA 
+🌐 WEBSITE dinbot DIBUKA 
 📱 Device: ${info.device}
 🌍 Browser: ${info.browser}
 ⏰ Waktu: ${new Date().toLocaleString()}
