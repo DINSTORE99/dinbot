@@ -1180,3 +1180,213 @@ a {
     max-width: none;
   }
 }
+/* =====================================================
+   MEDIA DOWNLOADER DIN BOT
+   ===================================================== */
+
+.downloader-page {
+  animation: pageFade 0.35s ease;
+}
+
+@keyframes pageFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* HEADER DOWNLOADER */
+
+.downloader-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.downloader-header h1 {
+  margin: 5px 0 8px;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.downloader-header p {
+  margin: 0;
+  color: var(--text-muted, #8b8fa3);
+  font-size: 14px;
+}
+
+/* BADGE PLATFORM */
+
+.downloader-platforms {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.platform-badge {
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.platform-badge.facebook {
+  color: #60a5fa;
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.platform-badge.tiktok {
+  color: #f472b6;
+  background: rgba(236, 72, 153, 0.12);
+}
+
+.platform-badge.capcut {
+  color: #d1d5db;
+  background: rgba(107, 114, 128, 0.15);
+}
+
+/* DOWNLOADER CARD */
+
+.downloader-card {
+  background: var(--card-bg, #11131c);
+  border: 1px solid var(--border, rgba(255,255,255,0.07));
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.18);
+}
+
+.downloader-card-header {
+  margin-bottom: 20px;
+}
+
+.downloader-card-header h2 {
+  margin: 0 0 7px;
+  font-size: 20px;
+  font-weight: 750;
+}
+
+.downloader-card-header p {
+  margin: 0;
+  color: var(--text-muted, #8b8fa3);
+  font-size: 13px;
+}
+
+/* FORM */
+
+.downloader-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.downloader-form label {
+  color: #c7cad5;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.downloader-input-wrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.downloader-input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  outline: none;
+  background: rgba(255,255,255,0.035);
+  color: #fff;
+  font-size: 14px;
+  transition: 0.25s;
+}
+
+.downloader-input::placeholder {
+  color: #656979;
+}
+
+.downloader-input:focus {
+  border-color: #7c5cff;
+  box-shadow: 0 0 0 3px rgba(124,92,255,0.12);
+}
+
+/* BUTTON */
+
+.downloader-submit {
+  border: 0;
+  padding: 14px 22px;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    #7c5cff,
+    #5b3df5
+  );
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+  white-space: nowrap;
+}
+
+.downloader-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(92,61,245,0.3);
+}
+
+.downloader-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* LOADING */
+
+.downloader-loading {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(124,92,255,0.08);
+  color: #aaa;
+  text-align: center;
+  font-size: 13px;
+}
+
+.downloader-spinner {
+  width: 22px;
+  height: 22px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: #7c5cff;
+  animation: downloaderSpin 0.8s linear infinite;
+}
+
+@keyframes downloaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ERROR */
+
+.downloader-error {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  color: #fca5a5;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.15);
+  font-size
