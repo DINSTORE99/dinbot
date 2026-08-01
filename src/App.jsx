@@ -2,14 +2,11 @@ import { useEffect, useState } from "react";
 import "./style.css";
 
 // =====================================================
-// KONFIGURASI API
+// KONFIGURASI API DIN BOT
 // =====================================================
-// Jika frontend dan backend berada di domain yang sama,
-// biarkan kosong.
-// Jika backend berbeda, isi contoh:
+// Kosongkan jika frontend dan backend satu domain.
+// Jika backend berbeda:
 // const API = "https://backend-kamu.vercel.app";
-//
-// Jangan tambahkan "/" di akhir URL.
 // =====================================================
 
 const API = "";
@@ -33,31 +30,23 @@ function App() {
       audio.play().catch(() => {});
     };
 
-    // Browser biasanya memblokir autoplay.
-    // Musik akan mulai setelah user melakukan interaksi.
+    // Coba autoplay
     playMusic();
 
+    // Browser biasanya membutuhkan interaksi user
     document.addEventListener("click", playMusic, {
       once: true,
     });
 
-    document.addEventListener(
-      "touchstart",
-      playMusic,
-      {
-        once: true,
-      }
-    );
+    document.addEventListener("touchstart", playMusic, {
+      once: true,
+    });
 
     return () => {
       audio.pause();
       audio.currentTime = 0;
 
-      document.removeEventListener(
-        "click",
-        playMusic
-      );
-
+      document.removeEventListener("click", playMusic);
       document.removeEventListener(
         "touchstart",
         playMusic
@@ -69,103 +58,61 @@ function App() {
   // NAVIGASI
   // ===================================================
 
-  const [page, setPage] =
-    useState("dashboard");
-
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
+  const [page, setPage] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // ===================================================
   // STATUS SERVER
   // ===================================================
 
-  const [serverOnline, setServerOnline] =
-    useState(false);
-
-  const [botConnected, setBotConnected] =
-    useState(false);
-
-  const [sessions, setSessions] =
-    useState([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [message, setMessage] =
-    useState("");
-
-  const [lastUpdate, setLastUpdate] =
-    useState("-");
+  const [serverOnline, setServerOnline] = useState(false);
+  const [botConnected, setBotConnected] = useState(false);
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [lastUpdate, setLastUpdate] = useState("-");
 
   // ===================================================
   // PAIRING
   // ===================================================
 
-  const [phoneNumber, setPhoneNumber] =
-    useState("");
-
-  const [pairingCode, setPairingCode] =
-    useState("");
-
-  const [pairingSession, setPairingSession] =
-    useState("");
-
-  const [pairingLoading, setPairingLoading] =
-    useState(false);
-
-  const [copied, setCopied] =
-    useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [pairingCode, setPairingCode] = useState("");
+  const [pairingSession, setPairingSession] = useState("");
+  const [pairingLoading, setPairingLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // ===================================================
   // LOGOUT
   // ===================================================
 
-  const [logoutTarget, setLogoutTarget] =
-    useState(null);
-
-  const [logoutNumber, setLogoutNumber] =
-    useState("");
-
-  const [logoutLoading, setLogoutLoading] =
-    useState(false);
-
-  const [logoutMessage, setLogoutMessage] =
-    useState("");
+  const [logoutTarget, setLogoutTarget] = useState(null);
+  const [logoutNumber, setLogoutNumber] = useState("");
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const [logoutMessage, setLogoutMessage] = useState("");
 
   // ===================================================
   // DOWNLOADER
   // ===================================================
 
-  const [downloadUrl, setDownloadUrl] =
-    useState("");
-
-  const [downloadLoading, setDownloadLoading] =
-    useState(false);
-
-  const [downloadResult, setDownloadResult] =
-    useState(null);
-
-  const [downloadError, setDownloadError] =
-    useState("");
+  const [downloadUrl, setDownloadUrl] = useState("");
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [downloadResult, setDownloadResult] = useState(null);
+  const [downloadError, setDownloadError] = useState("");
 
   // ===================================================
   // NORMALIZE NOMOR
   // ===================================================
 
   const normalizeNumber = (number) => {
-    let value = String(number || "")
-      .replace(/\D/g, "");
+    let value = String(number || "").replace(/\D/g, "");
 
     if (value.startsWith("0")) {
-      value =
-        "62" +
-        value.substring(1);
+      value = "62" + value.substring(1);
     }
 
     if (value.startsWith("8")) {
-      value =
-        "62" +
-        value;
+      value = "62" + value;
     }
 
     return value;
@@ -180,8 +127,7 @@ function App() {
       return "-";
     }
 
-    const value =
-      String(number);
+    const value = String(number);
 
     if (value.length <= 4) {
       return value;
@@ -189,15 +135,8 @@ function App() {
 
     return (
       value.substring(0, 2) +
-      "*".repeat(
-        Math.max(
-          1,
-          value.length - 4
-        )
-      ) +
-      value.substring(
-        value.length - 2
-      )
+      "*".repeat(Math.max(1, value.length - 4)) +
+      value.substring(value.length - 2)
     );
   };
 
@@ -214,35 +153,25 @@ function App() {
   };
 
   // ===================================================
-  // LOAD STATUS
+  // LOAD STATUS DIN BOT
   // ===================================================
 
   const loadStatus = async () => {
     try {
       setLoading(true);
 
-      const response =
-        await fetch(
-          `${API}/api/status`,
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
+      const response = await fetch(`${API}/api/status`, {
+        method: "GET",
+        cache: "no-store",
+      });
 
       if (!response.ok) {
-        throw new Error(
-          `HTTP ${response.status}`
-        );
+        throw new Error(`HTTP ${response.status}`);
       }
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
-      console.log(
-        "STATUS API:",
-        data
-      );
+      console.log("STATUS API:", data);
 
       setServerOnline(
         data.success === true &&
@@ -254,29 +183,20 @@ function App() {
       );
 
       setSessions(
-        Array.isArray(
-          data.sessions
-        )
+        Array.isArray(data.sessions)
           ? data.sessions
           : []
       );
 
       setLastUpdate(
-        new Date().toLocaleTimeString(
-          "id-ID"
-        )
+        new Date().toLocaleTimeString("id-ID")
       );
-
     } catch (error) {
-      console.error(
-        "STATUS ERROR:",
-        error
-      );
+      console.error("STATUS ERROR:", error);
 
       setServerOnline(false);
       setBotConnected(false);
       setSessions([]);
-
     } finally {
       setLoading(false);
     }
@@ -289,11 +209,9 @@ function App() {
   useEffect(() => {
     loadStatus();
 
-    const timer =
-      setInterval(
-        loadStatus,
-        5000
-      );
+    const timer = setInterval(() => {
+      loadStatus();
+    }, 5000);
 
     return () => {
       clearInterval(timer);
@@ -304,781 +222,652 @@ function App() {
   // START PAIRING
   // ===================================================
 
-  const startPairing =
-    async () => {
+  const startPairing = async () => {
+    if (!phoneNumber.trim()) {
+      showMessage(
+        "Masukkan nomor WhatsApp terlebih dahulu."
+      );
+      return;
+    }
 
-      if (!phoneNumber.trim()) {
+    const number = normalizeNumber(phoneNumber);
+
+    if (!number || number.length < 10) {
+      showMessage(
+        "Nomor WhatsApp tidak valid."
+      );
+      return;
+    }
+
+    try {
+      setPairingLoading(true);
+      setPairingCode("");
+      setPairingSession("");
+      setCopied(false);
+
+      showMessage(
+        "Menghubungkan ke server..."
+      );
+
+      const response = await fetch(
+        `${API}/api/pair`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            number,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("PAIRING API:", data);
+
+      if (!data.success) {
         showMessage(
-          "Masukkan nomor WhatsApp terlebih dahulu."
+          data.message ||
+          "Gagal memulai pairing."
         );
         return;
       }
 
-      const number =
-        normalizeNumber(
-          phoneNumber
+      const sessionId =
+        data.sessionId || number;
+
+      setPairingSession(sessionId);
+
+      // Jika API langsung memberikan kode
+      if (data.pairingCode) {
+        setPairingCode(data.pairingCode);
+
+        showMessage(
+          "Kode pairing berhasil dibuat."
         );
 
-      if (
-        !number ||
-        number.length < 10
-      ) {
-        showMessage(
-          "Nomor WhatsApp tidak valid."
-        );
         return;
       }
 
-      try {
-        setPairingLoading(true);
-        setPairingCode("");
-        setPairingSession("");
-        setCopied(false);
+      showMessage(
+        "Menunggu kode pairing..."
+      );
 
-        showMessage(
-          "Menghubungkan ke server..."
-        );
+      let attempts = 0;
 
-        const response =
-          await fetch(
-            `${API}/api/pair`,
+      const timer = setInterval(async () => {
+        attempts++;
+
+        try {
+          const response = await fetch(
+            `${API}/api/pairing/${encodeURIComponent(
+              sessionId
+            )}`,
             {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-
-              body: JSON.stringify({
-                number,
-              }),
+              cache: "no-store",
             }
           );
 
-        const data =
-          await response.json();
+          const result = await response.json();
 
-        console.log(
-          "PAIRING API:",
-          data
-        );
-
-        if (!data.success) {
-          showMessage(
-            data.message ||
-            "Gagal memulai pairing."
+          console.log(
+            "PAIRING STATUS:",
+            result
           );
-          return;
+
+          if (
+            result.code ||
+            result.pairingCode
+          ) {
+            setPairingCode(
+              result.code ||
+              result.pairingCode
+            );
+
+            showMessage(
+              "Kode pairing berhasil dibuat."
+            );
+
+            clearInterval(timer);
+          }
+
+          if (
+            result.connected === true
+          ) {
+            setBotConnected(true);
+
+            showMessage(
+              "WhatsApp berhasil terhubung."
+            );
+
+            clearInterval(timer);
+
+            loadStatus();
+          }
+
+          if (attempts >= 30) {
+            clearInterval(timer);
+
+            showMessage(
+              "Waktu menunggu pairing habis."
+            );
+          }
+        } catch (error) {
+          console.error(
+            "PAIRING CHECK ERROR:",
+            error
+          );
         }
+      }, 2000);
+    } catch (error) {
+      console.error(
+        "PAIRING ERROR:",
+        error
+      );
 
-        const sessionId =
-          data.sessionId ||
-          number;
-
-        setPairingSession(
-          sessionId
-        );
-
-        // Jika API langsung memberikan kode
-        if (data.pairingCode) {
-          setPairingCode(
-            data.pairingCode
-          );
-
-          showMessage(
-            "Kode pairing berhasil dibuat."
-          );
-
-          return;
-        }
-
-        showMessage(
-          "Menunggu kode pairing..."
-        );
-
-        let attempts = 0;
-
-        const timer =
-          setInterval(
-            async () => {
-
-              attempts++;
-
-              try {
-                const response =
-                  await fetch(
-                    `${API}/api/pairing/${encodeURIComponent(
-                      sessionId
-                    )}`,
-                    {
-                      cache:
-                        "no-store",
-                    }
-                  );
-
-                const result =
-                  await response.json();
-
-                console.log(
-                  "PAIRING STATUS:",
-                  result
-                );
-
-                if (
-                  result.code ||
-                  result.pairingCode
-                ) {
-                  setPairingCode(
-                    result.code ||
-                    result.pairingCode
-                  );
-
-                  showMessage(
-                    "Kode pairing berhasil dibuat."
-                  );
-
-                  clearInterval(
-                    timer
-                  );
-                }
-
-                if (
-                  result.connected ===
-                  true
-                ) {
-                  setBotConnected(
-                    true
-                  );
-
-                  showMessage(
-                    "WhatsApp berhasil terhubung."
-                  );
-
-                  clearInterval(
-                    timer
-                  );
-
-                  loadStatus();
-                }
-
-                if (
-                  attempts >= 30
-                ) {
-                  clearInterval(
-                    timer
-                  );
-
-                  if (
-                    !pairingCode
-                  ) {
-                    showMessage(
-                      "Waktu menunggu pairing habis."
-                    );
-                  }
-                }
-
-              } catch (error) {
-                console.error(
-                  "PAIRING CHECK ERROR:",
-                  error
-                );
-              }
-
-            },
-            2000
-          );
-
-      } catch (error) {
-
-        console.error(
-          "PAIRING ERROR:",
-          error
-        );
-
-        showMessage(
-          "Tidak dapat menghubungi server API."
-        );
-
-      } finally {
-        setPairingLoading(false);
-      }
-    };
+      showMessage(
+        "Tidak dapat menghubungi server API."
+      );
+    } finally {
+      setPairingLoading(false);
+    }
+  };
 
   // ===================================================
   // COPY PAIRING CODE
   // ===================================================
 
-  const copyPairingCode =
-    async () => {
+  const copyPairingCode = async () => {
+    if (!pairingCode) {
+      return;
+    }
 
-      if (!pairingCode) {
-        return;
-      }
+    try {
+      await navigator.clipboard.writeText(
+        pairingCode
+      );
 
-      try {
-        await navigator.clipboard.writeText(
-          pairingCode
-        );
+      setCopied(true);
 
-        setCopied(true);
+      showMessage(
+        "Kode pairing berhasil disalin."
+      );
 
-        showMessage(
-          "Kode pairing berhasil disalin."
-        );
+      setTimeout(() => {
+        setCopied(false);
+      }, 2500);
+    } catch (error) {
+      console.error(
+        "COPY ERROR:",
+        error
+      );
 
-        setTimeout(() => {
-          setCopied(false);
-        }, 2500);
-
-      } catch (error) {
-
-        console.error(
-          "COPY ERROR:",
-          error
-        );
-
-        showMessage(
-          "Gagal menyalin kode pairing."
-        );
-      }
-    };
+      showMessage(
+        "Gagal menyalin kode pairing."
+      );
+    }
+  };
 
   // ===================================================
   // LOGOUT MODAL
   // ===================================================
 
-  const openLogoutModal =
-    (session) => {
+  const openLogoutModal = (session) => {
+    setLogoutTarget(session);
+    setLogoutNumber("");
+    setLogoutMessage("");
+  };
 
-      setLogoutTarget(
-        session
-      );
+  const closeLogoutModal = () => {
+    if (logoutLoading) {
+      return;
+    }
 
-      setLogoutNumber("");
-
-      setLogoutMessage("");
-    };
-
-  const closeLogoutModal =
-    () => {
-
-      if (logoutLoading) {
-        return;
-      }
-
-      setLogoutTarget(null);
-      setLogoutNumber("");
-      setLogoutMessage("");
-    };
+    setLogoutTarget(null);
+    setLogoutNumber("");
+    setLogoutMessage("");
+  };
 
   // ===================================================
   // CONFIRM LOGOUT
   // ===================================================
 
-  const confirmLogout =
-    async () => {
+  const confirmLogout = async () => {
+    if (!logoutTarget) {
+      return;
+    }
 
-      if (!logoutTarget) {
-        return;
-      }
+    const input = normalizeNumber(
+      logoutNumber
+    );
 
-      const input =
-        normalizeNumber(
-          logoutNumber
-        );
+    const target = normalizeNumber(
+      logoutTarget.number ||
+      logoutTarget.sessionId
+    );
 
-      const target =
-        normalizeNumber(
-          logoutTarget.number ||
-          logoutTarget.sessionId
-        );
+    if (!input) {
+      setLogoutMessage(
+        "Masukkan nomor WhatsApp lengkap."
+      );
+      return;
+    }
 
-      if (!input) {
-        setLogoutMessage(
-          "Masukkan nomor WhatsApp lengkap."
-        );
-        return;
-      }
+    if (input !== target) {
+      setLogoutMessage(
+        "Nomor tidak cocok dengan sesi."
+      );
+      return;
+    }
 
-      if (input !== target) {
-        setLogoutMessage(
-          "Nomor tidak cocok dengan sesi."
-        );
-        return;
-      }
+    try {
+      setLogoutLoading(true);
+      setLogoutMessage("");
 
-      try {
-
-        setLogoutLoading(true);
-
-        setLogoutMessage("");
-
-        const response =
-          await fetch(
-            `${API}/api/logout`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-
-              body: JSON.stringify({
-                sessionId:
-                  logoutTarget.sessionId ||
-                  logoutTarget.number,
-              }),
-            }
-          );
-
-        const data =
-          await response.json();
-
-        if (!data.success) {
-          setLogoutMessage(
-            data.message ||
-            "Gagal logout sesi."
-          );
-          return;
+      const response = await fetch(
+        `${API}/api/logout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sessionId:
+              logoutTarget.sessionId ||
+              logoutTarget.number,
+          }),
         }
+      );
 
-        setLogoutTarget(null);
-        setLogoutNumber("");
+      const data = await response.json();
 
-        showMessage(
-          "Sesi berhasil dihapus."
-        );
-
-        await loadStatus();
-
-      } catch (error) {
-
-        console.error(
-          "LOGOUT ERROR:",
-          error
-        );
-
+      if (!data.success) {
         setLogoutMessage(
-          "Gagal menghubungi server API."
+          data.message ||
+          "Gagal logout sesi."
         );
-
-      } finally {
-        setLogoutLoading(false);
+        return;
       }
-    };
+
+      setLogoutTarget(null);
+      setLogoutNumber("");
+
+      showMessage(
+        "Sesi berhasil dihapus."
+      );
+
+      await loadStatus();
+    } catch (error) {
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
+
+      setLogoutMessage(
+        "Gagal menghubungi server API."
+      );
+    } finally {
+      setLogoutLoading(false);
+    }
+  };
 
   // ===================================================
   // DETEKSI PLATFORM DOWNLOADER
   // ===================================================
 
-  const detectPlatform =
-    (url) => {
+  const detectPlatform = (url) => {
+    const value = url.toLowerCase();
 
-      const value =
-        url.toLowerCase();
+    if (
+      value.includes("facebook.com") ||
+      value.includes("fb.watch")
+    ) {
+      return "facebook";
+    }
 
-      if (
-        value.includes(
-          "facebook.com"
-        ) ||
-        value.includes(
-          "fb.watch"
-        )
-      ) {
-        return "facebook";
-      }
+    if (
+      value.includes("tiktok.com") ||
+      value.includes("vt.tiktok.com")
+    ) {
+      return "tiktok";
+    }
 
-      if (
-        value.includes(
-          "tiktok.com"
-        ) ||
-        value.includes(
-          "vt.tiktok.com"
-        )
-      ) {
-        return "tiktok";
-      }
+    if (
+      value.includes("capcut.com")
+    ) {
+      return "capcut";
+    }
 
-      if (
-        value.includes(
-          "capcut.com"
-        )
-      ) {
-        return "capcut";
-      }
-
-      return null;
-    };
+    return null;
+  };
 
   // ===================================================
   // MEDIA DOWNLOADER
   // ===================================================
 
-  const startDownload =
-    async (event) => {
+  const startDownload = async (event) => {
+    event.preventDefault();
 
-      event.preventDefault();
+    const url = downloadUrl.trim();
 
-      const url =
-        downloadUrl.trim();
+    if (!url) {
+      setDownloadError(
+        "Masukkan link video terlebih dahulu."
+      );
+      return;
+    }
 
-      if (!url) {
-        setDownloadError(
-          "Masukkan link video terlebih dahulu."
-        );
-        return;
+    const platform = detectPlatform(url);
+
+    if (!platform) {
+      setDownloadError(
+        "Link tidak didukung. Gunakan Facebook, TikTok, atau CapCut."
+      );
+      return;
+    }
+
+    try {
+      setDownloadLoading(true);
+      setDownloadError("");
+      setDownloadResult(null);
+
+      let apiUrl = "";
+
+      // API DOWNLOADER TERPISAH
+      if (platform === "facebook") {
+        apiUrl =
+          `https://api.siputzx.my.id/api/d/facebook?url=${encodeURIComponent(
+            url
+          )}`;
       }
 
-      const platform =
-        detectPlatform(url);
-
-      if (!platform) {
-        setDownloadError(
-          "Link tidak didukung. Gunakan Facebook, TikTok, atau CapCut."
-        );
-        return;
+      if (platform === "tiktok") {
+        apiUrl =
+          `https://api.siputzx.my.id/api/d/tiktok/v2?url=${encodeURIComponent(
+            url
+          )}`;
       }
 
-      try {
-
-        setDownloadLoading(true);
-
-        setDownloadError("");
-
-        setDownloadResult(null);
-
-        let apiUrl = "";
-
-        if (
-          platform === "facebook"
-        ) {
-          apiUrl =
-            `https://api.siputzx.my.id/api/d/facebook?url=${encodeURIComponent(
-              url
-            )}`;
-        }
-
-        if (
-          platform === "tiktok"
-        ) {
-          apiUrl =
-            `https://api.siputzx.my.id/api/d/tiktok/v2?url=${encodeURIComponent(
-              url
-            )}`;
-        }
-
-        if (
-          platform === "capcut"
-        ) {
-          apiUrl =
-            `https://api.siputzx.my.id/api/d/capcut?url=${encodeURIComponent(
-              url
-            )}`;
-        }
-
-        const response =
-          await fetch(apiUrl);
-
-        if (!response.ok) {
-          throw new Error(
-            `HTTP ${response.status}`
-          );
-        }
-
-        const data =
-          await response.json();
-
-        if (
-          !data.status ||
-          !data.data
-        ) {
-          throw new Error(
-            "Data tidak ditemukan"
-          );
-        }
-
-        setDownloadResult({
-          platform,
-          data: data.data,
-        });
-
-      } catch (error) {
-
-        console.error(
-          "DOWNLOADER ERROR:",
-          error
-        );
-
-        setDownloadError(
-          "Gagal mengambil video. Pastikan link benar dan dapat diakses publik."
-        );
-
-      } finally {
-        setDownloadLoading(false);
+      if (platform === "capcut") {
+        apiUrl =
+          `https://api.siputzx.my.id/api/d/capcut?url=${encodeURIComponent(
+            url
+          )}`;
       }
-    };
+
+      const response =
+        await fetch(apiUrl);
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP ${response.status}`
+        );
+      }
+
+      const data =
+        await response.json();
+
+      if (
+        !data.status ||
+        !data.data
+      ) {
+        throw new Error(
+          "Data tidak ditemukan"
+        );
+      }
+
+      setDownloadResult({
+        platform,
+        data: data.data,
+      });
+    } catch (error) {
+      console.error(
+        "DOWNLOADER ERROR:",
+        error
+      );
+
+      setDownloadError(
+        "Gagal mengambil video. Pastikan link benar dan dapat diakses publik."
+      );
+    } finally {
+      setDownloadLoading(false);
+    }
+  };
 
   // ===================================================
   // DOWNLOAD BUTTON
   // ===================================================
 
-  const DownloadButton =
-    ({
-      url,
-      children,
-      className = "",
-    }) => {
+  const DownloadButton = ({
+    url,
+    children,
+    className = "",
+  }) => {
+    if (!url) {
+      return null;
+    }
 
-      if (!url) {
-        return null;
-      }
-
-      return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={
-            `download-button ${className}`
-          }
-        >
-          <span>
-            {children}
-          </span>
-
-          <span>
-            ↓
-          </span>
-        </a>
-      );
-    };
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`download-button ${className}`}
+      >
+        <span>{children}</span>
+        <span>↓</span>
+      </a>
+    );
+  };
 
   // ===================================================
   // RENDER DOWNLOAD RESULT
   // ===================================================
 
-  const renderDownloadResult =
-    () => {
-
-      if (!downloadResult) {
-        return null;
-      }
-
-      const {
-        platform,
-        data,
-      } = downloadResult;
-
-      // FACEBOOK
-      if (
-        platform ===
-        "facebook"
-      ) {
-
-        return (
-          <div className="downloader-result">
-
-            <div className="result-media">
-
-              <img
-                src={
-                  data.thumbnail ||
-                  "https://via.placeholder.com/600x400?text=Facebook"
-                }
-                alt="Facebook"
-              />
-
-              <span className="result-badge facebook">
-                Facebook
-              </span>
-
-            </div>
-
-            <div className="result-info">
-
-              <h3>
-                {data.title ||
-                  "Video Facebook"}
-              </h3>
-
-              {data.duration && (
-                <p>
-                  Durasi:{" "}
-                  {data.duration}
-                </p>
-              )}
-
-              <div className="download-options">
-
-                {Array.isArray(
-                  data.downloads
-                ) &&
-                  data.downloads.map(
-                    (
-                      item,
-                      index
-                    ) => (
-
-                      <DownloadButton
-                        key={index}
-                        url={item.url}
-                        className="facebook-download"
-                      >
-                        Download Video{" "}
-                        {item.quality ||
-                          ""}
-                      </DownloadButton>
-
-                    )
-                  )}
-
-              </div>
-
-            </div>
-
-          </div>
-        );
-      }
-
-      // TIKTOK
-      if (
-        platform ===
-        "tiktok"
-      ) {
-
-        return (
-          <div className="downloader-result">
-
-            <div className="result-media">
-
-              <img
-                src={
-                  data.cover_link ||
-                  data.origin_cover ||
-                  "https://via.placeholder.com/600x400?text=TikTok"
-                }
-                alt="TikTok"
-              />
-
-              <span className="result-badge tiktok">
-                TikTok
-              </span>
-
-            </div>
-
-            <div className="result-info">
-
-              <h3>
-                {data.text ||
-                  "Video TikTok"}
-              </h3>
-
-              {data.author_nickname && (
-                <p>
-                  @{data.author_nickname}
-                </p>
-              )}
-
-              <div className="download-options">
-
-                <DownloadButton
-                  url={
-                    data.no_watermark_link_hd ||
-                    data.no_watermark_link
-                  }
-                  className="tiktok-download"
-                >
-                  Download Video
-                  No Watermark
-                </DownloadButton>
-
-                <DownloadButton
-                  url={
-                    data.music_link
-                  }
-                  className="audio-download"
-                >
-                  Download Audio MP3
-                </DownloadButton>
-
-              </div>
-
-            </div>
-
-          </div>
-        );
-      }
-
-      // CAPCUT
-      if (
-        platform ===
-        "capcut"
-      ) {
-
-        return (
-          <div className="downloader-result">
-
-            <div className="result-media">
-
-              <img
-                src={
-                  data.coverUrl ||
-                  "https://via.placeholder.com/600x400?text=CapCut"
-                }
-                alt="CapCut"
-              />
-
-              <span className="result-badge capcut">
-                CapCut
-              </span>
-
-            </div>
-
-            <div className="result-info">
-
-              <h3>
-                {data.title ||
-                  "Template CapCut"}
-              </h3>
-
-              {data.authorName && (
-                <p>
-                  @{data.authorName}
-                </p>
-              )}
-
-              <div className="download-options">
-
-                <DownloadButton
-                  url={
-                    data.originalVideoUrl
-                  }
-                  className="capcut-download"
-                >
-                  Download Video
-                  Template
-                </DownloadButton>
-
-              </div>
-
-            </div>
-
-          </div>
-        );
-      }
-
+  const renderDownloadResult = () => {
+    if (!downloadResult) {
       return null;
-    };
+    }
+
+    const {
+      platform,
+      data,
+    } = downloadResult;
+
+    // =================================================
+    // FACEBOOK
+    // =================================================
+
+    if (platform === "facebook") {
+      return (
+        <div className="downloader-result">
+
+          <div className="result-media">
+
+            <img
+              src={
+                data.thumbnail ||
+                "https://via.placeholder.com/600x400?text=Facebook"
+              }
+              alt="Facebook"
+            />
+
+            <span className="result-badge facebook">
+              Facebook
+            </span>
+
+          </div>
+
+          <div className="result-info">
+
+            <h3>
+              {data.title ||
+                "Video Facebook"}
+            </h3>
+
+            {data.duration && (
+              <p>
+                Durasi: {data.duration}
+              </p>
+            )}
+
+            <div className="download-options">
+
+              {Array.isArray(
+                data.downloads
+              ) &&
+                data.downloads.map(
+                  (item, index) => (
+                    <DownloadButton
+                      key={index}
+                      url={item.url}
+                      className="facebook-download"
+                    >
+                      Download Video{" "}
+                      {item.quality || ""}
+                    </DownloadButton>
+                  )
+                )}
+
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    // =================================================
+    // TIKTOK
+    // =================================================
+
+    if (platform === "tiktok") {
+      return (
+        <div className="downloader-result">
+
+          <div className="result-media">
+
+            <img
+              src={
+                data.cover_link ||
+                data.origin_cover ||
+                "https://via.placeholder.com/600x400?text=TikTok"
+              }
+              alt="TikTok"
+            />
+
+            <span className="result-badge tiktok">
+              TikTok
+            </span>
+
+          </div>
+
+          <div className="result-info">
+
+            <h3>
+              {data.text ||
+                "Video TikTok"}
+            </h3>
+
+            {data.author_nickname && (
+              <p>
+                @{data.author_nickname}
+              </p>
+            )}
+
+            <div className="download-options">
+
+              <DownloadButton
+                url={
+                  data.no_watermark_link_hd ||
+                  data.no_watermark_link
+                }
+                className="tiktok-download"
+              >
+                Download Video No Watermark
+              </DownloadButton>
+
+              <DownloadButton
+                url={data.music_link}
+                className="audio-download"
+              >
+                Download Audio MP3
+              </DownloadButton>
+
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    // =================================================
+    // CAPCUT
+    // =================================================
+
+    if (platform === "capcut") {
+      return (
+        <div className="downloader-result">
+
+          <div className="result-media">
+
+            <img
+              src={
+                data.coverUrl ||
+                "https://via.placeholder.com/600x400?text=CapCut"
+              }
+              alt="CapCut"
+            />
+
+            <span className="result-badge capcut">
+              CapCut
+            </span>
+
+          </div>
+
+          <div className="result-info">
+
+            <h3>
+              {data.title ||
+                "Template CapCut"}
+            </h3>
+
+            {data.authorName && (
+              <p>
+                @{data.authorName}
+              </p>
+            )}
+
+            <div className="download-options">
+
+              <DownloadButton
+                url={
+                  data.originalVideoUrl
+                }
+                className="capcut-download"
+              >
+                Download Video Template
+              </DownloadButton>
+
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   // ===================================================
   // DASHBOARD
   // ===================================================
 
-  const renderDashboard =
-    () => (
-
+  const renderDashboard = () => {
+    return (
       <div className="page-content">
 
         <header className="topbar">
@@ -1143,7 +932,6 @@ function App() {
                   ? "SERVER AKTIF"
                   : "SERVER OFFLINE"}
               </small>
-
             </div>
 
           </div>
@@ -1155,7 +943,6 @@ function App() {
             </div>
 
             <div>
-
               <span>
                 WhatsApp
               </span>
@@ -1178,7 +965,6 @@ function App() {
                   ? "TERHUBUNG"
                   : "MENUNGGU"}
               </small>
-
             </div>
 
           </div>
@@ -1190,7 +976,6 @@ function App() {
             </div>
 
             <div>
-
               <span>
                 SESI
               </span>
@@ -1202,7 +987,6 @@ function App() {
               <small>
                 SESI TERDAFTAR
               </small>
-
             </div>
 
           </div>
@@ -1225,33 +1009,29 @@ function App() {
             </h2>
 
             <p>
-              Hubungkan perangkat
-              WhatsApp, lihat kode
-              pairing, dan kelola
-              semua sesi dari satu
-              tempat.
+              Hubungkan perangkat WhatsApp,
+              lihat kode pairing,
+              dan kelola semua sesi
+              dari satu tempat.
             </p>
 
             <button
               className="hero-button"
-              onClick={() =>
-                setPage("pairing")
-              }
+              onClick={() => {
+                setPage("pairing");
+                setSidebarOpen(false);
+              }}
             >
               Hubungkan WhatsApp
-              <span>
-                →
-              </span>
+              <span>→</span>
             </button>
 
           </div>
 
           <div className="hero-orb">
-
             <div className="orb-inner">
               W
             </div>
-
           </div>
 
         </section>
@@ -1263,7 +1043,6 @@ function App() {
           <div className="section-title">
 
             <div>
-
               <span className="eyebrow">
                 SISTEM
               </span>
@@ -1271,17 +1050,13 @@ function App() {
               <h2>
                 Informasi Sistem
               </h2>
-
             </div>
 
             <div className="status-pill">
-
               <span />
-
               {serverOnline
                 ? "AKTIF"
                 : "OFFLINE"}
-
             </div>
 
           </div>
@@ -1289,7 +1064,6 @@ function App() {
           <div className="info-grid">
 
             <div className="info-item">
-
               <span>
                 Website
               </span>
@@ -1297,23 +1071,19 @@ function App() {
               <strong>
                 DIN BOT
               </strong>
-
             </div>
 
             <div className="info-item">
-
               <span>
                 Versi
               </span>
 
               <strong>
-                V1.0.0
+                Versi 1.0.0
               </strong>
-
             </div>
 
             <div className="info-item">
-
               <span>
                 Platform
               </span>
@@ -1321,152 +1091,37 @@ function App() {
               <strong>
                 WhatsApp
               </strong>
-
             </div>
 
             <div className="info-item">
-
               <span>
-                Pembaruan
+                Pembaruan Terakhir
               </span>
 
               <strong>
                 {lastUpdate}
               </strong>
-
             </div>
 
           </div>
-
-        </section>
-
-        {/* SESI */}
-
-        <section className="content-card">
-
-          <div className="section-title">
-
-            <div>
-
-              <span className="eyebrow">
-                PERANGKAT
-              </span>
-
-              <h2>
-                Sesi WhatsApp
-              </h2>
-
-            </div>
-
-            <span>
-              {sessions.length} sesi
-            </span>
-
-          </div>
-
-          {sessions.length === 0 ? (
-
-            <div className="empty-state">
-
-              <div>
-                W
-              </div>
-
-              <h3>
-                Belum ada sesi
-              </h3>
-
-              <p>
-                Hubungkan nomor WhatsApp
-                untuk memulai bot.
-              </p>
-
-            </div>
-
-          ) : (
-
-            <div className="session-list">
-
-              {sessions.map(
-                (
-                  session,
-                  index
-                ) => (
-
-                  <div
-                    className="session-item"
-                    key={
-                      session.sessionId ||
-                      index
-                    }
-                  >
-
-                    <div className="session-avatar">
-                      W
-                    </div>
-
-                    <div className="session-info">
-
-                      <strong>
-                        {maskNumber(
-                          session.number ||
-                          session.sessionId
-                        )}
-                      </strong>
-
-                      <small
-                        className={
-                          session.connected
-                            ? "online"
-                            : "waiting"
-                        }
-                      >
-                        ●{" "}
-                        {session.connected
-                          ? "Terhubung"
-                          : "Menunggu"}
-                      </small>
-
-                    </div>
-
-                    <button
-                      className="logout-button"
-                      onClick={() =>
-                        openLogoutModal(
-                          session
-                        )
-                      }
-                    >
-                      Logout
-                    </button>
-
-                  </div>
-
-                )
-              )}
-
-            </div>
-
-          )}
 
         </section>
 
       </div>
     );
+  };
 
   // ===================================================
-  // PAIRING PAGE
+  // PAIRING
   // ===================================================
 
-  const renderPairing =
-    () => (
-
+  const renderPairing = () => {
+    return (
       <div className="page-content">
 
         <header className="topbar">
 
           <div>
-
             <span className="eyebrow">
               DIN BOT / PAIRING
             </span>
@@ -1479,7 +1134,6 @@ function App() {
               Masukkan nomor WhatsApp
               untuk mendapatkan kode pairing.
             </p>
-
           </div>
 
           <div
@@ -1489,20 +1143,17 @@ function App() {
                 : "server-status offline"
             }
           >
-
             <span />
-
             {serverOnline
               ? "API Online"
               : "API Offline"}
-
           </div>
 
         </header>
 
         <section className="pairing-layout">
 
-          {/* FORM */}
+          {/* FORM NOMOR */}
 
           <div className="content-card pairing-main">
 
@@ -1513,7 +1164,6 @@ function App() {
               </div>
 
               <div>
-
                 <span className="eyebrow">
                   HUBUNGKAN PERANGKAT
                 </span>
@@ -1523,11 +1173,10 @@ function App() {
                 </h2>
 
                 <p>
-                  Masukkan nomor WhatsApp
-                  yang ingin digunakan
+                  Gunakan nomor WhatsApp
+                  yang ingin kamu hubungkan
                   dengan bot.
                 </p>
-
               </div>
 
             </div>
@@ -1562,23 +1211,17 @@ function App() {
                       );
 
                     setPhoneNumber(
-                      "62" +
-                      value
+                      "62" + value
                     );
-
                   }}
-                  disabled={
-                    pairingLoading
-                  }
+                  disabled={pairingLoading}
                 />
 
               </div>
 
               <button
                 className="pair-button"
-                onClick={
-                  startPairing
-                }
+                onClick={startPairing}
                 disabled={
                   pairingLoading ||
                   !serverOnline
@@ -1593,9 +1236,7 @@ function App() {
                 ) : (
                   <>
                     Dapatkan Kode Pairing
-                    <span>
-                      →
-                    </span>
+                    <span>→</span>
                   </>
                 )}
 
@@ -1604,56 +1245,40 @@ function App() {
             </div>
 
             {!serverOnline && (
-
               <div className="warning-box">
 
-                <span>
-                  !
-                </span>
+                <span>!</span>
 
                 <div>
-
                   <strong>
                     Server API Offline
                   </strong>
 
                   <p>
-                    Pastikan backend bot
+                    Pastikan backend DIN BOT
                     sedang berjalan.
                   </p>
-
                 </div>
 
               </div>
-
             )}
 
           </div>
 
-          {/* KODE */}
+          {/* KODE PAIRING */}
 
           <div className="content-card code-card">
 
-            <div className="section-title">
+            <div className="code-card-header">
 
-              <div>
-
-                <span className="eyebrow">
-                  KODE PAIRING
-                </span>
-
-                <h2>
-                  Hubungkan WhatsApp
-                </h2>
-
-              </div>
+              <span className="eyebrow">
+                KODE PAIRING
+              </span>
 
               <div className="code-status">
-
                 {pairingCode
                   ? "SIAP"
                   : "MENUNGGU"}
-
               </div>
 
             </div>
@@ -1695,17 +1320,17 @@ function App() {
                   }
                 >
                   {copied
-                    ? "✓ Tersalin"
+                    ? "✓ Berhasil Disalin"
                     : "Salin Kode"}
                 </button>
 
                 {pairingSession && (
-
                   <small>
                     Session:{" "}
-                    {pairingSession}
+                    {maskNumber(
+                      pairingSession
+                    )}
                   </small>
-
                 )}
 
               </div>
@@ -1714,8 +1339,8 @@ function App() {
 
               <div className="empty-code">
 
-                <div className="code-icon">
-                  W
+                <div className="empty-icon">
+                  ◌
                 </div>
 
                 <h3>
@@ -1724,7 +1349,7 @@ function App() {
 
                 <p>
                   Masukkan nomor WhatsApp
-                  untuk mendapatkan kode pairing.
+                  untuk membuat kode pairing.
                 </p>
 
               </div>
@@ -1737,22 +1362,21 @@ function App() {
 
       </div>
     );
+  };
 
   // ===================================================
   // DOWNLOADER PAGE
   // ===================================================
 
-  const renderDownloader =
-    () => (
-
+  const renderDownloader = () => {
+    return (
       <div className="page-content">
 
         <header className="topbar">
 
           <div>
-
             <span className="eyebrow">
-              DIN BOT / MEDIA DOWNLOADER
+              DIN BOT / TOOLS
             </span>
 
             <h1>
@@ -1760,121 +1384,307 @@ function App() {
             </h1>
 
             <p>
-              Download video Facebook,
+              Download video dari Facebook,
               TikTok, dan CapCut.
             </p>
+          </div>
 
+          <div className="downloader-platforms">
+            <span>Facebook</span>
+            <span>TikTok</span>
+            <span>CapCut</span>
           </div>
 
         </header>
 
-        <section className="downloader-page">
+        <section className="content-card downloader-card">
 
-          {/* PLATFORM */}
+          <div className="section-title">
 
-          <div className="platform-list">
+            <div>
+              <span className="eyebrow">
+                MEDIA DOWNLOADER
+              </span>
 
-            <span className="platform-item facebook">
-              Facebook
-            </span>
-
-            <span className="platform-item tiktok">
-              TikTok
-            </span>
-
-            <span className="platform-item capcut">
-              CapCut
-            </span>
+              <h2>
+                Download Video
+              </h2>
+            </div>
 
           </div>
 
-          {/* FORM */}
-
           <form
             className="downloader-form"
-            onSubmit={
-              startDownload
-            }
+            onSubmit={startDownload}
           >
 
             <label>
-              Tautan Video
+              Link Video
             </label>
 
             <input
               type="url"
-              value={
-                downloadUrl
-              }
-              onChange={(e) =>
+              placeholder="Tempel link Facebook / TikTok / CapCut..."
+              value={downloadUrl}
+              onChange={(e) => {
                 setDownloadUrl(
                   e.target.value
-                )
-              }
-              placeholder="Tempel link Facebook / TikTok / CapCut..."
-              disabled={
-                downloadLoading
-              }
+                );
+                setDownloadError("");
+              }}
             />
 
             <button
               type="submit"
-              disabled={
-                downloadLoading
-              }
+              className="download-search-button"
+              disabled={downloadLoading}
             >
 
-              {downloadLoading
-                ? "Memproses..."
-                : "🔍 Cari Video"}
+              {downloadLoading ? (
+                <>
+                  <span className="spinner" />
+                  Memproses...
+                </>
+              ) : (
+                <>
+                  Cari Video
+                  <span>→</span>
+                </>
+              )}
 
             </button>
 
           </form>
 
-          {/* ERROR */}
-
           {downloadError && (
+            <div className="warning-box downloader-error">
 
-            <div className="downloader-error">
-              ⚠️{" "}
-              {downloadError}
+              <span>!</span>
+
+              <div>
+                <strong>
+                  Gagal Memproses
+                </strong>
+
+                <p>
+                  {downloadError}
+                </p>
+              </div>
+
             </div>
-
           )}
 
-          {/* LOADING */}
+        </section>
 
-          {downloadLoading && (
+        {downloadLoading && (
+          <section className="content-card downloader-loading">
 
-            <div className="downloader-loading">
+            <div className="spinner large" />
 
-              <div className="downloader-spinner" />
+            <h3>
+              Sedang mengambil video...
+            </h3>
+
+            <p>
+              Mohon tunggu sebentar.
+            </p>
+
+          </section>
+        )}
+
+        {renderDownloadResult()}
+
+      </div>
+    );
+  };
+
+  // ===================================================
+  // SESSIONS PAGE
+  // ===================================================
+
+  const renderSessions = () => {
+    return (
+      <div className="page-content">
+
+        <header className="topbar">
+
+          <div>
+            <span className="eyebrow">
+              DIN BOT / SESSIONS
+            </span>
+
+            <h1>
+              Sesi Bot
+            </h1>
+
+            <p>
+              Kelola semua perangkat
+              WhatsApp yang terhubung.
+            </p>
+          </div>
+
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+            disabled={loading}
+          >
+            ↻ Refresh
+          </button>
+
+        </header>
+
+        <section className="content-card">
+
+          <div className="section-title">
+
+            <div>
+              <span className="eyebrow">
+                PERANGKAT
+              </span>
+
+              <h2>
+                Sesi Terdaftar
+              </h2>
+            </div>
+
+            <span className="session-count">
+              {sessions.length} Sesi
+            </span>
+
+          </div>
+
+          {sessions.length === 0 ? (
+
+            <div className="empty-sessions">
+
+              <div className="empty-icon">
+                ◌
+              </div>
+
+              <h3>
+                Belum Ada Sesi
+              </h3>
 
               <p>
-                Sedang mengambil informasi video...
+                Belum ada perangkat WhatsApp
+                yang terhubung.
               </p>
+
+              <button
+                className="hero-button"
+                onClick={() => {
+                  setPage("pairing");
+                  setSidebarOpen(false);
+                }}
+              >
+                Hubungkan WhatsApp →
+              </button>
+
+            </div>
+
+          ) : (
+
+            <div className="sessions-list">
+
+              {sessions.map(
+                (session, index) => {
+
+                  const number =
+                    session.number ||
+                    session.sessionId ||
+                    "-";
+
+                  const connected =
+                    session.connected === true ||
+                    session.status === "connected";
+
+                  return (
+                    <div
+                      className="session-item"
+                      key={
+                        session.sessionId ||
+                        number ||
+                        index
+                      }
+                    >
+
+                      <div className="session-avatar">
+                        W
+                      </div>
+
+                      <div className="session-info">
+
+                        <strong>
+                          {maskNumber(number)}
+                        </strong>
+
+                        <span
+                          className={
+                            connected
+                              ? "online"
+                              : "waiting"
+                          }
+                        >
+                          ●{" "}
+                          {connected
+                            ? "Terhubung"
+                            : "Menunggu"}
+                        </span>
+
+                      </div>
+
+                      <button
+                        className="logout-button"
+                        onClick={() =>
+                          openLogoutModal(
+                            session
+                          )
+                        }
+                      >
+                        Logout
+                      </button>
+
+                    </div>
+                  );
+                }
+              )}
 
             </div>
 
           )}
-
-          {/* RESULT */}
-
-          {renderDownloadResult()}
 
         </section>
 
       </div>
     );
+  };
 
   // ===================================================
-  // MAIN RENDER
+  // SIDEBAR
+  // ===================================================
+
+  const navigate = (target) => {
+    setPage(target);
+    setSidebarOpen(false);
+  };
+
+  // ===================================================
+  // APP RENDER
   // ===================================================
 
   return (
-
     <div className="app">
+
+      {/* MOBILE OVERLAY */}
+
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() =>
+            setSidebarOpen(false)
+          }
+        />
+      )}
 
       {/* SIDEBAR */}
 
@@ -1893,7 +1703,6 @@ function App() {
           </div>
 
           <div>
-
             <strong>
               DIN BOT
             </strong>
@@ -1901,12 +1710,15 @@ function App() {
             <span>
               WhatsApp Panel
             </span>
-
           </div>
 
         </div>
 
         <nav className="sidebar-nav">
+
+          <span className="nav-label">
+            MENU UTAMA
+          </span>
 
           <button
             className={
@@ -1914,22 +1726,11 @@ function App() {
                 ? "nav-item active"
                 : "nav-item"
             }
-            onClick={() => {
-
-              setPage(
-                "dashboard"
-              );
-
-              setSidebarOpen(
-                false
-              );
-
-            }}
+            onClick={() =>
+              navigate("dashboard")
+            }
           >
-            <span>
-              ◉
-            </span>
-
+            <span>⌂</span>
             Dashboard
           </button>
 
@@ -1939,24 +1740,31 @@ function App() {
                 ? "nav-item active"
                 : "nav-item"
             }
-            onClick={() => {
-
-              setPage(
-                "pairing"
-              );
-
-              setSidebarOpen(
-                false
-              );
-
-            }}
+            onClick={() =>
+              navigate("pairing")
+            }
           >
-            <span>
-              W
-            </span>
-
+            <span>◈</span>
             Pairing WhatsApp
           </button>
+
+          <button
+            className={
+              page === "sessions"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            onClick={() =>
+              navigate("sessions")
+            }
+          >
+            <span>◉</span>
+            Sesi Bot
+          </button>
+
+          <span className="nav-label">
+            TOOLS
+          </span>
 
           <button
             className={
@@ -1964,30 +1772,19 @@ function App() {
                 ? "nav-item active"
                 : "nav-item"
             }
-            onClick={() => {
-
-              setPage(
-                "downloader"
-              );
-
-              setSidebarOpen(
-                false
-              );
-
-            }}
+            onClick={() =>
+              navigate("downloader")
+            }
           >
-            <span>
-              ↓
-            </span>
-
+            <span>↓</span>
             Media Downloader
           </button>
 
         </nav>
 
-        <div className="sidebar-footer">
+        <div className="sidebar-bottom">
 
-          <div className="connection-status">
+          <div className="bot-status-mini">
 
             <span
               className={
@@ -1998,7 +1795,6 @@ function App() {
             />
 
             <div>
-
               <strong>
                 {serverOnline
                   ? "Server Online"
@@ -2006,33 +1802,21 @@ function App() {
               </strong>
 
               <small>
-                {lastUpdate}
+                {botConnected
+                  ? "Bot terhubung"
+                  : "Bot belum terhubung"}
               </small>
-
             </div>
 
           </div>
 
-          <small>
-            DIN BOT V1.0.0
+          <small className="copyright">
+            DIN BOT © 2026
           </small>
 
         </div>
 
       </aside>
-
-      {/* MOBILE OVERLAY */}
-
-      {sidebarOpen && (
-
-        <div
-          className="sidebar-overlay"
-          onClick={() =>
-            setSidebarOpen(false)
-          }
-        />
-
-      )}
 
       {/* MAIN */}
 
@@ -2043,6 +1827,7 @@ function App() {
         <div className="mobile-header">
 
           <button
+            className="menu-button"
             onClick={() =>
               setSidebarOpen(
                 !sidebarOpen
@@ -2058,40 +1843,34 @@ function App() {
 
         </div>
 
-        {page ===
-          "dashboard" &&
+        {/* TOAST */}
+
+        {message && (
+          <div className="toast">
+            <span>✓</span>
+            {message}
+          </div>
+        )}
+
+        {/* PAGE */}
+
+        {page === "dashboard" &&
           renderDashboard()}
 
-        {page ===
-          "pairing" &&
+        {page === "pairing" &&
           renderPairing()}
 
-        {page ===
-          "downloader" &&
+        {page === "sessions" &&
+          renderSessions()}
+
+        {page === "downloader" &&
           renderDownloader()}
 
       </main>
 
-      {/* TOAST */}
-
-      {message && (
-
-        <div className="toast">
-
-          <span>
-            ✓
-          </span>
-
-          {message}
-
-        </div>
-
-      )}
-
       {/* LOGOUT MODAL */}
 
       {logoutTarget && (
-
         <div className="modal-overlay">
 
           <div className="modal">
@@ -2110,50 +1889,41 @@ function App() {
             </div>
 
             <h2>
-              Logout Sesi?
+              Logout Sesi
             </h2>
 
             <p>
-              Untuk menghapus sesi,
+              Untuk menghapus sesi ini,
               masukkan nomor WhatsApp
-              secara lengkap.
+              lengkap.
             </p>
 
             <div className="modal-target">
-
               Sesi:{" "}
-
               <strong>
                 {maskNumber(
                   logoutTarget.number ||
                   logoutTarget.sessionId
                 )}
               </strong>
-
             </div>
 
             <input
               type="tel"
-              placeholder="Masukkan nomor WhatsApp"
-              value={
-                logoutNumber
-              }
+              placeholder="Contoh: 628123456789"
+              value={logoutNumber}
               onChange={(e) =>
                 setLogoutNumber(
                   e.target.value
                 )
               }
-              disabled={
-                logoutLoading
-              }
+              disabled={logoutLoading}
             />
 
             {logoutMessage && (
-
               <div className="modal-error">
                 {logoutMessage}
               </div>
-
             )}
 
             <div className="modal-actions">
@@ -2163,24 +1933,20 @@ function App() {
                 onClick={
                   closeLogoutModal
                 }
-                disabled={
-                  logoutLoading
-                }
+                disabled={logoutLoading}
               >
                 Batal
               </button>
 
               <button
-                className="confirm-button"
+                className="confirm-logout-button"
                 onClick={
                   confirmLogout
                 }
-                disabled={
-                  logoutLoading
-                }
+                disabled={logoutLoading}
               >
                 {logoutLoading
-                  ? "Menghapus..."
+                  ? "Memproses..."
                   : "Logout Sesi"}
               </button>
 
@@ -2189,7 +1955,6 @@ function App() {
           </div>
 
         </div>
-
       )}
 
     </div>
