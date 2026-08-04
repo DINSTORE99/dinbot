@@ -623,148 +623,52 @@ const renderDashboard = () => {
 
       {/* STATS */}
 
-      <section className="stats-grid">
-
-        <div className="stat-card">
-
-          <div className="stat-icon purple">
-            ⚡
-          </div>
-
-          <div>
-            <span>API SERVER</span>
-
-            <h3>
-              {serverOnline ? "Online" : "Offline"}
-            </h3>
-
-            <small
-              className={
-                serverOnline
-                  ? "online"
-                  : "offline"
-              }
-            >
-              ● {serverOnline
-                ? "SERVER AKTIF"
-                : "SERVER OFFLINE"}
-            </small>
-
-          </div>
-
-        </div>
-
-        <div className="stat-card">
-
-          <div className="stat-icon green">
-            W
-          </div>
-
-          <div>
-
-            <span>WHATSAPP</span>
-
-            <h3>
-              {botConnected
-                ? "Terhubung"
-                : "Belum Terhubung"}
-            </h3>
-
-            <small
-              className={
-                botConnected
-                  ? "online"
-                  : "waiting"
-              }
-            >
-              ● {botConnected
-                ? "TERHUBUNG"
-                : "MENUNGGU"}
-            </small>
-
-          </div>
-
-        </div>
-
-        <div className="stat-card">
-
-          <div className="stat-icon blue">
-            #
-          </div>
-
-          <div>
-
-            <span>SESSIONS</span>
-
-            <h3>{sessions.length}</h3>
-
-            <small>
-              SESI TERDAFTAR
-            </small>
-
-          </div>
-
-        </div>
-
-      </section>
-
       {/* API STATUS */}
 
-      <section className="api-status-card">
+<section className="api-status-card">
 
-        <div className="api-status-title">
-          <h2>🤖 API Status</h2>
-        </div>
+  <div className="api-status-header">
+    <div>
+      <h2>🤖 API Status</h2>
+      <p>Monitoring server bot secara realtime</p>
+    </div>
 
-        <div className="api-online">
-          🟢 Online
-        </div>
+    <div
+      className={
+        serverOnline
+          ? "api-online"
+          : "api-offline"
+      }
+    >
+      {serverOnline ? "🟢 Online" : "🔴 Offline"}
+    </div>
+  </div>
 
-        <div className="uptime-title">
-          ⏱️ Berjalan Selama
-        </div>
+  <div className="uptime-grid">
 
-        <div className="uptime-grid">
+    <div className="uptime-box">
+      <h3>{uptime?.hari ?? 0}</h3>
+      <span>Hari</span>
+    </div>
 
-          <div className="uptime-box">
-            <span className="uptime-value">
-              {uptime.hari}
-            </span>
-            <span className="uptime-label">
-              Hari
-            </span>
-          </div>
+    <div className="uptime-box">
+      <h3>{uptime?.jam ?? 0}</h3>
+      <span>Jam</span>
+    </div>
 
-          <div className="uptime-box">
-            <span className="uptime-value">
-              {uptime.jam}
-            </span>
-            <span className="uptime-label">
-              Jam
-            </span>
-          </div>
+    <div className="uptime-box">
+      <h3>{uptime?.menit ?? 0}</h3>
+      <span>Menit</span>
+    </div>
 
-          <div className="uptime-box">
-            <span className="uptime-value">
-              {uptime.menit}
-            </span>
-            <span className="uptime-label">
-              Menit
-            </span>
-          </div>
+    <div className="uptime-box">
+      <h3>{uptime?.detik ?? 0}</h3>
+      <span>Detik</span>
+    </div>
 
-          <div className="uptime-box">
-            <span className="uptime-value">
-              {uptime.detik}
-            </span>
-            <span className="uptime-label">
-              Detik
-            </span>
-          </div>
+  </div>
 
-        </div>
-
-      </section>
+</section>
 
    {/* WELCOME */}
 
