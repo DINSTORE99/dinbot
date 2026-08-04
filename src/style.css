@@ -2049,3 +2049,116 @@ input {
     }
 
 }
+/* =====================================================
+   API STATUS
+===================================================== */
+
+.api-status-card{
+    margin-top:24px;
+    padding:25px;
+    border-radius:20px;
+    background:rgba(15,23,42,.75);
+    border:1px solid rgba(255,255,255,.08);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+.api-status-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.api-status-title h2{
+    margin:0;
+    font-size:24px;
+    color:#fff;
+    font-weight:700;
+}
+
+.api-online{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 18px;
+    border-radius:999px;
+    background:rgba(34,197,94,.15);
+    color:#22c55e;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+.uptime-title{
+    color:#cbd5e1;
+    font-size:15px;
+    margin-bottom:18px;
+    font-weight:600;
+}
+
+.uptime-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+
+.uptime-box{
+    background:linear-gradient(180deg,#1e293b,#111827);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:20px 10px;
+    text-align:center;
+    transition:.25s;
+}
+
+.uptime-box:hover{
+    transform:translateY(-4px);
+    border-color:#7c3aed;
+    box-shadow:0 0 18px rgba(124,58,237,.35);
+}
+
+.uptime-value{
+    display:block;
+    font-size:34px;
+    font-weight:700;
+    color:#fff;
+    line-height:1;
+}
+
+.uptime-label{
+    display:block;
+    margin-top:10px;
+    font-size:13px;
+    color:#94a3b8;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+@media(max-width:900px){
+
+    .uptime-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:480px){
+
+    .api-status-card{
+        padding:18px;
+    }
+
+    .api-status-title h2{
+        font-size:20px;
+    }
+
+    .uptime-value{
+        font-size:28px;
+    }
+
+    .uptime-box{
+        padding:16px 8px;
+    }
+
+}
