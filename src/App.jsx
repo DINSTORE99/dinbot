@@ -250,16 +250,8 @@ setPing(data.ping ?? 0);
   // =====================================================
 
   useEffect(() => {
-    loadStatus();
-
-    const timer = setInterval(() => {
-      loadStatus();
-    }, 5000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+  loadStatus();
+}, []);
 
   // =====================================================
   // START PAIRING
