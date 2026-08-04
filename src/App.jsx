@@ -733,7 +733,7 @@ const renderDashboard = () => {
               <span />
               {serverOnline
                 ? "ACTIVE"
-                : "NGTES"}
+                : "OFFLINE"}
             </div>
 
           </div>
@@ -1316,19 +1316,20 @@ const renderDashboard = () => {
 
 
         <div className="header-status">
-  <span
-    className={
-      serverOnline
-        ? "status-dot online-dot"
-        : "status-dot"
-    }
-  />
 
-  {serverOnline
-    ? `Online | ${ping} ms`
-    : "Offline"}
+          <span
+            className={
+              serverOnline
+                ? "status-dot online-dot"
+                : "status-dot"
+            }
+          />
 
-</div>
+          {serverOnline
+            ? "Online"
+            : "Offline"}
+
+        </div>
 
       </header>
 
