@@ -647,18 +647,17 @@ const renderDashboard = () => {
 
     </div>
 
-    <small
-      className={
-        serverOnline
-          ? "online"
-          : "offline"
-      }
-    >
-      ●{" "}
-      {serverOnline
-        ? `ONLINE | ${ping || 0} ms`
-        : "OFFLINE"}
-    </small>
+<div
+  className={`api-status-badge ${
+    serverOnline ? "online" : "offline"
+  }`}
+>
+  <span className="dot"></span>
+
+  {serverOnline
+    ? `Online | ${ping ?? 0} ms`
+    : "Offline"}
+</div>
 
   </div>
 
