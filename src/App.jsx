@@ -750,48 +750,124 @@ const renderDashboard = () => {
 
       </section>
 
-      {/* WELCOME */}
+   {/* WELCOME */}
 
-      <section className="hero-card">
+        <section className="hero-card">
 
-        <div className="hero-content">
+          <div className="hero-content">
 
-          <span className="hero-label">
-            DIN BOT V1.0.0
-          </span>
+            <span className="hero-label">
+              DIN BOT V1.0.0
+            </span>
 
-          <h2>
-            Kelola Bot WhatsApp
-            dengan mudah.
-          </h2>
+            <h2>
+              Kelola Bot WhatsApp
+              dengan mudah.
+            </h2>
 
-          <p>
-            Hubungkan perangkat WhatsApp,
-            lihat kode pairing,
-            dan kelola semua session
-            dari satu tempat.
-          </p>
+            <p>
+              Hubungkan perangkat WhatsApp,
+              lihat kode pairing,
+              dan kelola semua session
+              dari satu tempat.
+            </p>
 
-          <button
-            className="hero-button"
-            onClick={() => setPage("pairing")}
-          >
-            Hubungkan WhatsApp
-            <span>→</span>
-          </button>
+            <button
+              className="hero-button"
+              onClick={() =>
+                setPage("pairing")
+              }
+            >
+              Hubungkan WhatsApp
+              <span>→</span>
+            </button>
 
-        </div>
-
-        <div className="hero-orb">
-          <div className="orb-inner">
-            W
           </div>
-        </div>
 
-      </section>
+          <div className="hero-orb">
+            <div className="orb-inner">
+              W
+            </div>
+          </div>
+
+        </section>
 
 
-        
+        {/* SYSTEM INFO */}
+
+        <section className="content-card">
+
+          <div className="section-title">
+
+            <div>
+              <span className="eyebrow">
+                SYSTEM
+              </span>
+
+              <h2>
+                Informasi Sistem
+              </h2>
+            </div>
+
+            <div className="status-pill">
+              <span />
+              {serverOnline
+                ? "ACTIVE"
+                : "OFFLINE"}
+            </div>
+
+          </div>
+
+
+          <div className="info-grid">
+
+            <div className="info-item">
+              <span>
+                Website
+              </span>
+
+              <strong>
+                DIN BOT
+              </strong>
+            </div>
+
+            <div className="info-item">
+              <span>
+                Version
+              </span>
+
+              <strong>
+                V1.0.0
+              </strong>
+            </div>
+
+            <div className="info-item">
+              <span>
+                Platform
+              </span>
+
+              <strong>
+                WhatsApp
+              </strong>
+            </div>
+
+            <div className="info-item">
+              <span>
+                Last Update
+              </span>
+
+              <strong>
+                {lastUpdate}
+              </strong>
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+    );
+  };
                 
 
   // =====================================================
