@@ -221,6 +221,13 @@ function App() {
     detik: 0
   }
 );
+      const data = await response.json();
+
+console.log("STATUS API:", data);
+
+setUptime(data.uptime);
+
+console.log("UPTIME:", data.uptime); 
     } finally {
       setLoading(false);
     }
