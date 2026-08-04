@@ -733,7 +733,7 @@ const renderDashboard = () => {
               <span />
               {serverOnline
                 ? "ACTIVE"
-                : "OFFLINE"}
+                : "NGTES"}
             </div>
 
           </div>
