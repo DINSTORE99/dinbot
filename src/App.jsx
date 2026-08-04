@@ -623,50 +623,101 @@ const renderDashboard = () => {
 
       {/* STATS */}
 <section className="api-status-card">
-      <div className="api-status-header">
 
-  <div className="api-status-title">
-    <div className="api-status-icon">🤖</div>
+  <div className="api-status-header">
 
-    <div>
-      <h2>API Status</h2>
-      <p>Monitoring server bot secara realtime</p>
+    <div className="api-status-title">
+
+      <div className="stat-icon purple">
+        🤖
+      </div>
+
+      <div>
+        <span>API STATUS</span>
+
+        <h2>Monitoring Server</h2>
+
+        <small>
+          Monitoring server bot secara realtime
+        </small>
+      </div>
+
     </div>
+
+    <small
+      className={
+        serverOnline
+          ? "online"
+          : "offline"
+      }
+    >
+      ●{" "}
+      {serverOnline
+        ? `ONLINE | ${ping || 0} ms`
+        : "OFFLINE"}
+    </small>
+
   </div>
 
-  <div className={serverOnline ? "api-online" : "api-offline"}>
-    {serverOnline ? `Online | ${ping} ms` : "Offline"}
+  <div className="stats-grid">
+
+    <div className="stat-card">
+
+      <div className="stat-icon purple">
+        📅
+      </div>
+
+      <div>
+        <span>HARI</span>
+        <h3>{uptime.hari}</h3>
+        <small>UPTIME</small>
+      </div>
+
+    </div>
+
+    <div className="stat-card">
+
+      <div className="stat-icon blue">
+        🕒
+      </div>
+
+      <div>
+        <span>JAM</span>
+        <h3>{uptime.jam}</h3>
+        <small>UPTIME</small>
+      </div>
+
+    </div>
+
+    <div className="stat-card">
+
+      <div className="stat-icon green">
+        ⏱️
+      </div>
+
+      <div>
+        <span>MENIT</span>
+        <h3>{uptime.menit}</h3>
+        <small>UPTIME</small>
+      </div>
+
+    </div>
+
+    <div className="stat-card">
+
+      <div className="stat-icon purple">
+        ⏲️
+      </div>
+
+      <div>
+        <span>DETIK</span>
+        <h3>{uptime.detik}</h3>
+        <small>UPTIME</small>
+      </div>
+
+    </div>
+
   </div>
-
-</div>
-
-<div className="uptime-grid">
-
-  <div className="uptime-box">
-    <div className="uptime-icon">📅</div>
-    <h3>{uptime.hari}</h3>
-    <span>Hari</span>
-  </div>
-
-  <div className="uptime-box">
-    <div className="uptime-icon">🕒</div>
-    <h3>{uptime.jam}</h3>
-    <span>Jam</span>
-  </div>
-
-  <div className="uptime-box">
-    <div className="uptime-icon">⏱️</div>
-    <h3>{uptime.menit}</h3>
-    <span>Menit</span>
-  </div>
-
-  <div className="uptime-box">
-    <div className="uptime-icon">⏲️</div>
-    <h3>{uptime.detik}</h3>
-    <span>Detik</span>
-  </div>
-
-</div>
 
 </section>
 
