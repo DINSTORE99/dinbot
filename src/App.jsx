@@ -622,7 +622,7 @@ const renderDashboard = () => {
       </header>
 
       {/* STATS */}
-
+<section className="api-status-card">
       <div className="api-status-header">
 
   <div className="api-status-title">
