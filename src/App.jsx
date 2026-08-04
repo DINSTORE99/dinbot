@@ -107,6 +107,7 @@ function App() {
   const [logoutNumber, setLogoutNumber] = useState("");
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [logoutMessage, setLogoutMessage] = useState("");
+   const [ping, setPing] = useState(0);
    const [uptime, setUptime] = useState({
   hari: 0,
   jam: 0,
@@ -185,7 +186,9 @@ const loadStatus = async () => {
 
     const data = await response.json();
 
-    console.log("STATUS API:", data);
+console.log("STATUS API:", data);
+
+setPing(data.ping ?? 0);
 
     // API SERVER
     setServerOnline(
