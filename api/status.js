@@ -9,13 +9,25 @@ export default async function handler(req, res) {
       });
     }
 
+    // Mulai hitung ping
+    const start = Date.now();
+
     const response = await fetch(
-      `${backendUrl}/api/status`
+      `${backendUrl}/api/status`,
+      {
+        cache: "no-store"
+      }
     );
 
     const data = await response.json();
 
-    return res.status(response.status).json(data);
+    // Ping dalam ms
+    const ping = Date.now() - start;
+
+    return res.status(response.status).json({
+      ...data,
+      ping
+    });
 
   } catch (error) {
 
