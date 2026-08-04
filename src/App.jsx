@@ -165,73 +165,82 @@ function App() {
   };
 
   // =====================================================
-  // LOAD STATUS
-  // =====================================================
+// LOAD STATUS
+// =====================================================
 
-  const loadStatus = async () => {
-    try {
-      setLoading(true);
+const loadStatus = async () => {
 
-      const response = await fetch(`${API}/api/status`, {
-        method: "GET",
-        cache: "no-store",
-      });
+  try {
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+    setLoading(true);
 
-      const data = await response.json();
+    const response = await fetch(`${API}/api/status`, {
+      method: "GET",
+      cache: "no-store"
+    });
 
-      console.log("API STATUS:", data);
-
-      setServerOnline(
-        data.success === true &&
-        data.server === "online"
-      );
-
-      setBotConnected(
-        data.botConnected === true
-      );
-
-      setSessions(
-        Array.isArray(data.sessions)
-          ? data.sessions
-          : []
-      );
-
-      setLastUpdate(
-        new Date().toLocaleTimeString("id-ID")
-      );
-
-    } catch (error) {
-      console.error(
-        "STATUS ERROR:",
-        error
-      );
-
-      setServerOnline(false);
-      setBotConnected(false);
-      setSessions([]);
-      setUptime(
-  data.uptime || {
-    hari: 0,
-    jam: 0,
-    menit: 0,
-    detik: 0
-  }
-);
-      const data = await response.json();
-
-console.log("STATUS API:", data);
-
-setUptime(data.uptime);
-
-console.log("UPTIME:", data.uptime); 
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
-  };
+
+    const data = await response.json();
+
+    console.log("STATUS API:", data);
+
+    // API SERVER
+    setServerOnline(
+      data.server === "online"
+    );
+
+    // BOT
+    setBotConnected(
+      data.botConnected === true
+    );
+
+    // SESSIONS
+    setSessions(
+      Array.isArray(data.sessions)
+        ? data.sessions
+        : []
+    );
+
+    // UPTIME
+    setUptime(
+      data.uptime || {
+        hari: 0,
+        jam: 0,
+        menit: 0,
+        detik: 0
+      }
+    );
+
+    // LAST UPDATE
+    setLastUpdate(
+      new Date().toLocaleTimeString("id-ID")
+    );
+
+  } catch (error) {
+
+    console.error("STATUS ERROR:", error);
+
+    setServerOnline(false);
+    setBotConnected(false);
+    setSessions([]);
+
+    setUptime({
+      hari: 0,
+      jam: 0,
+      menit: 0,
+      detik: 0
+    });
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+};
 
   // =====================================================
   // AUTO UPDATE
