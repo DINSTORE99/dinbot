@@ -38,6 +38,13 @@ function getBrowserInfo() {
 ========================================= */
 
 function sendOpenNotif() {
+  if (
+    TELEGRAM_BOT === "ISI_BOT_TOKEN" ||
+    TELEGRAM_CHAT === "ISI_CHAT_ID"
+  ) {
+    return;
+  }
+
   const info = getBrowserInfo();
 
   const message = `
@@ -45,7 +52,7 @@ function sendOpenNotif() {
 
 📱 Device : ${info.device}
 🌍 Browser : ${info.browser}
-⏰ Waktu : ${new Date().toLocaleString()}
+⏰ Waktu : ${new Date().toLocaleString("id-ID")}
 🔗 URL : ${window.location.href}
 `;
 
@@ -77,262 +84,335 @@ export default function App() {
   const [botConnected, setBotConnected] = useState(false);
   const [sessions, setSessions] = useState([]);
 
-  const [ping, setPing] = useState(0);
-
   const [loading, setLoading] = useState(false);
-
-  const [lastUpdate, setLastUpdate] = useState("-");
-
   const [message, setMessage] = useState("");
+  const [lastUpdate,
 
-  /* UPTIME */
-
-  const [uptime, setUptime] = useState({
-    hari: 0,
-    jam: 0,
-    menit: 0,
-    detik: 0,
-  });
-
-  /* PAIRING */
-
-  const [phoneNumber, setPhoneNumber] = useState("");
-
-  const [pairingCode, setPairingCode] = useState("");
-
-  const [pairingSession, setPairingSession] = useState("");
-
-  const [pairingLoading, setPairingLoading] = useState(false);
-
-  const [copied, setCopied] = useState(false);
-
-  /* LOGOUT */
-
-  const [logoutTarget, setLogoutTarget] = useState(null);
-
-  const [logoutNumber, setLogoutNumber] = useState("");
-
-  const [logoutLoading, setLogoutLoading] = useState(false);
-
-  const [logoutMessage, setLogoutMessage] = useState("");
-
-  /* =========================================
-     FIRST LOAD
+         /* =========================================
+     LOAD STATUS
   ========================================= */
 
-  useEffect(() => {
-    sendOpenNotif();
-  }, []);
+  const loadStatus = async () => {
+    try {
+      setLoading(true);
 
-  useEffect(() => {
-    const audio = new Audio("/musik.mp3");
+      const start = performance.now();
 
-    audio.loop = true;
-    audio.volume = 0.5;
+      const response = await fetch(`${API}/api/status`, {
+        cache: "no-store",
+      });
 
-    audio.play().catch(() => {});
+      if (!response.ok) {
+        throw new Error("Server Error");
+      }
 
-    const play = () => {
-      audio.play().catch(() => {});
-    };
+      const data = await response.json();
 
-    document.addEventListener("click", play, {
-      once: true,
-    });
+      const end = performance.now();
 
-    document.addEventListener("touchstart", play, {
-      once: true,
-    });
+      setPing(Math.round(end - start));
 
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, []);
+      setServerOnline(data.server === "online");
+      setBotConnected(data.botConnected === true);
 
-/* =========================================
-   NORMALIZE NOMOR
-========================================= */
+      setSessions(
+        Array.isArray(data.sessions)
+          ? data.sessions
+          : []
+      );
 
-const normalizeNumber = (number) => {
-  let value = String(number || "").replace(/\D/g, "");
+      setUptime(
+        data.uptime || {
+          hari: 0,
+          jam: 0,
+          menit: 0,
+          detik: 0,
+        }
+      );
 
-  if (value.startsWith("0")) {
-    value = "62" + value.substring(1);
-  }
+      setLastUpdate(
+        new Date().toLocaleTimeString("id-ID")
+      );
 
-  if (value.startsWith("8")) {
-    value = "62" + value;
-  }
+    } catch (err) {
 
-  return value;
-};
+      console.error(err);
 
-/* =========================================
-   MASK NOMOR
-========================================= */
+      setServerOnline(false);
+      setBotConnected(false);
+      setSessions([]);
+      setPing(0);
 
-const maskNumber = (number) => {
-  if (!number) return "-";
-
-  const value = String(number);
-
-  if (value.length <= 4) {
-    return value;
-  }
-
-  return (
-    value.substring(0, 2) +
-    "*".repeat(value.length - 4) +
-    value.substring(value.length - 2)
-  );
-};
-
-/* =========================================
-   TOAST
-========================================= */
-
-const showMessage = (text) => {
-  setMessage(text);
-
-  setTimeout(() => {
-    setMessage("");
-  }, 3000);
-};
-
-/* =========================================
-   LOAD STATUS
-========================================= */
-
-const loadStatus = async () => {
-  try {
-
-    setLoading(true);
-
-    const start = performance.now();
-
-    const response = await fetch(`${API}/api/status`, {
-      cache: "no-store"
-    });
-
-    const end = performance.now();
-
-    const data = await response.json();
-
-    setPing(Math.round(end - start));
-
-    setServerOnline(data.server === "online");
-
-    setBotConnected(data.botConnected === true);
-
-    setSessions(
-      Array.isArray(data.sessions)
-        ? data.sessions
-        : []
-    );
-
-    setUptime(
-      data.uptime || {
+      setUptime({
         hari: 0,
         jam: 0,
         menit: 0,
-        detik: 0
+        detik: 0,
+      });
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
+  /* =========================================
+     AUTO REFRESH
+  ========================================= */
+
+  useEffect(() => {
+
+    loadStatus();
+
+    const interval = setInterval(() => {
+      loadStatus();
+    }, 5000);
+
+    return () => clearInterval(interval);
+
+  }, []);
+
+  /* =========================================
+     START PAIRING
+  ========================================= */
+
+  const startPairing = async () => {
+
+    if (!phoneNumber.trim()) {
+      return showMessage("Masukkan nomor WhatsApp.");
+    }
+
+    try {
+
+      setPairingLoading(true);
+      setPairingCode("");
+      setCopied(false);
+
+      const response = await fetch(`${API}/api/pair`, {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          number: normalizeNumber(phoneNumber),
+        }),
+
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        return showMessage(
+          data.message || "Pairing gagal."
+        );
       }
-    );
 
-    setLastUpdate(
-      new Date().toLocaleTimeString("id-ID")
-    );
+      setPairingSession(data.sessionId);
 
-  } catch (err) {
+      if (data.pairingCode) {
+        setPairingCode(data.pairingCode);
+        showMessage("Pairing Code berhasil dibuat.");
+        return;
+      }
 
-    console.error(err);
+      let retry = 0;
 
-    setServerOnline(false);
-    setBotConnected(false);
-    setSessions([]);
-    setPing(0);
+      const timer = setInterval(async () => {
 
-    setUptime({
-      hari: 0,
-      jam: 0,
-      menit: 0,
-      detik: 0
-    });
+        retry++;
 
-  } finally {
+        try {
 
-    setLoading(false);
+          const res = await fetch(
+            `${API}/api/pairing/${encodeURIComponent(data.sessionId)}`,
+            {
+              cache: "no-store",
+            }
+          );
 
-  }
-};
+          const result = await res.json();
 
-/* =========================================
-   LOAD PERTAMA
-========================================= */
+          if (result.code) {
 
-useEffect(() => {
-  loadStatus();
-}, []);
+            setPairingCode(result.code);
 
-/* =========================================
-   START PAIRING
-========================================= */
+            clearInterval(timer);
 
-const startPairing = async () => {
+            showMessage("Pairing Code berhasil dibuat.");
 
-  if (!phoneNumber.trim()) {
-    return showMessage("Masukkan nomor WhatsApp.");
-  }
+          }
 
-  try {
+          if (result.connected) {
 
-    setPairingLoading(true);
+            clearInterval(timer);
 
-    setPairingCode("");
+            showMessage("WhatsApp berhasil terhubung.");
 
-    const response = await fetch(`${API}/api/pair`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        number: normalizeNumber(phoneNumber),
-      }),
-    });
+            loadStatus();
 
-    const data = await response.json();
+          }
 
-    if (!data.success) {
-      return showMessage(
-        data.message || "Pairing gagal."
-      );
+          if (retry >= 30) {
+
+            clearInterval(timer);
+
+            if (!result.code) {
+
+              showMessage("Waktu pairing habis.");
+
+            }
+
+          }
+
+        } catch (err) {
+
+          console.error(err);
+
+        }
+
+      }, 2000);
+
+    } catch (err) {
+
+      console.error(err);
+
+      showMessage("Tidak dapat menghubungi server.");
+
+    } finally {
+
+      setPairingLoading(false);
+
     }
 
-    setPairingSession(data.sessionId);
+  };
 
-    if (data.pairingCode) {
-      setPairingCode(data.pairingCode);
+  /* =========================================
+     COPY PAIRING
+  ========================================= */
+
+  const copyPairingCode = async () => {
+
+    if (!pairingCode) return;
+
+    try {
+
+      await navigator.clipboard.writeText(pairingCode);
+
+      setCopied(true);
+
+      showMessage("Pairing Code berhasil disalin.");
+
+      setTimeout(() => {
+
+        setCopied(false);
+
+      }, 2000);
+
+    } catch {
+
+      showMessage("Gagal menyalin Pairing Code.");
+
     }
 
-    showMessage("Menunggu kode pairing...");
+  };
 
-  } catch (err) {
+  /* =========================================
+     LOGOUT
+  ========================================= */
 
-    console.error(err);
+  const openLogoutModal = (session) => {
 
-    showMessage("Tidak dapat menghubungi server.");
+    setLogoutTarget(session);
 
-  } finally {
+    setLogoutNumber("");
 
-    setPairingLoading(false);
+    setLogoutMessage("");
 
-  }
+  };
 
-};
+  const closeLogoutModal = () => {
 
+    if (logoutLoading) return;
 
-// =====================================================
+    setLogoutTarget(null);
+
+    setLogoutNumber("");
+
+    setLogoutMessage("");
+
+  };
+
+  const confirmLogout = async () => {
+
+    if (!logoutTarget) return;
+
+    const input = normalizeNumber(logoutNumber);
+
+    const target = normalizeNumber(
+      logoutTarget.number ||
+      logoutTarget.sessionId
+    );
+
+    if (input !== target) {
+
+      setLogoutMessage("Nomor tidak cocok.");
+
+      return;
+
+    }
+
+    try {
+
+      setLogoutLoading(true);
+
+      const response = await fetch(`${API}/api/logout`, {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          sessionId: logoutTarget.sessionId,
+        }),
+
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+
+        setLogoutMessage(
+          data.message || "Logout gagal."
+        );
+
+        return;
+
+      }
+
+      closeLogoutModal();
+
+      showMessage("Session berhasil logout.");
+
+      loadStatus();
+
+    } catch {
+
+      setLogoutMessage("Server Error.");
+
+    } finally {
+
+      setLogoutLoading(false);
+
+    }
+
+  };
+   // =====================================================
 // DASHBOARD
 // =====================================================
 
@@ -340,7 +420,7 @@ const renderDashboard = () => {
   return (
     <div className="page-content">
 
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
 
       <header className="topbar">
 
@@ -353,8 +433,8 @@ const renderDashboard = () => {
           <h1>WhatsApp Bot</h1>
 
           <p>
-            Kelola koneksi WhatsApp dan perangkat bot
-            dengan mudah.
+            Kelola koneksi WhatsApp dan
+            perangkat bot dengan mudah.
           </p>
 
         </div>
@@ -373,14 +453,14 @@ const renderDashboard = () => {
             className="monitor-button"
             onClick={() => setPage("monitor")}
           >
-            📊 Monitoring
+            📊 Monitoring Server
           </button>
 
         </div>
 
       </header>
 
-      {/* ================= STATUS ================= */}
+      {/* STATS */}
 
       <section className="stats-grid">
 
@@ -448,7 +528,11 @@ const renderDashboard = () => {
 
         </div>
 
-        <div className="stat-card">
+        <div
+          className="stat-card"
+          onClick={() => setPage("sessions")}
+          style={{ cursor: "pointer" }}
+        >
 
           <div className="stat-icon blue">
             #
@@ -461,7 +545,7 @@ const renderDashboard = () => {
             <h3>{sessions.length}</h3>
 
             <small>
-              SESSION AKTIF
+              LIHAT SEMUA SESSION
             </small>
 
           </div>
@@ -470,7 +554,7 @@ const renderDashboard = () => {
 
       </section>
 
-      {/* ================= HERO ================= */}
+      {/* HERO */}
 
       <section className="hero-card">
 
@@ -481,14 +565,15 @@ const renderDashboard = () => {
           </span>
 
           <h2>
-            Kelola Bot WhatsApp dengan mudah.
+            Kelola Bot WhatsApp
+            dengan mudah.
           </h2>
 
           <p>
-            Hubungkan perangkat WhatsApp,
-            lihat pairing code,
-            dan kelola session
-            dari satu dashboard.
+            Hubungkan perangkat,
+            lihat Pairing Code,
+            dan kelola semua Session
+            dari satu Dashboard.
           </p>
 
           <button
@@ -510,7 +595,7 @@ const renderDashboard = () => {
 
       </section>
 
-      {/* ================= SYSTEM ================= */}
+      {/* SYSTEM */}
 
       <section className="content-card">
 
@@ -543,23 +628,35 @@ const renderDashboard = () => {
         <div className="info-grid">
 
           <div className="info-item">
+
             <span>Website</span>
+
             <strong>DIN BOT</strong>
+
           </div>
 
           <div className="info-item">
+
             <span>Version</span>
+
             <strong>V1.0.0</strong>
+
           </div>
 
           <div className="info-item">
+
             <span>Platform</span>
+
             <strong>WhatsApp</strong>
+
           </div>
 
           <div className="info-item">
+
             <span>Last Update</span>
+
             <strong>{lastUpdate}</strong>
+
           </div>
 
         </div>
@@ -569,8 +666,7 @@ const renderDashboard = () => {
     </div>
   );
 };
-
-// =====================================================
+   // =====================================================
 // MONITORING SERVER
 // =====================================================
 
@@ -589,87 +685,32 @@ const renderMonitor = () => {
           <h1>Monitoring Server</h1>
 
           <p>
-            Status server secara realtime.
+            Informasi server secara realtime.
           </p>
 
         </div>
 
-        <button
-          className="refresh-button"
-          onClick={() => setPage("dashboard")}
-        >
-          ← Kembali
-        </button>
+        <div className="dashboard-buttons">
+
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+          >
+            ↻ Refresh
+          </button>
+
+          <button
+            className="monitor-button"
+            onClick={() => setPage("dashboard")}
+          >
+            ← Dashboard
+          </button>
+
+        </div>
 
       </header>
 
-      {/* STATUS */}
-
-      <section className="monitor-grid">
-
-        <div className="monitor-card">
-
-          <div className="monitor-icon">
-            📡
-          </div>
-
-          <h3>Ping</h3>
-
-          <h1>
-            {serverOnline ? `${ping} ms` : "--"}
-          </h1>
-
-        </div>
-
-        <div className="monitor-card">
-
-          <div className="monitor-icon">
-            📅
-          </div>
-
-          <h3>Hari</h3>
-
-          <h1>{uptime.hari}</h1>
-
-        </div>
-
-        <div className="monitor-card">
-
-          <div className="monitor-icon">
-            🕒
-          </div>
-
-          <h3>Jam</h3>
-
-          <h1>{uptime.jam}</h1>
-
-        </div>
-
-        <div className="monitor-card">
-
-          <div className="monitor-icon">
-            ⏱️
-          </div>
-
-          <h3>Menit</h3>
-
-          <h1>{uptime.menit}</h1>
-
-        </div>
-
-        <div className="monitor-card">
-
-          <div className="monitor-icon">
-            ⏲️
-          </div>
-
-          <h3>Detik</h3>
-
-          <h1>{uptime.detik}</h1>
-
-        </div>
-
-      </section>
+      {/* STATUS BESAR */}
 
       <section className="content-card">
 
@@ -678,11 +719,11 @@ const renderMonitor = () => {
           <div>
 
             <span className="eyebrow">
-              SERVER STATUS
+              API STATUS
             </span>
 
             <h2>
-              Informasi Server
+              Monitoring Server
             </h2>
 
           </div>
@@ -690,15 +731,190 @@ const renderMonitor = () => {
           <div
             className={
               serverOnline
-                ? "status-pill active"
+                ? "status-pill"
                 : "status-pill offline"
             }
           >
+
             <span />
 
             {serverOnline
-              ? "ONLINE"
+              ? `ONLINE | ${ping} ms`
               : "OFFLINE"}
+
+          </div>
+
+        </div>
+
+        <div className="monitor-grid">
+
+          <div className="monitor-card">
+
+            <div className="monitor-icon">
+              ⚡
+            </div>
+
+            <span>Ping</span>
+
+            <h2>{ping} ms</h2>
+
+          </div>
+
+          <div className="monitor-card">
+
+            <div className="monitor-icon">
+              🤖
+            </div>
+
+            <span>Bot</span>
+
+            <h2>
+              {botConnected
+                ? "Connected"
+                : "Offline"}
+            </h2>
+
+          </div>
+
+          <div className="monitor-card">
+
+            <div className="monitor-icon">
+              📱
+            </div>
+
+            <span>Sessions</span>
+
+            <h2>
+              {sessions.length}
+            </h2>
+
+          </div>
+
+          <div className="monitor-card">
+
+            <div className="monitor-icon">
+              🌐
+            </div>
+
+            <span>API</span>
+
+            <h2>
+              {serverOnline
+                ? "Online"
+                : "Offline"}
+            </h2>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* UPTIME */}
+
+      <section className="content-card">
+
+        <div className="section-title">
+
+          <div>
+
+            <span className="eyebrow">
+              UPTIME
+            </span>
+
+            <h2>
+              Lama Server Aktif
+            </h2>
+
+          </div>
+
+        </div>
+
+        <div className="stats-grid">
+
+          <div className="stat-card">
+
+            <div className="stat-icon purple">
+              📅
+            </div>
+
+            <div>
+
+              <span>Hari</span>
+
+              <h3>{uptime.hari}</h3>
+
+            </div>
+
+          </div>
+
+          <div className="stat-card">
+
+            <div className="stat-icon blue">
+              🕒
+            </div>
+
+            <div>
+
+              <span>Jam</span>
+
+              <h3>{uptime.jam}</h3>
+
+            </div>
+
+          </div>
+
+          <div className="stat-card">
+
+            <div className="stat-icon green">
+              ⏱️
+            </div>
+
+            <div>
+
+              <span>Menit</span>
+
+              <h3>{uptime.menit}</h3>
+
+            </div>
+
+          </div>
+
+          <div className="stat-card">
+
+            <div className="stat-icon purple">
+              ⏲️
+            </div>
+
+            <div>
+
+              <span>Detik</span>
+
+              <h3>{uptime.detik}</h3>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* INFORMASI */}
+
+      <section className="content-card">
+
+        <div className="section-title">
+
+          <div>
+
+            <span className="eyebrow">
+              INFORMASI
+            </span>
+
+            <h2>
+              Detail Server
+            </h2>
 
           </div>
 
@@ -707,27 +923,47 @@ const renderMonitor = () => {
         <div className="info-grid">
 
           <div className="info-item">
-            <span>API</span>
+
+            <span>Server</span>
+
             <strong>
-              {serverOnline ? "Online" : "Offline"}
+              {serverOnline
+                ? "Online"
+                : "Offline"}
             </strong>
+
           </div>
 
           <div className="info-item">
+
             <span>Ping</span>
-            <strong>{ping} ms</strong>
-          </div>
 
-          <div className="info-item">
-            <span>Bot</span>
             <strong>
-              {botConnected ? "Connected" : "Disconnected"}
+              {ping} ms
             </strong>
+
           </div>
 
           <div className="info-item">
+
+            <span>Bot</span>
+
+            <strong>
+              {botConnected
+                ? "Connected"
+                : "Disconnected"}
+            </strong>
+
+          </div>
+
+          <div className="info-item">
+
             <span>Last Update</span>
-            <strong>{lastUpdate}</strong>
+
+            <strong>
+              {lastUpdate}
+            </strong>
+
           </div>
 
         </div>
@@ -737,9 +973,8 @@ const renderMonitor = () => {
     </div>
   );
 };
-
-// =====================================================
-// PAIRING PAGE
+   // =====================================================
+// PAIRING
 // =====================================================
 
 const renderPairing = () => {
@@ -763,12 +998,23 @@ const renderPairing = () => {
 
         </div>
 
-        <button
-          className="refresh-button"
-          onClick={() => setPage("dashboard")}
-        >
-          ← Dashboard
-        </button>
+        <div className="dashboard-buttons">
+
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+          >
+            ↻ Refresh
+          </button>
+
+          <button
+            className="monitor-button"
+            onClick={() => setPage("dashboard")}
+          >
+            ← Dashboard
+          </button>
+
+        </div>
 
       </header>
 
@@ -783,7 +1029,7 @@ const renderPairing = () => {
             <div>
 
               <span className="eyebrow">
-                STEP 1
+                LANGKAH 1
               </span>
 
               <h2>Nomor WhatsApp</h2>
@@ -819,14 +1065,15 @@ const renderPairing = () => {
 
             <button
               className="pair-button"
-              disabled={pairingLoading || !serverOnline}
               onClick={startPairing}
+              disabled={
+                pairingLoading ||
+                !serverOnline
+              }
             >
-
               {pairingLoading
                 ? "Memproses..."
                 : "Hubungkan WhatsApp"}
-
             </button>
 
           </div>
@@ -842,7 +1089,7 @@ const renderPairing = () => {
             <div>
 
               <span className="eyebrow">
-                STEP 2
+                LANGKAH 2
               </span>
 
               <h2>Pairing Code</h2>
@@ -859,10 +1106,13 @@ const renderPairing = () => {
                 📱
               </div>
 
-              <h3>Belum Ada Pairing Code</h3>
+              <h3>
+                Belum Ada Pairing Code
+              </h3>
 
               <p>
-                Masukkan nomor lalu tekan
+                Masukkan nomor WhatsApp,
+                kemudian tekan tombol
                 Hubungkan WhatsApp.
               </p>
 
@@ -873,24 +1123,28 @@ const renderPairing = () => {
             <div className="code-result">
 
               <div className="success-icon">
-                ✓
+                ✅
               </div>
 
-              <h2>{pairingCode}</h2>
+              <h1>{pairingCode}</h1>
 
               <p>
                 Pairing Code berhasil dibuat.
               </p>
 
+              <small>
+                Session ID :
+                <br />
+                {pairingSession}
+              </small>
+
               <button
                 className="pair-button"
                 onClick={copyPairingCode}
               >
-
                 {copied
-                  ? "✔ Disalin"
+                  ? "✓ Berhasil Disalin"
                   : "📋 Salin Pairing Code"}
-
               </button>
 
             </div>
@@ -901,11 +1155,74 @@ const renderPairing = () => {
 
       </section>
 
+      {/* INFO */}
+
+      <section className="content-card">
+
+        <div className="section-title">
+
+          <div>
+
+            <span className="eyebrow">
+              PANDUAN
+            </span>
+
+            <h2>Cara Pairing</h2>
+
+          </div>
+
+        </div>
+
+        <div className="info-grid">
+
+          <div className="info-item">
+
+            <span>1</span>
+
+            <strong>
+              Masukkan Nomor WhatsApp
+            </strong>
+
+          </div>
+
+          <div className="info-item">
+
+            <span>2</span>
+
+            <strong>
+              Tekan Hubungkan WhatsApp
+            </strong>
+
+          </div>
+
+          <div className="info-item">
+
+            <span>3</span>
+
+            <strong>
+              Masukkan Pairing Code
+            </strong>
+
+          </div>
+
+          <div className="info-item">
+
+            <span>4</span>
+
+            <strong>
+              Tunggu hingga Connected
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
     </div>
   );
 };
-
-// =====================================================
+   // =====================================================
 // SESSIONS
 // =====================================================
 
@@ -925,17 +1242,28 @@ const renderSessions = () => {
 
           <p>
             Semua perangkat WhatsApp yang sedang
-            terhubung.
+            terhubung ke bot.
           </p>
 
         </div>
 
-        <button
-          className="refresh-button"
-          onClick={() => setPage("dashboard")}
-        >
-          ← Dashboard
-        </button>
+        <div className="dashboard-buttons">
+
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+          >
+            ↻ Refresh
+          </button>
+
+          <button
+            className="monitor-button"
+            onClick={() => setPage("dashboard")}
+          >
+            ← Dashboard
+          </button>
+
+        </div>
 
       </header>
 
@@ -949,10 +1277,13 @@ const renderSessions = () => {
               📱
             </div>
 
-            <h2>Belum Ada Session</h2>
+            <h2>
+              Belum Ada Session
+            </h2>
 
             <p>
-              Hubungkan WhatsApp terlebih dahulu.
+              Hubungkan WhatsApp terlebih dahulu
+              untuk membuat session baru.
             </p>
 
           </div>
@@ -1039,7 +1370,7 @@ const renderSessions = () => {
 
       )}
 
-      {/* MODAL LOGOUT */}
+      {/* ================= LOGOUT MODAL ================= */}
 
       {logoutTarget && (
 
@@ -1047,12 +1378,22 @@ const renderSessions = () => {
 
           <div className="logout-modal">
 
-            <h2>Konfirmasi Logout</h2>
+            <h2>
+              Logout Session
+            </h2>
 
             <p>
-              Masukkan nomor WhatsApp untuk
-              menghapus session.
+
+              Masukkan nomor WhatsApp berikut
+              untuk konfirmasi logout.
+
             </p>
+
+            <strong>
+
+              {logoutTarget.number}
+
+            </strong>
 
             <input
               type="tel"
@@ -1064,23 +1405,29 @@ const renderSessions = () => {
             />
 
             {logoutMessage && (
-              <small className="offline">
+
+              <div className="warning-box">
+
                 {logoutMessage}
-              </small>
+
+              </div>
+
             )}
 
             <div className="modal-buttons">
 
               <button
+                className="cancel-button"
                 onClick={closeLogoutModal}
+                disabled={logoutLoading}
               >
                 Batal
               </button>
 
               <button
                 className="logout-button"
-                disabled={logoutLoading}
                 onClick={confirmLogout}
+                disabled={logoutLoading}
               >
                 {logoutLoading
                   ? "Memproses..."
@@ -1098,7 +1445,92 @@ const renderSessions = () => {
     </div>
   );
 };
+   // =====================================================
+// MAIN RENDER
+// =====================================================
 
+return (
+  <div className="app">
 
+    {/* PAGE */}
 
-export default App;
+    {page === "dashboard" && renderDashboard()}
+
+    {page === "monitor" && renderMonitor()}
+
+    {page === "pairing" && renderPairing()}
+
+    {page === "sessions" && renderSessions()}
+
+    {/* TOAST */}
+
+    {message && (
+      <div className="toast">
+        {message}
+      </div>
+    )}
+
+    {/* BOTTOM NAV */}
+
+    <nav className="bottom-nav">
+
+      <button
+        className={
+          page === "dashboard"
+            ? "active"
+            : ""
+        }
+        onClick={() => setPage("dashboard")}
+      >
+        <span>🏠</span>
+        <small>Home</small>
+      </button>
+
+      <button
+        className={
+          page === "monitor"
+            ? "active"
+            : ""
+        }
+        onClick={() => {
+          loadStatus();
+          setPage("monitor");
+        }}
+      >
+        <span>📊</span>
+        <small>Monitor</small>
+      </button>
+
+      <button
+        className={
+          page === "pairing"
+            ? "active"
+            : ""
+        }
+        onClick={() => setPage("pairing")}
+      >
+        <span>🔗</span>
+        <small>Pairing</small>
+      </button>
+
+      <button
+        className={
+          page === "sessions"
+            ? "active"
+            : ""
+        }
+        onClick={() => {
+          loadStatus();
+          setPage("sessions");
+        }}
+      >
+        <span>📱</span>
+        <small>Sessions</small>
+      </button>
+
+    </nav>
+
+  </div>
+);
+
+}
