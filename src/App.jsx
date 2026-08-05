@@ -1142,14 +1142,14 @@ const renderDashboard = () => {
           </div>
 
           <button
-            className="refresh-button"
-            onClick={loadStatus}
-            disabled={loading}
-          >
-            {loading
-              ? "Memuat..."
-              : "↻ Refresh"}
-          </button>
+  className="refresh-button"
+  onClick={() => {
+    loadStatus();
+    setPage("monitor");
+  }}
+>
+  📊 Monitoring Server
+</button>
 
         </header>
 
@@ -1389,6 +1389,9 @@ const renderDashboard = () => {
 
         {page === "sessions" &&
           renderSessions()}
+         
+         {page === "pairing" && 
+         renderPairing()}
 
       </main>
 
