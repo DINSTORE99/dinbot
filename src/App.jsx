@@ -606,15 +606,24 @@ const renderDashboard = () => {
           </p>
         </div>
 
-        <button
-  className="refresh-button"
-  onClick={() => {
-    loadStatus();
-    setPage("monitor");
-  }}
->
-  📊 Monitoring Server
-</button>
+        <div className="dashboard-buttons">
+
+  <button
+    className="refresh-button"
+    onClick={loadStatus}
+    disabled={loading}
+  >
+    {loading ? "Memuat..." : "↻ Refresh"}
+  </button>
+
+  <button
+    className="refresh-button monitor-button"
+    onClick={() => setPage("monitor")}
+  >
+    📊 Monitoring Server
+  </button>
+
+</div>
 
       </header>
 
