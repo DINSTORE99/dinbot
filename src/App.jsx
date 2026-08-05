@@ -1099,23 +1099,6 @@ const renderSessions = () => {
   );
 };
 
-return (
-  <>
-    {page === "dashboard" && renderDashboard()}
 
-    {page === "monitor" && renderMonitor()}
-
-    {page === "pairing" && renderPairing()}
-
-    {page === "sessions" && renderSessions()}
-
-    {message && (
-      <div className="toast-message">
-        {message}
-      </div>
-    )}
-  </>
-);
-}
 
 export default App;
