@@ -1074,281 +1074,256 @@ Informasi
 </div>
 
 );
-  /* =========================================
-   PAIRING
-========================================= */
+  // =====================================================
+// PAIRING
+// =====================================================
 
-const renderPairing = () => (
+const renderPairing = () => {
+  return (
+    <div className="page-content">
 
-<div className="page-content">
+      <header className="topbar">
 
-<header className="topbar">
+        <div>
 
-<div>
+          <span className="eyebrow">
+            DIN BOT / PAIRING
+          </span>
 
-<span className="eyebrow">
-DIN BOT / PAIRING
-</span>
+          <h1>Hubungkan WhatsApp</h1>
 
-<h1>Hubungkan WhatsApp</h1>
+          <p>
+            Masukkan nomor WhatsApp untuk mendapatkan
+            Pairing Code.
+          </p>
 
-<p>
-Masukkan nomor WhatsApp untuk mendapatkan Pairing Code.
-</p>
+        </div>
 
-</div>
+        <div className="dashboard-buttons">
 
-<div className="dashboard-buttons">
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+          >
+            ↻ Refresh
+          </button>
 
-<button
-className="refresh-button"
-onClick={loadStatus}
->
+          <button
+            className="monitor-button"
+            onClick={() => setPage("dashboard")}
+          >
+            ← Dashboard
+          </button>
 
-↻ Refresh
+        </div>
 
-</button>
+      </header>
 
-<button
-className="monitor-button"
-onClick={() => setPage("dashboard")}
->
+      <section className="pairing-layout">
 
-← Dashboard
+        {/* INPUT */}
 
-</button>
+        <div className="content-card">
 
-</div>
+          <div className="section-title">
 
-</header>
+            <div>
 
-<div className="pairing-layout">
+              <span className="eyebrow">
+                LANGKAH 1
+              </span>
 
-{/* INPUT */}
+              <h2>Nomor WhatsApp</h2>
 
-<div className="content-card">
+            </div>
 
-<div className="section-title">
+          </div>
 
-<div>
+          <div className="phone-form">
 
-<span className="eyebrow">
-LANGKAH 1
-</span>
+            <label>Nomor WhatsApp</label>
 
-<h2>Nomor WhatsApp</h2>
+            <div className="phone-input">
 
-</div>
+              <div className="country-code">
+                +62
+              </div>
 
-</div>
+              <input
+                type="tel"
+                placeholder="81234567890"
+                value={phoneNumber.replace(/^62/, "")}
+                onChange={(e) => {
 
-<div className="phone-form">
+                  const value = e.target.value.replace(/\D/g, "");
 
-<label>Nomor WhatsApp</label>
+                  setPhoneNumber("62" + value);
 
-<div className="phone-input">
+                }}
+              />
 
-<div className="country-code">
-+62
-</div>
+            </div>
 
-<input
-type="tel"
-placeholder="81234567890"
-value={phoneNumber.replace(/^62/, "")}
-onChange={(e)=>{
+            <button
+              className="pair-button"
+              onClick={startPairing}
+              disabled={
+                pairingLoading ||
+                !serverOnline
+              }
+            >
+              {pairingLoading
+                ? "Memproses..."
+                : "Hubungkan WhatsApp"}
+            </button>
 
-const value=e.target.value.replace(/\D/g,"");
+          </div>
 
-setPhoneNumber("62"+value);
+        </div>
 
-}}
-/>
+        {/* HASIL */}
 
-</div>
+        <div className="content-card">
 
-<button
-className="pair-button"
-onClick={startPairing}
-disabled={
-pairingLoading ||
-!serverOnline
-}
->
+          <div className="section-title">
 
-{
-pairingLoading
-? "Memproses..."
-: "Hubungkan WhatsApp"
-}
+            <div>
 
-</button>
+              <span className="eyebrow">
+                LANGKAH 2
+              </span>
 
-</div>
+              <h2>Pairing Code</h2>
 
-</div>
+            </div>
 
-{/* HASIL */}
+          </div>
 
-<div className="content-card">
+          {!pairingCode ? (
 
-<div className="section-title">
+            <div className="empty-code">
 
-<div>
+              <div className="empty-icon">
+                📱
+              </div>
 
-<span className="eyebrow">
-LANGKAH 2
-</span>
+              <h3>
+                Belum Ada Pairing Code
+              </h3>
 
-<h2>Pairing Code</h2>
+              <p>
+                Masukkan nomor WhatsApp,
+                kemudian tekan tombol
+                Hubungkan WhatsApp.
+              </p>
 
-</div>
+            </div>
 
-</div>
+          ) : (
 
-{
-!pairingCode ?
+            <div className="code-result">
 
-(
+              <div className="success-icon">
+                ✅
+              </div>
 
-<div className="empty-code">
+              <h1>{pairingCode}</h1>
 
-<div className="empty-icon">
+              <p>
+                Pairing Code berhasil dibuat.
+              </p>
 
-📱
+              <small>
+                Session ID :
+                <br />
+                {pairingSession}
+              </small>
 
-</div>
+              <button
+                className="pair-button"
+                onClick={copyPairingCode}
+              >
+                {copied
+                  ? "✓ Berhasil Disalin"
+                  : "📋 Salin Pairing Code"}
+              </button>
 
-<h3>
+            </div>
 
-Belum Ada Pairing Code
+          )}
 
-</h3>
+        </div>
 
-<p>
+      </section>
 
-Masukkan nomor WhatsApp kemudian tekan tombol Hubungkan.
+      {/* INFO */}
 
-</p>
+      <section className="content-card">
 
-</div>
+        <div className="section-title">
 
-)
+          <div>
 
-:
+            <span className="eyebrow">
+              PANDUAN
+            </span>
 
-(
+            <h2>Cara Pairing</h2>
 
-<div className="pairing-result">
+          </div>
 
-<div className="pairing-box">
+        </div>
 
-{pairingCode}
+        <div className="info-grid">
 
-</div>
+          <div className="info-item">
 
-<button
-className="copy-button"
-onClick={copyPairingCode}
->
+            <span>1</span>
 
-{
-copied
-? "✓ Berhasil Disalin"
-: "📋 Salin Pairing Code"
-}
+            <strong>
+              Masukkan Nomor WhatsApp
+            </strong>
 
-</button>
+          </div>
 
-</div>
+          <div className="info-item">
 
-)
+            <span>2</span>
 
-}
+            <strong>
+              Tekan Hubungkan WhatsApp
+            </strong>
 
-</div>
+          </div>
 
-</div>
+          <div className="info-item">
 
-<section className="content-card">
+            <span>3</span>
 
-<div className="section-title">
+            <strong>
+              Masukkan Pairing Code
+            </strong>
 
-<div>
+          </div>
 
-<span className="eyebrow">
-PETUNJUK
-</span>
+          <div className="info-item">
 
-<h2>Cara Pairing</h2>
+            <span>4</span>
 
-</div>
+            <strong>
+              Tunggu hingga Connected
+            </strong>
 
-</div>
+          </div>
 
-<div className="steps">
+        </div>
 
-<div className="step">
+      </section>
 
-<div className="step-number">
-1
-</div>
-
-<div>
-
-<strong>Masukkan Nomor</strong>
-
-<p>
-Gunakan format 08xxxxxxxxxx.
-</p>
-
-</div>
-
-</div>
-
-<div className="step">
-
-<div className="step-number">
-2
-</div>
-
-<div>
-
-<strong>Dapatkan Pairing Code</strong>
-
-<p>
-Tekan tombol Hubungkan WhatsApp.
-</p>
-
-</div>
-
-</div>
-
-<div className="step">
-
-<div className="step-number">
-3
-</div>
-
-<div>
-
-<strong>Masukkan ke WhatsApp</strong>
-
-<p>
-Buka WhatsApp → Perangkat Tertaut → Tautkan dengan nomor.
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-</div>
-
-);/* =========================================
+    </div>
+  );
+};
+/* =========================================
    SESSIONS
 ========================================= */
 
