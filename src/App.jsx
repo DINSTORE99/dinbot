@@ -1310,6 +1310,7 @@ const renderPairing = () => {
 
             <span>4</span>
 
+
             <strong>
               Tunggu hingga Connected
             </strong>
@@ -1323,265 +1324,232 @@ const renderPairing = () => {
     </div>
   );
 };
-/* =========================================
-   SESSIONS
-========================================= */
 
-const renderSessions = () => (
 
-<div className="page-content">
+ // =====================================================
+// SESSIONS
+// =====================================================
 
-<header className="topbar">
+const renderSessions = () => {
+  return (
+    <div className="page-content">
 
-<div>
+      <header className="topbar">
 
-<span className="eyebrow">
-DIN BOT / SESSIONS
-</span>
+        <div>
 
-<h1>Daftar Session</h1>
+          <span className="eyebrow">
+            DIN BOT / SESSIONS
+          </span>
 
-<p>
-Semua perangkat WhatsApp yang terhubung.
-</p>
+          <h1>Daftar Session</h1>
 
-</div>
+          <p>
+            Semua perangkat WhatsApp yang sedang
+            terhubung ke bot.
+          </p>
 
-<div className="dashboard-buttons">
+        </div>
 
-<button
-className="refresh-button"
-onClick={loadStatus}
->
+        <div className="dashboard-buttons">
 
-↻ Refresh
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+          >
+            ↻ Refresh
+          </button>
 
-</button>
+          <button
+            className="monitor-button"
+            onClick={() => setPage("dashboard")}
+          >
+            ← Dashboard
+          </button>
 
-<button
-className="monitor-button"
-onClick={() => setPage("dashboard")}
->
+        </div>
 
-← Dashboard
+      </header>
 
-</button>
+      {sessions.length === 0 ? (
 
-</div>
+        <section className="content-card">
 
-</header>
+          <div className="empty-code">
 
-<section className="content-card">
+            <div className="empty-icon">
+              📱
+            </div>
 
-<div className="section-title">
+            <h2>
+              Belum Ada Session
+            </h2>
 
-<div>
+            <p>
+              Hubungkan WhatsApp terlebih dahulu
+              untuk membuat session baru.
+            </p>
 
-<span className="eyebrow">
-TOTAL
-</span>
+          </div>
 
-<h2>
+        </section>
 
-{sessions.length} Session
+      ) : (
 
-</h2>
+        <section className="session-grid">
 
-</div>
+          {sessions.map((session, index) => (
 
-</div>
+            <div
+              key={index}
+              className="session-card"
+            >
 
-{
-sessions.length === 0 ?
+              <div className="session-top">
 
-(
+                <div className="session-avatar">
+                  📱
+                </div>
 
-<div className="empty-code">
+                <div>
 
-<div className="empty-icon">
+                  <h3>
+                    {session.name || "WhatsApp"}
+                  </h3>
 
-📱
+                  <small>
+                    {maskNumber(session.number)}
+                  </small>
 
-</div>
+                </div>
 
-<h3>
+              </div>
 
-Belum Ada Session
+              <div className="session-info">
 
-</h3>
+                <div>
 
-<p>
+                  <span>Status</span>
 
-Silakan hubungkan WhatsApp terlebih dahulu.
+                  <strong
+                    className={
+                      session.connected
+                        ? "online"
+                        : "offline"
+                    }
+                  >
+                    {session.connected
+                      ? "Connected"
+                      : "Disconnected"}
+                  </strong>
 
-</p>
+                </div>
 
-</div>
+                <div>
 
-)
+                  <span>Session ID</span>
 
-:
+                  <strong>
+                    {session.sessionId}
+                  </strong>
 
-(
+                </div>
 
-<div className="session-list">
+              </div>
 
-{
+              <button
+                className="logout-button"
+                onClick={() =>
+                  openLogoutModal(session)
+                }
+              >
+                Logout Session
+              </button>
 
-sessions.map((item,index)=>(
+            </div>
 
-<div
-className="session-card"
-key={index}
->
+          ))}
 
-<div className="session-info">
+        </section>
 
-<h3>
+      )}
 
-{item.name || "WhatsApp"}
+      {/* ================= LOGOUT MODAL ================= */}
 
-</h3>
+      {logoutTarget && (
 
-<p>
+        <div className="modal-overlay">
 
-{item.number}
+          <div className="logout-modal">
 
-</p>
+            <h2>
+              Logout Session
+            </h2>
 
-<small>
+            <p>
 
-Session :
-{item.sessionId}
+              Masukkan nomor WhatsApp berikut
+              untuk konfirmasi logout.
 
-</small>
+            </p>
 
-</div>
+            <strong>
 
-<div className="session-status">
+              {logoutTarget.number}
 
-<span
-className={
-item.connected
-? "online"
-: "offline"
-}
->
+            </strong>
 
-●
+            <input
+              type="tel"
+              placeholder="628xxxxxxxxxx"
+              value={logoutNumber}
+              onChange={(e) =>
+                setLogoutNumber(e.target.value)
+              }
+            />
 
-{
-item.connected
-? "ONLINE"
-: "OFFLINE"
-}
+            {logoutMessage && (
 
-</span>
+              <div className="warning-box">
 
-<button
-className="logout-button"
-onClick={()=>openLogoutModal(item)}
->
+                {logoutMessage}
 
-Logout
+              </div>
 
-</button>
+            )}
 
-</div>
+            <div className="modal-buttons">
 
-</div>
+              <button
+                className="cancel-button"
+                onClick={closeLogoutModal}
+                disabled={logoutLoading}
+              >
+                Batal
+              </button>
 
-))
+              <button
+                className="logout-button"
+                onClick={confirmLogout}
+                disabled={logoutLoading}
+              >
+                {logoutLoading
+                  ? "Memproses..."
+                  : "Logout"}
+              </button>
 
-}
+            </div>
 
-</div>
+          </div>
 
-)
+        </div>
 
-}
+      )}
 
-</section>
-
-{
-
-logoutTarget && (
-
-<div className="modal-overlay">
-
-<div className="modal">
-
-<h2>
-
-Konfirmasi Logout
-
-</h2>
-
-<p>
-
-Masukkan nomor WhatsApp untuk melanjutkan logout.
-
-</p>
-
-<input
-type="text"
-placeholder="628xxxxxxxxxx"
-value={logoutNumber}
-onChange={(e)=>setLogoutNumber(e.target.value)}
-/>
-
-{
-
-logoutMessage && (
-
-<p className="error-text">
-
-{logoutMessage}
-
-</p>
-
-)
-
-}
-
-<div className="modal-buttons">
-
-<button
-onClick={closeLogoutModal}
->
-
-Batal
-
-</button>
-
-<button
-onClick={confirmLogout}
-disabled={logoutLoading}
->
-
-{
-
-logoutLoading
-? "Memproses..."
-: "Logout"
-
-}
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-)
-
-}
-
-</div>
-
-);
+    </div>
+  );
+};
+  
 /* =========================================
    MAIN RENDER
 ========================================= */
