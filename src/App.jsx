@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import "./style.css";
 
 const API = "";
-
 /* =========================================
    APP
 ========================================= */
@@ -10,20 +9,27 @@ const API = "";
 export default function App() {
 
   /* PAGE */
-
   const [page, setPage] = useState("dashboard");
 
   /* STATUS */
-
   const [serverOnline, setServerOnline] = useState(false);
   const [botConnected, setBotConnected] = useState(false);
   const [sessions, setSessions] = useState([]);
 
+  /* UI */
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [lastUpdate,
+  const [lastUpdate, setLastUpdate] = useState("-");
+  const [ping, setPing] = useState(0);
 
-         /* =========================================
+  const [uptime, setUptime] = useState({
+    hari: 0,
+    jam: 0,
+    menit: 0,
+    detik: 0,
+  });
+
+  /* =========================================
      LOAD STATUS
   ========================================= */
 
@@ -70,7 +76,6 @@ export default function App() {
       );
 
     } catch (err) {
-
       console.error(err);
 
       setServerOnline(false);
@@ -86,12 +91,11 @@ export default function App() {
       });
 
     } finally {
-
       setLoading(false);
-
     }
   };
 
+      
   /* =========================================
      AUTO REFRESH
   ========================================= */
