@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
 import "./style.css";
 
-const API = "";
+const API = ""; // kosongkan jika API satu domain
+// contoh:
+// const API = "https://backend.domain.com";
 
 export default function App() {
 
-  /* ===========================
+  /* ==========================
      PAGE
-  =========================== */
+  ========================== */
 
   const [page, setPage] = useState("dashboard");
 
-  /* ===========================
-     SERVER STATUS
-  =========================== */
+  /* ==========================
+     STATUS
+  ========================== */
 
   const [serverOnline, setServerOnline] = useState(false);
   const [botConnected, setBotConnected] = useState(false);
+
   const [sessions, setSessions] = useState([]);
 
   const [ping, setPing] = useState(0);
@@ -28,27 +31,27 @@ export default function App() {
     detik: 0,
   });
 
-  const [lastUpdate, setLastUpdate] = useState("-");
-
   const [loading, setLoading] = useState(false);
 
-  /* ===========================
+  const [lastUpdate, setLastUpdate] = useState("-");
+
+  /* ==========================
      PAIRING
-  =========================== */
+  ========================== */
 
   const [phoneNumber, setPhoneNumber] = useState("");
-
-  const [pairingLoading, setPairingLoading] = useState(false);
 
   const [pairingCode, setPairingCode] = useState("");
 
   const [pairingSession, setPairingSession] = useState("");
 
+  const [pairingLoading, setPairingLoading] = useState(false);
+
   const [copied, setCopied] = useState(false);
 
-  /* ===========================
+  /* ==========================
      LOGOUT
-  =========================== */
+  ========================== */
 
   const [logoutTarget, setLogoutTarget] = useState(null);
 
@@ -58,9 +61,9 @@ export default function App() {
 
   const [logoutMessage, setLogoutMessage] = useState("");
 
-  /* ===========================
+  /* ==========================
      TOAST
-  =========================== */
+  ========================== */
 
   const [message, setMessage] = useState("");
 
@@ -72,29 +75,33 @@ export default function App() {
     }, 2500);
   };
 
-  /* ===========================
+  /* ==========================
      NORMALIZE NUMBER
-  =========================== */
+  ========================== */
 
-  const normalizeNumber = (value = "") => {
-    let number = value.replace(/\D/g, "");
+  const normalizeNumber = (number = "") => {
 
-    if (number.startsWith("0")) {
-      number = "62" + number.slice(1);
+    let num = number.replace(/\D/g, "");
+
+    if (num.startsWith("0")) {
+      num = "62" + num.slice(1);
     }
 
-    if (number.startsWith("8")) {
-      number = "62" + number;
+    if (num.startsWith("8")) {
+      num = "62" + num;
     }
 
-    return number;
+    return num;
+
   };
-    /* ===========================
+    /* ==========================
      LOAD STATUS
-  =========================== */
+  ========================== */
 
   const loadStatus = async () => {
+
     try {
+
       setLoading(true);
 
       const start = performance.now();
@@ -114,7 +121,10 @@ export default function App() {
       setPing(Math.round(end - start));
 
       setServerOnline(data.server === "online");
-      setBotConnected(data.botConnected === true);
+
+      setBotConnected(
+        data.botConnected === true
+      );
 
       setSessions(
         Array.isArray(data.sessions)
@@ -156,11 +166,12 @@ export default function App() {
       setLoading(false);
 
     }
+
   };
 
-  /* ===========================
+  /* ==========================
      AUTO REFRESH
-  =========================== */
+  ========================== */
 
   useEffect(() => {
 
@@ -174,9 +185,9 @@ export default function App() {
 
   }, []);
 
-  /* ===========================
+  /* ==========================
      START PAIRING
-  =========================== */
+  ========================== */
 
   const startPairing = async () => {
 
@@ -192,7 +203,7 @@ export default function App() {
 
       setCopied(false);
 
-      const response = await fetch(`${API}/api/pair`, {
+      const res = await fetch(`${API}/api/pair`, {
 
         method: "POST",
 
@@ -201,16 +212,21 @@ export default function App() {
         },
 
         body: JSON.stringify({
+
           number: normalizeNumber(phoneNumber),
+
         }),
 
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
       if (!data.success) {
-        showMessage(data.message || "Pairing gagal.");
-        return;
+
+        return showMessage(
+          data.message || "Pairing gagal."
+        );
+
       }
 
       setPairingSession(data.sessionId);
@@ -233,14 +249,14 @@ export default function App() {
 
         try {
 
-          const res = await fetch(
+          const check = await fetch(
             `${API}/api/pairing/${encodeURIComponent(data.sessionId)}`,
             {
               cache: "no-store",
             }
           );
 
-          const result = await res.json();
+          const result = await check.json();
 
           if (result.code) {
 
@@ -256,9 +272,9 @@ export default function App() {
 
             clearInterval(timer);
 
-            showMessage("WhatsApp berhasil terhubung.");
-
             loadStatus();
+
+            showMessage("WhatsApp berhasil terhubung.");
 
           }
 
@@ -267,7 +283,9 @@ export default function App() {
             clearInterval(timer);
 
             if (!result.code) {
+
               showMessage("Waktu pairing habis.");
+
             }
 
           }
@@ -284,7 +302,7 @@ export default function App() {
 
       console.error(err);
 
-      showMessage("Tidak dapat menghubungi server.");
+      showMessage("Server tidak dapat dihubungi.");
 
     } finally {
 
@@ -294,9 +312,9 @@ export default function App() {
 
   };
 
-  /* ===========================
-     COPY PAIRING
-  =========================== */
+  /* ==========================
+     COPY CODE
+  ========================== */
 
   const copyPairingCode = async () => {
 
@@ -304,11 +322,13 @@ export default function App() {
 
     try {
 
-      await navigator.clipboard.writeText(pairingCode);
+      await navigator.clipboard.writeText(
+        pairingCode
+      );
 
       setCopied(true);
 
-      showMessage("Pairing Code berhasil disalin.");
+      showMessage("Pairing Code disalin.");
 
       setTimeout(() => {
 
@@ -318,27 +338,31 @@ export default function App() {
 
     } catch {
 
-      showMessage("Gagal menyalin Pairing Code.");
+      showMessage("Gagal menyalin.");
 
     }
 
   };
-    /* ===========================
+   /* ==========================
      LOGOUT
-  =========================== */
+  ========================== */
 
   const openLogoutModal = (session) => {
+
     setLogoutTarget(session);
     setLogoutNumber("");
     setLogoutMessage("");
+
   };
 
   const closeLogoutModal = () => {
+
     if (logoutLoading) return;
 
     setLogoutTarget(null);
     setLogoutNumber("");
     setLogoutMessage("");
+
   };
 
   const confirmLogout = async () => {
@@ -348,12 +372,16 @@ export default function App() {
     const input = normalizeNumber(logoutNumber);
 
     const target = normalizeNumber(
-      logoutTarget.number || logoutTarget.sessionId
+      logoutTarget.number ||
+      logoutTarget.sessionId
     );
 
     if (input !== target) {
+
       setLogoutMessage("Nomor tidak cocok.");
+
       return;
+
     }
 
     try {
@@ -369,7 +397,9 @@ export default function App() {
         },
 
         body: JSON.stringify({
+
           sessionId: logoutTarget.sessionId,
+
         }),
 
       });
@@ -404,295 +434,334 @@ export default function App() {
 
   };
 
-  /* ===========================
+  /* ==========================
      DASHBOARD
-  =========================== */
+  ========================== */
 
-  const renderDashboard = () => {
+  const renderDashboard = () => (
 
-    return (
+    <div className="page-content">
 
-      <div className="page-content">
+      <header className="topbar">
 
-        <header className="topbar">
+        <div>
+
+          <span className="eyebrow">
+            PANEL BOT
+          </span>
+
+          <h1>
+            WhatsApp Bot Dashboard
+          </h1>
+
+          <p>
+            Kelola seluruh bot WhatsApp dari satu dashboard.
+          </p>
+
+        </div>
+
+        <div className="dashboard-buttons">
+
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+            disabled={loading}
+          >
+            {loading ? "Loading..." : "↻ Refresh"}
+          </button>
+
+          <button
+            className="monitor-button"
+            onClick={() => setPage("monitor")}
+          >
+            📊 Monitoring
+          </button>
+
+        </div>
+
+      </header>
+
+      <section className="stats-grid">
+
+        <div className="stat-card">
+
+          <div className="stat-icon purple">
+            ⚡
+          </div>
+
+          <div>
+
+            <span>API SERVER</span>
+
+            <h3>
+
+              {serverOnline
+                ? "ONLINE"
+                : "OFFLINE"}
+
+            </h3>
+
+            <small className={
+              serverOnline
+                ? "online"
+                : "offline"
+            }>
+
+              ● {serverOnline
+                ? `${ping} ms`
+                : "Tidak Terhubung"}
+
+            </small>
+
+          </div>
+
+        </div>
+
+        <div className="stat-card">
+
+          <div className="stat-icon green">
+            🤖
+          </div>
+
+          <div>
+
+            <span>WHATSAPP</span>
+
+            <h3>
+
+              {botConnected
+                ? "CONNECTED"
+                : "WAITING"}
+
+            </h3>
+
+            <small className={
+              botConnected
+                ? "online"
+                : "waiting"
+            }>
+
+              ● {botConnected
+                ? "BOT AKTIF"
+                : "BELUM TERHUBUNG"}
+
+            </small>
+
+          </div>
+
+        </div>
+
+        <div
+          className="stat-card"
+          style={{ cursor: "pointer" }}
+          onClick={() => setPage("sessions")}
+        >
+
+          <div className="stat-icon blue">
+            📱
+          </div>
+
+          <div>
+
+            <span>SESSIONS</span>
+
+            <h3>
+
+              {sessions.length}
+
+            </h3>
+
+            <small>
+
+              Klik untuk melihat
+
+            </small>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <section className="hero-card">
+
+        <div className="hero-content">
+
+          <span className="hero-label">
+            DIN BOT V1
+          </span>
+
+          <h2>
+
+            Hubungkan WhatsApp
+            dengan Pairing Code
+
+          </h2>
+
+          <p>
+
+            Kelola session,
+            monitoring server,
+            dan pairing WhatsApp
+            dari satu dashboard.
+
+          </p>
+
+          <button
+            className="hero-button"
+            onClick={() => setPage("pairing")}
+          >
+
+            Hubungkan WhatsApp →
+
+          </button>
+
+        </div>
+
+        <div className="hero-orb">
+
+          <div className="orb-inner">
+            🤖
+          </div>
+
+        </div>
+
+      </section>
+
+      <section className="content-card">
+
+        <div className="section-title">
 
           <div>
 
             <span className="eyebrow">
-              PANEL BOT
+              SYSTEM
             </span>
 
-            <h1>DIN BOT</h1>
+            <h2>
 
-            <p>
-              Dashboard WhatsApp Bot
-            </p>
+              Informasi Sistem
 
-          </div>
-
-          <div className="dashboard-buttons">
-
-            <button
-              className="refresh-button"
-              onClick={loadStatus}
-              disabled={loading}
-            >
-              {loading ? "Loading..." : "↻ Refresh"}
-            </button>
-
-            <button
-              className="monitor-button"
-              onClick={() => setPage("monitor")}
-            >
-              📊 Monitoring
-            </button>
+            </h2>
 
           </div>
 
-        </header>
+        </div>
 
-        <section className="stats-grid">
+        <div className="info-grid">
 
-          <div className="stat-card">
-
-            <div className="stat-icon purple">
-              ⚡
-            </div>
-
-            <div>
-
-              <span>API SERVER</span>
-
-              <h3>
-                {serverOnline
-                  ? "Online"
-                  : "Offline"}
-              </h3>
-
-              <small
-                className={
-                  serverOnline
-                    ? "online"
-                    : "offline"
-                }
-              >
-                ● {serverOnline
-                  ? `${ping} ms`
-                  : "SERVER OFFLINE"}
-              </small>
-
-            </div>
-
+          <div className="info-item">
+            <span>Website</span>
+            <strong>DIN BOT</strong>
           </div>
 
-          <div className="stat-card">
+          <div className="info-item">
+            <span>Version</span>
+            <strong>1.0.0</strong>
+          </div>
 
-            <div className="stat-icon green">
-              🤖
-            </div>
+          <div className="info-item">
+            <span>Platform</span>
+            <strong>WhatsApp</strong>
+          </div>
 
-            <div>
+          <div className="info-item">
+            <span>Last Update</span>
+            <strong>{lastUpdate}</strong>
+          </div>
 
-              <span>BOT</span>
+        </div>
 
-              <h3>
-                {botConnected
-                  ? "Connected"
-                  : "Offline"}
-              </h3>
+      </section>
 
-              <small
-                className={
-                  botConnected
-                    ? "online"
-                    : "waiting"
-                }
-              >
-                ● {botConnected
-                  ? "CONNECTED"
-                  : "WAITING"}
-              </small>
+    </div>
 
-            </div>
+  ); 
+  /* ==========================
+     MONITORING SERVER
+  ========================== */
+
+  const renderMonitor = () => (
+
+    <div className="page-content">
+
+      <header className="topbar">
+
+        <div>
+
+          <span className="eyebrow">
+            MONITORING SERVER
+          </span>
+
+          <h1>
+            Status Server
+          </h1>
+
+          <p>
+            Monitoring server dan bot secara realtime.
+          </p>
+
+        </div>
+
+        <div className="dashboard-buttons">
+
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+          >
+            ↻ Refresh
+          </button>
+
+          <button
+            className="monitor-button"
+            onClick={() => setPage("dashboard")}
+          >
+            ← Dashboard
+          </button>
+
+        </div>
+
+      </header>
+
+      <section className="content-card">
+
+        <div className="section-title">
+
+          <div>
+
+            <span className="eyebrow">
+              STATUS
+            </span>
+
+            <h2>
+
+              Monitoring Realtime
+
+            </h2>
 
           </div>
 
           <div
-            className="stat-card"
-            style={{ cursor: "pointer" }}
-            onClick={() => setPage("sessions")}
+            className={
+              serverOnline
+                ? "status-pill"
+                : "status-pill offline"
+            }
           >
 
-            <div className="stat-icon blue">
-              📱
-            </div>
+            <span />
 
-            <div>
-
-              <span>SESSIONS</span>
-
-              <h3>
-                {sessions.length}
-              </h3>
-
-              <small>
-                LIHAT SESSION
-              </small>
-
-            </div>
+            {
+              serverOnline
+                ? "ONLINE"
+                : "OFFLINE"
+            }
 
           </div>
 
-        </section>
+        </div>
 
-        <section className="hero-card">
-
-          <div className="hero-content">
-
-            <span className="hero-label">
-              DIN BOT V1
-            </span>
-
-            <h2>
-              Kelola WhatsApp Bot
-            </h2>
-
-            <p>
-
-              Hubungkan WhatsApp,
-              lihat Pairing Code,
-              monitoring server,
-              dan kelola Session.
-
-            </p>
-
-            <button
-              className="hero-button"
-              onClick={() => setPage("pairing")}
-            >
-              Hubungkan WhatsApp →
-            </button>
-
-          </div>
-
-          <div className="hero-orb">
-
-            <div className="orb-inner">
-              🤖
-            </div>
-
-          </div>
-
-        </section>
-                <section className="content-card">
-
-          <div className="section-title">
-
-            <div>
-
-              <span className="eyebrow">
-                SYSTEM
-              </span>
-
-              <h2>
-                Informasi Sistem
-              </h2>
-
-            </div>
-
-            <div className="status-pill">
-
-              <span />
-
-              {serverOnline
-                ? "ACTIVE"
-                : "OFFLINE"}
-
-            </div>
-
-          </div>
-
-          <div className="info-grid">
-
-            <div className="info-item">
-              <span>Website</span>
-              <strong>DIN BOT</strong>
-            </div>
-
-            <div className="info-item">
-              <span>Version</span>
-              <strong>V1.0.0</strong>
-            </div>
-
-            <div className="info-item">
-              <span>Platform</span>
-              <strong>WhatsApp</strong>
-            </div>
-
-            <div className="info-item">
-              <span>Last Update</span>
-              <strong>{lastUpdate}</strong>
-            </div>
-
-          </div>
-
-        </section>
-
-      </div>
-
-    );
-
-  };
-
-  /* ===========================
-     MONITORING
-  =========================== */
-
-  const renderMonitor = () => {
-
-    return (
-
-      <div className="page-content">
-
-        <header className="topbar">
-
-          <div>
-
-            <span className="eyebrow">
-              SERVER MONITOR
-            </span>
-
-            <h1>
-              Monitoring Server
-            </h1>
-
-            <p>
-              Informasi server secara realtime.
-            </p>
-
-          </div>
-
-          <div className="dashboard-buttons">
-
-            <button
-              className="refresh-button"
-              onClick={loadStatus}
-            >
-              ↻ Refresh
-            </button>
-
-            <button
-              className="monitor-button"
-              onClick={() => setPage("dashboard")}
-            >
-              ← Dashboard
-            </button>
-
-          </div>
-
-        </header>
-
-        <section className="monitor-grid">
+        <div className="monitor-grid">
 
           <div className="monitor-card">
 
@@ -700,7 +769,9 @@ export default function App() {
               ⚡
             </div>
 
-            <span>Ping</span>
+            <span>
+              Ping
+            </span>
 
             <h2>
               {ping} ms
@@ -711,31 +782,21 @@ export default function App() {
           <div className="monitor-card">
 
             <div className="monitor-icon">
-              🌐
-            </div>
-
-            <span>API</span>
-
-            <h2>
-              {serverOnline
-                ? "Online"
-                : "Offline"}
-            </h2>
-
-          </div>
-
-          <div className="monitor-card">
-
-            <div className="monitor-icon">
               🤖
             </div>
 
-            <span>Bot</span>
+            <span>
+              Bot
+            </span>
 
             <h2>
-              {botConnected
-                ? "Connected"
-                : "Offline"}
+
+              {
+                botConnected
+                  ? "Connected"
+                  : "Offline"
+              }
+
             </h2>
 
           </div>
@@ -746,334 +807,324 @@ export default function App() {
               📱
             </div>
 
-            <span>Sessions</span>
+            <span>
+              Sessions
+            </span>
 
             <h2>
+
               {sessions.length}
+
             </h2>
 
           </div>
 
-        </section>
+          <div className="monitor-card">
 
-        <section className="content-card">
+            <div className="monitor-icon">
+              🌐
+            </div>
+
+            <span>
+              API
+            </span>
+
+            <h2>
+
+              {
+                serverOnline
+                  ? "Online"
+                  : "Offline"
+              }
+
+            </h2>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <section className="content-card">
+
+        <div className="section-title">
+
+          <div>
+
+            <span className="eyebrow">
+              UPTIME
+            </span>
+
+            <h2>
+
+              Lama Server Aktif
+
+            </h2>
+
+          </div>
+
+        </div>
+
+        <div className="stats-grid">
+
+          <div className="stat-card">
+
+            <div className="stat-icon purple">
+              📅
+            </div>
+
+            <div>
+
+              <span>Hari</span>
+
+              <h3>{uptime.hari}</h3>
+
+            </div>
+
+          </div>
+
+          <div className="stat-card">
+
+            <div className="stat-icon blue">
+              🕒
+            </div>
+
+            <div>
+
+              <span>Jam</span>
+
+              <h3>{uptime.jam}</h3>
+
+            </div>
+
+          </div>
+
+          <div className="stat-card">
+
+            <div className="stat-icon green">
+              ⏱️
+            </div>
+
+            <div>
+
+              <span>Menit</span>
+
+              <h3>{uptime.menit}</h3>
+
+            </div>
+
+          </div>
+
+          <div className="stat-card">
+
+            <div className="stat-icon orange">
+              ⏺
+            </div>
+
+            <div>
+
+              <span>Detik</span>
+
+              <h3>{uptime.detik}</h3>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <section className="content-card">
+
+        <div className="section-title">
+
+          <div>
+
+            <span className="eyebrow">
+              INFORMASI
+            </span>
+
+            <h2>
+
+              Detail Server
+
+            </h2>
+
+          </div>
+
+        </div>
+
+        <div className="info-grid">
+
+          <div className="info-item">
+            <span>Server</span>
+            <strong>
+              {serverOnline ? "Online" : "Offline"}
+            </strong>
+          </div>
+
+          <div className="info-item">
+            <span>Ping</span>
+            <strong>{ping} ms</strong>
+          </div>
+
+          <div className="info-item">
+            <span>Bot</span>
+            <strong>
+              {botConnected ? "Connected" : "Disconnected"}
+            </strong>
+          </div>
+
+          <div className="info-item">
+            <span>Last Update</span>
+            <strong>{lastUpdate}</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  );
+    /* ==========================
+     PAIRING
+  ========================== */
+
+  const renderPairing = () => (
+
+    <div className="page-content">
+
+      <header className="topbar">
+
+        <div>
+
+          <span className="eyebrow">
+            WHATSAPP PAIRING
+          </span>
+
+          <h1>
+            Hubungkan WhatsApp
+          </h1>
+
+          <p>
+            Masukkan nomor WhatsApp untuk mendapatkan Pairing Code.
+          </p>
+
+        </div>
+
+        <div className="dashboard-buttons">
+
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+          >
+            ↻ Refresh
+          </button>
+
+          <button
+            className="monitor-button"
+            onClick={() => setPage("dashboard")}
+          >
+            ← Dashboard
+          </button>
+
+        </div>
+
+      </header>
+
+      <section className="pairing-layout">
+
+        {/* INPUT */}
+
+        <div className="content-card">
 
           <div className="section-title">
 
             <div>
 
               <span className="eyebrow">
-                UPTIME
+                LANGKAH 1
               </span>
 
               <h2>
-                Lama Server Aktif
+                Nomor WhatsApp
               </h2>
 
             </div>
 
           </div>
 
-          <div className="stats-grid">
+          <div className="phone-form">
 
-            <div className="stat-card">
-              <div className="stat-icon purple">
-                📅
+            <label>
+              Nomor WhatsApp
+            </label>
+
+            <div className="phone-input">
+
+              <div className="country-code">
+                +62
               </div>
-              <div>
-                <span>Hari</span>
-                <h3>{uptime.hari}</h3>
-              </div>
+
+              <input
+                type="tel"
+                placeholder="81234567890"
+                value={phoneNumber.replace(/^62/, "")}
+                onChange={(e) => {
+
+                  const value = e.target.value.replace(/\D/g, "");
+
+                  setPhoneNumber("62" + value);
+
+                }}
+              />
+
             </div>
-
-            <div className="stat-card">
-              <div className="stat-icon blue">
-                🕒
-              </div>
-              <div>
-                <span>Jam</span>
-                <h3>{uptime.jam}</h3>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon green">
-                ⏱️
-              </div>
-              <div>
-                <span>Menit</span>
-                <h3>{uptime.menit}</h3>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon purple">
-                ⏲️
-              </div>
-              <div>
-                <span>Detik</span>
-                <h3>{uptime.detik}</h3>
-              </div>
-            </div>
-
-          </div>
-
-        </section>
-
-      </div>
-
-    );
-
-  };
-    /* ===========================
-     PAIRING
-  =========================== */
-
-  const renderPairing = () => {
-
-    return (
-
-      <div className="page-content">
-
-        <header className="topbar">
-
-          <div>
-
-            <span className="eyebrow">
-              PAIRING WHATSAPP
-            </span>
-
-            <h1>
-              Hubungkan WhatsApp
-            </h1>
-
-            <p>
-              Masukkan nomor WhatsApp untuk mendapatkan Pairing Code.
-            </p>
-
-          </div>
-
-          <div className="dashboard-buttons">
 
             <button
-              className="refresh-button"
-              onClick={loadStatus}
+              className="pair-button"
+              disabled={
+                pairingLoading ||
+                !serverOnline
+              }
+              onClick={startPairing}
             >
-              ↻ Refresh
-            </button>
 
-            <button
-              className="monitor-button"
-              onClick={() => setPage("dashboard")}
-            >
-              ← Dashboard
+              {
+                pairingLoading
+                  ? "Memproses..."
+                  : "Hubungkan WhatsApp"
+              }
+
             </button>
 
           </div>
 
-        </header>
+        </div>
 
-        <section className="pairing-layout">
+        {/* HASIL */}
 
-          {/* INPUT */}
+        <div className="content-card">
 
-          <div className="content-card">
+          <div className="section-title">
 
-            <div className="section-title">
+            <div>
 
-              <div>
+              <span className="eyebrow">
+                LANGKAH 2
+              </span>
 
-                <span className="eyebrow">
-                  LANGKAH 1
-                </span>
-
-                <h2>
-                  Nomor WhatsApp
-                </h2>
-
-              </div>
-
-            </div>
-
-            <div className="phone-form">
-
-              <label>
-                Nomor WhatsApp
-              </label>
-
-              <div className="phone-input">
-
-                <div className="country-code">
-                  +62
-                </div>
-
-                <input
-                  type="tel"
-                  placeholder="81234567890"
-                  value={phoneNumber.replace(/^62/, "")}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    setPhoneNumber("62" + value);
-                  }}
-                />
-
-              </div>
-
-              <button
-                className="pair-button"
-                onClick={startPairing}
-                disabled={
-                  pairingLoading ||
-                  !serverOnline
-                }
-              >
-                {
-                  pairingLoading
-                    ? "Memproses..."
-                    : "Hubungkan WhatsApp"
-                }
-              </button>
+              <h2>
+                Pairing Code
+              </h2>
 
             </div>
 
           </div>
 
-          {/* HASIL */}
-
-          <div className="content-card">
-
-            <div className="section-title">
-
-              <div>
-
-                <span className="eyebrow">
-                  LANGKAH 2
-                </span>
-
-                <h2>
-                  Pairing Code
-                </h2>
-
-              </div>
-
-            </div>
-
-            {
-              !pairingCode ? (
-
-                <div className="empty-code">
-
-                  <div className="empty-icon">
-                    📱
-                  </div>
-
-                  <h3>
-                    Belum Ada Pairing Code
-                  </h3>
-
-                  <p>
-                    Masukkan nomor WhatsApp kemudian tekan tombol
-                    <strong> Hubungkan WhatsApp</strong>.
-                  </p>
-
-                </div>
-
-              ) : (
-
-                <div className="pairing-result">
-
-                  <div className="pairing-box">
-
-                    {pairingCode}
-
-                  </div>
-
-                  <button
-                    className="copy-button"
-                    onClick={copyPairingCode}
-                  >
-                    {
-                      copied
-                        ? "✔ Berhasil Disalin"
-                        : "📋 Salin Pairing Code"
-                    }
-                  </button>
-
-                  <small>
-
-                    Session ID :
-
-                    <br />
-
-                    {pairingSession}
-
-                  </small>
-
-                </div>
-
-              )
-            }
-
-          </div>
-
-        </section>
-
-      </div>
-
-    );
-
-  };
-    /* ===========================
-     SESSIONS
-  =========================== */
-
-  const renderSessions = () => {
-
-    return (
-
-      <div className="page-content">
-
-        <header className="topbar">
-
-          <div>
-
-            <span className="eyebrow">
-              WHATSAPP SESSIONS
-            </span>
-
-            <h1>
-              Session Aktif
-            </h1>
-
-            <p>
-              Daftar seluruh perangkat yang sedang login.
-            </p>
-
-          </div>
-
-          <div className="dashboard-buttons">
-
-            <button
-              className="refresh-button"
-              onClick={loadStatus}
-            >
-              ↻ Refresh
-            </button>
-
-            <button
-              className="monitor-button"
-              onClick={() => setPage("dashboard")}
-            >
-              ← Dashboard
-            </button>
-
-          </div>
-
-        </header>
-
-        <div className="sessions-list">
-
-          {sessions.length === 0 ? (
+          {!pairingCode ? (
 
             <div className="empty-code">
 
@@ -1082,60 +1133,177 @@ export default function App() {
               </div>
 
               <h3>
-                Belum Ada Session
+                Belum Ada Pairing Code
               </h3>
 
               <p>
-                Tidak ada perangkat WhatsApp yang sedang terhubung.
+                Masukkan nomor WhatsApp lalu tekan tombol
+                <b> Hubungkan WhatsApp</b>.
               </p>
 
             </div>
 
           ) : (
 
-            sessions.map((session, index) => (
+            <>
 
-              <div
-                className="session-card"
-                key={index}
-              >
+              <div className="pair-code">
 
-                <div>
-
-                  <h3>
-                    {session.name || "WhatsApp"}
-                  </h3>
-
-                  <p>
-                    {session.number || session.sessionId}
-                  </p>
-
-                </div>
-
-                <button
-                  className="logout-button"
-                  onClick={() => openLogoutModal(session)}
-                >
-                  Logout
-                </button>
+                {pairingCode}
 
               </div>
 
-            ))
+              <button
+                className="copy-button"
+                onClick={copyPairingCode}
+              >
+
+                {
+                  copied
+                    ? "✓ Berhasil Disalin"
+                    : "📋 Salin Pairing Code"
+                }
+
+              </button>
+
+              <div className="pair-info">
+
+                <p>
+                  Session :
+                </p>
+
+                <strong>
+
+                  {pairingSession}
+
+                </strong>
+
+              </div>
+
+            </>
 
           )}
 
         </div>
 
-      </div>
+      </section>
 
-    );
+    </div>
 
-  };
+  );
+    /* ==========================
+     SESSIONS
+  ========================== */
 
-  /* ===========================
-     MAIN RENDER
-  =========================== */
+  const renderSessions = () => (
+
+    <div className="page-content">
+
+      <header className="topbar">
+
+        <div>
+
+          <span className="eyebrow">
+            WHATSAPP SESSIONS
+          </span>
+
+          <h1>
+            Daftar Session
+          </h1>
+
+          <p>
+            Semua perangkat WhatsApp yang sedang terhubung.
+          </p>
+
+        </div>
+
+        <div className="dashboard-buttons">
+
+          <button
+            className="refresh-button"
+            onClick={loadStatus}
+          >
+            ↻ Refresh
+          </button>
+
+          <button
+            className="monitor-button"
+            onClick={() => setPage("dashboard")}
+          >
+            ← Dashboard
+          </button>
+
+        </div>
+
+      </header>
+
+      {sessions.length === 0 ? (
+
+        <div className="content-card">
+
+          <div className="empty-code">
+
+            <div className="empty-icon">
+              📱
+            </div>
+
+            <h3>
+              Belum Ada Session
+            </h3>
+
+            <p>
+              Silakan hubungkan WhatsApp terlebih dahulu.
+            </p>
+
+          </div>
+
+        </div>
+
+      ) : (
+
+        <div className="sessions-grid">
+
+          {sessions.map((item, index) => (
+
+            <div
+              className="session-card"
+              key={index}
+            >
+
+              <h3>
+                {item.name || "WhatsApp"}
+              </h3>
+
+              <p>
+                {item.number}
+              </p>
+
+              <small>
+                {item.sessionId}
+              </small>
+
+              <button
+                className="logout-button"
+                onClick={() => openLogoutModal(item)}
+              >
+                Logout
+              </button>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      )}
+
+    </div>
+
+  );
+
+  /* ==========================
+     MAIN
+  ========================== */
 
   return (
 
@@ -1170,19 +1338,11 @@ export default function App() {
             </h2>
 
             <p>
-
-              Masukkan nomor berikut untuk konfirmasi.
-
+              Masukkan nomor WhatsApp untuk konfirmasi logout.
             </p>
 
-            <strong>
-
-              {logoutTarget.number || logoutTarget.sessionId}
-
-            </strong>
-
             <input
-              type="text"
+              type="tel"
               placeholder="628xxxxxxxxxx"
               value={logoutNumber}
               onChange={(e) =>
@@ -1192,12 +1352,10 @@ export default function App() {
 
             {logoutMessage && (
 
-              <small
-                style={{
-                  color: "#ff5b5b",
-                }}
-              >
+              <small className="offline">
+
                 {logoutMessage}
+
               </small>
 
             )}
@@ -1211,12 +1369,15 @@ export default function App() {
               </button>
 
               <button
-                onClick={confirmLogout}
+                className="logout-button"
                 disabled={logoutLoading}
+                onClick={confirmLogout}
               >
+
                 {logoutLoading
                   ? "Loading..."
                   : "Logout"}
+
               </button>
 
             </div>
@@ -1230,11 +1391,7 @@ export default function App() {
       <nav className="bottom-nav">
 
         <button
-          className={
-            page === "dashboard"
-              ? "active"
-              : ""
-          }
+          className={page === "dashboard" ? "active" : ""}
           onClick={() => setPage("dashboard")}
         >
           <span>🏠</span>
@@ -1242,11 +1399,7 @@ export default function App() {
         </button>
 
         <button
-          className={
-            page === "monitor"
-              ? "active"
-              : ""
-          }
+          className={page === "monitor" ? "active" : ""}
           onClick={() => {
             loadStatus();
             setPage("monitor");
@@ -1257,11 +1410,7 @@ export default function App() {
         </button>
 
         <button
-          className={
-            page === "pairing"
-              ? "active"
-              : ""
-          }
+          className={page === "pairing" ? "active" : ""}
           onClick={() => setPage("pairing")}
         >
           <span>🔗</span>
@@ -1269,11 +1418,7 @@ export default function App() {
         </button>
 
         <button
-          className={
-            page === "sessions"
-              ? "active"
-              : ""
-          }
+          className={page === "sessions" ? "active" : ""}
           onClick={() => {
             loadStatus();
             setPage("sessions");
