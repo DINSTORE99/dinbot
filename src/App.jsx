@@ -1359,11 +1359,11 @@ return (
 
       <header className="main-header">
 
-        <div className="brand">
+  <div className="brand">
 
-          <div className="brand-icon">
-            D
-          </div>
+    <div className="brand-icon">
+      <img src="/logo.png" alt="DIN BOT" />
+    </div>
 
           <div>
 
