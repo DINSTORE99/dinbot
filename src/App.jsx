@@ -1579,13 +1579,9 @@ return (
           FOOTER
       ================================= */}
 
-      <footer className="site-footer">
+<div className="footer-content">
 
-        <div className="footer-line"></div>
-
-        <div className="footer-content">
-
-          <div className="footer-social">
+  <div className="footer-social">
 
             {/* GITHUB */}
             <a
