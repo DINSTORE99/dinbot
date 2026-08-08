@@ -597,15 +597,6 @@ function App() {
   {loading
     ? "Memuat..."
     : "↻ Refresh"}
-</button>
-
-<button
-  className="docs-button"
-  onClick={() => setPage("docs")}
->
-  📚 Dokumentasi
-</button>
-
         {/* STATS */}
 
         <section className="stats-grid">
