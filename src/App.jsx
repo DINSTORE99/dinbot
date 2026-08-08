@@ -233,16 +233,8 @@ function App() {
   // =====================================================
 
   useEffect(() => {
-    loadStatus();
-
-    const timer = setInterval(() => {
-      loadStatus();
-    }, 5000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+  loadStatus();
+}, []);
 
   // =====================================================
   // START PAIRING
@@ -598,14 +590,12 @@ function App() {
           </div>
 
           <button
-            className="refresh-button"
-            onClick={loadStatus}
-            disabled={loading}
-          >
-            {loading
-              ? "Memuat..."
-              : "↻ Refresh"}
-          </button>
+  className="refresh-button"
+  onClick={loadStatus}
+  disabled={loading}
+>
+  {loading ? "Memuat..." : "↻ Refresh"}
+</button>
 
         </header>
 
