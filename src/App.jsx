@@ -756,11 +756,15 @@ function App() {
             </div>
 
             <div className="status-pill">
-              <span />
-              {serverOnline
-                ? "ACTIVE"
-                : "OFFLINE"}
-            </div>
+  <span />
+  {serverOnline
+    ? (
+      <>
+        Online <b>|</b> {ping} ms
+      </>
+    )
+    : "Offline"}
+</div>
 
           </div>
 
