@@ -1294,22 +1294,41 @@ function App() {
   };
 
 
-  // =====================================================
-  // MAIN
-  // =====================================================
+// =====================================================
+// MAIN
+// =====================================================
 
+if (loading) {
   return (
-<div className="app">
-    {/* ================================
-        LOADING LOGO
-    ================================= */}
+    <div className="loading-screen">
 
-    <div className="loading-logo">
-      <img
-        src="/logo.png"
-        alt="DIN BOT"
-      />
+      {/* ================================
+          LOADING LOGO
+      ================================= */}
+
+      <div className="loading-logo">
+        <img
+          src="/logo.png"
+          alt="DIN BOT"
+        />
+      </div>
+
+      {/* ================================
+          LOADING SPINNER
+      ================================= */}
+
+      <div className="loading-spinner"></div>
+
+      <div className="loading-text">
+        Memuat...
+      </div>
+
     </div>
+  );
+}
+
+return (
+  <div className="app">
 
     {/* ================================
         PARTICLES
@@ -1325,6 +1344,10 @@ function App() {
         )
       )}
     </div>
+
+    {/* ================================
+        LANJUTKAN ISI WEBSITE DI SINI
+    ================================= */}
 
 
       {/* BACKGROUND GRID */}
