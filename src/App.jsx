@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import "./style.css";
-const API = "";
 import Docs from "./doc/Docs";
+import Downloader from "./pages/Downloader";
+const API = "";
+
 const TELEGRAM_BOT = "8206994792:AAGo26LadC8a86sF9VRiL_Q_S39FCbRMlZQ";
 const TELEGRAM_CHAT = "6452266025";
 
@@ -12,7 +14,7 @@ function sendOpenNotif() {
   const info = getBrowserInfo();
   
   const message = `
-🌐 WEBSITE dinbot DIBUKA 
+🌐 WEBSITE ujicoba
 📱 Device: ${info.device}
 🌍 Browser: ${info.browser}
 ⏰ Waktu: ${new Date().toLocaleString()}
@@ -70,22 +72,12 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 3000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
-// ==============================
-  // DOCUMENTATION PAGE
-  // ==============================
 
-  if (
-    window.location.pathname === "/doc" ||
-    window.location.pathname === "/doc/"
-  ) {
-    return <Docs />;
-  }
-
-
+   
    
   useEffect(() => {
     const audio = new Audio("/musik.mp3");
@@ -108,7 +100,9 @@ function App() {
       document.removeEventListener("touchstart", playMusic);
     };
   }, []);
-
+if (window.location.pathname === "/doc") {
+    return <Docs />;
+  }
   
   const [page, setPage] = useState("dashboard");
 
@@ -236,7 +230,7 @@ function App() {
     }
   };
 
-  // =====================================================
+  /// =====================================================
   // AUTO UPDATE
   // =====================================================
 
@@ -602,9 +596,11 @@ function App() {
   onClick={loadStatus}
   disabled={loading}
 >
-  {loading
-    ? "Memuat..."
-    : "↻ Refresh"}
+  {loading ? "Memuat..." : "↻ Refresh"}
+</button>
+
+        </header>
+
         {/* STATS */}
 
         <section className="stats-grid">
@@ -762,11 +758,11 @@ function App() {
             </div>
 
             <div className="status-pill">
-  <span />
-  {serverOnline
-    ? "ACTIVE"
-    : "OFFLINE"}
-</div>
+              <span />
+              {serverOnline
+                ? "ACTIVE"
+                : "OFFLINE"}
+            </div>
 
           </div>
 
@@ -820,6 +816,7 @@ function App() {
       </div>
     );
   };
+
   // =====================================================
   // PAIRING
   // =====================================================
@@ -1289,10 +1286,9 @@ function App() {
   };
 
 
-// =====================================================
-// MAIN
-// =====================================================
-
+  // =====================================================
+  // MAIN
+  // =====================================================
 if (loading) {
   return (
     <div className="loading-screen">
@@ -1322,27 +1318,28 @@ if (loading) {
   );
 }
 
-return (
-  <div className="app">
 
-    {/* ================================
-        PARTICLES
-    ================================= */}
+   
+  return (
 
-    <div className="particles">
-      {Array.from({ length: 35 }).map(
-        (_, index) => (
-          <span
-            key={index}
-            className="particle"
-          />
-        )
-      )}
-    </div>
+    <div className="app">
 
-    {/* ================================
-        LANJUTKAN ISI WEBSITE DI SINI
-    ================================= */}
+      {/* PARTICLES */}
+
+      <div className="particles">
+
+        {Array.from(
+          { length: 35 }
+        ).map(
+          (_, index) => (
+            <span
+              key={index}
+              className="particle"
+            />
+          )
+        )}
+
+      </div>
 
 
       {/* BACKGROUND GRID */}
@@ -1398,16 +1395,19 @@ return (
 
       <main className="main-container">
 
-        {page === "dashboard" &&
-          renderDashboard()}
+  {page === "dashboard" &&
+    renderDashboard()}
 
-        {page === "pairing" &&
-          renderPairing()}
+  {page === "pairing" &&
+    renderPairing()}
 
-        {page === "sessions" &&
-          renderSessions()}
+  {page === "sessions" &&
+    renderSessions()}
 
-      </main>
+  {page === "downloader" &&
+    <Downloader />}
+
+</main>
 
 
       {/* BOTTOM NAV */}
@@ -1429,6 +1429,7 @@ return (
             Dashboard
           </small>
         </button>
+
 
         <button
           className={
@@ -1463,6 +1464,24 @@ return (
           </small>
         </button>
 
+         <button
+  className={
+    page === "downloader"
+      ? "nav-item active"
+      : "nav-item"
+  }
+  onClick={() =>
+    setPage("downloader")
+  }
+>
+  <span>↓</span>
+  <small>
+    Downloader
+  </small>
+</button>
+
+
+         
       </nav>
 
 
@@ -1578,6 +1597,7 @@ return (
         </div>
 
       )}
+
 {/* ================================
     FOOTER SOCIAL
 ================================ */}
@@ -1641,3 +1661,4 @@ return (
 }
 
 export default App;
+    
