@@ -75,7 +75,16 @@ function App() {
 
     return () => clearTimeout(timer);
   }, []);
+// ==============================
+  // DOCUMENTATION PAGE
+  // ==============================
 
+  if (
+    window.location.pathname === "/doc" ||
+    window.location.pathname === "/doc/"
+  ) {
+    return <Docs />;
+  }
 
 
    
