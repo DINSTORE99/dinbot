@@ -1585,10 +1585,6 @@ return (
 
         <div className="footer-content">
 
-          <div className="footer-copy">
-            © {new Date().getFullYear()} DIN BOT
-          </div>
-
           <div className="footer-social">
 
             {/* GITHUB */}
