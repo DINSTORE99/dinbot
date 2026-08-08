@@ -3,11 +3,11 @@
   "rewrites": [
     {
       "source": "/doc",
-      "destination": "/"
+      "destination": "/index.html"
     },
     {
       "source": "/doc/",
-      "destination": "/"
+      "destination": "/index.html"
     }
   ]
 }
