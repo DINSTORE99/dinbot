@@ -1,0 +1,53 @@
+.docs-page {
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+
+  background: #07070b;
+  color: #fff;
+
+  padding: 40px 20px;
+}
+
+.docs-container {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+}
+
+.docs-header {
+  margin-bottom: 30px;
+}
+
+.docs-badge {
+  color: #9b6cff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.docs-header h1 {
+  margin: 10px 0;
+  font-size: 42px;
+}
+
+.docs-header p {
+  color: #888;
+}
+
+.docs-card {
+  padding: 25px;
+  border-radius: 18px;
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.docs-card h2 {
+  margin-top: 0;
+}
+
+.docs-card p {
+  color: #aaa;
+  line-height: 1.7;
+}
