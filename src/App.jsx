@@ -63,6 +63,22 @@ window.addEventListener("load", () => {
 
 
 function App() {
+   // ==============================
+  // SPLASH / LOADING SCREEN
+  // ==============================
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+
+
+   
   useEffect(() => {
     const audio = new Audio("/musik.mp3");
     audio.loop = true;
@@ -1285,7 +1301,28 @@ function App() {
   return (
 
     <div className="app">
+{/* ================================
+        LOADING SCREEN
+    ================================= */}
 
+    <div className="loading-screen">
+      <div className="loading-content">
+
+        <img
+          src="/logo.png"
+          alt="DIN BOT"
+          className="loading-logo"
+        />
+
+        <div className="loading-row">
+          <div className="loading-spinner"></div>
+          <span>Memuat...</span>
+        </div>
+
+      </div>
+    </div>
+
+       
       {/* PARTICLES */}
 
       <div className="particles">
