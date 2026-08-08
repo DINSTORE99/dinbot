@@ -594,10 +594,17 @@ function App() {
   onClick={loadStatus}
   disabled={loading}
 >
-  {loading ? "Memuat..." : "↻ Refresh"}
+  {loading
+    ? "Memuat..."
+    : "↻ Refresh"}
 </button>
 
-        </header>
+<button
+  className="docs-button"
+  onClick={() => setPage("docs")}
+>
+  📚 Dokumentasi
+</button>
 
         {/* STATS */}
 
@@ -1425,25 +1432,6 @@ return (
           </small>
         </button>
 
-
-{/* DOCS */}
-  <button
-    className={
-      page === "docs"
-        ? "nav-item active"
-        : "nav-item"
-    }
-    onClick={() =>
-      setPage("docs")
-    }
-  >
-    <span>📚</span>
-
-    <small>
-      Docs
-    </small>
-  </button>
-     
         <button
           className={
             page === "pairing"
