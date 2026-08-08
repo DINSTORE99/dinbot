@@ -2132,3 +2132,30 @@ input {
     transform: rotate(360deg);
   }
 }
+
+
+
+
+.brand-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 2px solid rgba(139, 92, 246, 0.6);
+  box-shadow:
+    0 0 15px rgba(139, 92, 246, 0.4),
+    0 0 30px rgba(139, 92, 246, 0.15);
+}
+
+.brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
