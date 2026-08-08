@@ -2159,7 +2159,7 @@ input {
 }
 
 /* =================================
-   FOOTER DIN BOT
+   FOOTER SOCIAL
 ================================= */
 
 .site-footer {
@@ -2205,6 +2205,8 @@ input {
   border-radius: 50%;
   text-decoration: none;
 
+  cursor: pointer;
+
   transition:
     transform 0.2s ease,
     opacity 0.2s ease,
@@ -2212,7 +2214,7 @@ input {
 }
 
 /* =================================
-   ICON
+   SVG ICON
 ================================= */
 
 .social-button svg {
@@ -2238,6 +2240,7 @@ input {
 
 .social-button.github {
   background: #24292f;
+
   box-shadow:
     0 0 12px rgba(36, 41, 47, 0.35);
 }
@@ -2248,6 +2251,7 @@ input {
 
 .social-button.whatsapp {
   background: #25d366;
+
   box-shadow:
     0 0 12px rgba(37, 211, 102, 0.3);
 }
@@ -2258,10 +2262,10 @@ input {
 
 .social-button.telegram {
   background: #229ed9;
+
   box-shadow:
     0 0 12px rgba(34, 158, 217, 0.3);
 }
-
 
 /* =================================
    MOBILE
