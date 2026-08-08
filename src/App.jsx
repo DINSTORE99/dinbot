@@ -1299,46 +1299,32 @@ function App() {
   // =====================================================
 
   return (
-
-    <div className="app">
-{/* ================================
-        LOADING SCREEN
+<div className="app">
+    {/* ================================
+        LOADING LOGO
     ================================= */}
 
-    <div className="loading-screen">
-      <div className="loading-content">
-
-        <img
-          src="/logo.png"
-          alt="DIN BOT"
-          className="loading-logo"
-        />
-
-        <div className="loading-row">
-          <div className="loading-spinner"></div>
-          <span>Memuat...</span>
-        </div>
-
-      </div>
+    <div className="loading-logo">
+      <img
+        src="/logo.png"
+        alt="DIN BOT"
+      />
     </div>
 
-       
-      {/* PARTICLES */}
+    {/* ================================
+        PARTICLES
+    ================================= */}
 
-      <div className="particles">
-
-        {Array.from(
-          { length: 35 }
-        ).map(
-          (_, index) => (
-            <span
-              key={index}
-              className="particle"
-            />
-          )
-        )}
-
-      </div>
+    <div className="particles">
+      {Array.from({ length: 35 }).map(
+        (_, index) => (
+          <span
+            key={index}
+            className="particle"
+          />
+        )
+      )}
+    </div>
 
 
       {/* BACKGROUND GRID */}
