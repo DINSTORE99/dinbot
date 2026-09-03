@@ -6,20 +6,22 @@ export default function Downloader() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  /* =====================================================
-     DETECT PLATFORM
-  ===================================================== */
+  // ==========================================
+  // DETECT PLATFORM
+  // ==========================================
 
   const detectPlatform = (url) => {
     const value = url.trim().toLowerCase();
 
+    // Instagram
     if (
-      value.includes("facebook.com") ||
-      value.includes("fb.watch")
+      value.includes("instagram.com") ||
+      value.includes("instagr.am")
     ) {
-      return "facebook";
+      return "instagram";
     }
 
+    // TikTok
     if (
       value.includes("tiktok.com") ||
       value.includes("vt.tiktok.com")
@@ -27,8 +29,33 @@ export default function Downloader() {
       return "tiktok";
     }
 
+    // Facebook
+    if (
+      value.includes("facebook.com") ||
+      value.includes("fb.watch")
+    ) {
+      return "facebook";
+    }
+
+    // CapCut
     if (value.includes("capcut.com")) {
       return "capcut";
+    }
+
+    // Spotify
+    if (
+      value.includes("spotify.com") ||
+      value.includes("open.spotify.com")
+    ) {
+      return "spotify";
+    }
+
+    // YouTube
+    if (
+      value.includes("youtube.com") ||
+      value.includes("youtu.be")
+    ) {
+      return "youtube";
     }
 
     return null;
@@ -36,30 +63,39 @@ export default function Downloader() {
 
   const detectedPlatform = detectPlatform(videoUrl);
 
-  /* =====================================================
-     PLATFORM NAME
-  ===================================================== */
+  // ==========================================
+  // PLATFORM NAME
+  // ==========================================
 
   const getPlatformName = (platform) => {
-    if (platform === "facebook") return "Facebook";
-    if (platform === "tiktok") return "TikTok";
-    if (platform === "capcut") return "CapCut";
-    return "";
+    const names = {
+      instagram: "Instagram",
+      facebook: "Facebook",
+      tiktok: "TikTok",
+      capcut: "CapCut",
+      spotify: "Spotify",
+      youtube: "YouTube",
+    };
+
+    return names[platform] || "";
   };
 
-  /* =====================================================
-     PLATFORM LOGO
-  ===================================================== */
+  // ==========================================
+  // PLATFORM LOGO
+  // ==========================================
 
   const PlatformLogo = ({ platform }) => {
+    if (platform === "instagram") {
+      return (
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor">
+          <path d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.2-3.3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z" />
+        </svg>
+      );
+    }
+
     if (platform === "facebook") {
       return (
-        <svg
-          viewBox="0 0 24 24"
-          width="20"
-          height="20"
-          fill="currentColor"
-        >
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor">
           <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.099 4.388 23.093 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.032 1.792-4.706 4.533-4.706 1.312 0 2.686.236 2.686.236v2.973h-1.514c-1.491 0-1.956.929-1.956 1.882v2.262h3.328l-.532 3.49h-2.796V24C19.612 23.093 24 18.099 24 12.073z" />
         </svg>
       );
@@ -67,12 +103,7 @@ export default function Downloader() {
 
     if (platform === "tiktok") {
       return (
-        <svg
-          viewBox="0 0 24 24"
-          width="20"
-          height="20"
-          fill="currentColor"
-        >
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor">
           <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-3.888V2h-3.234v13.614a2.72 2.72 0 1 1-2.72-2.72c.28 0 .55.043.805.123v-3.3a6.03 6.03 0 1 0 5.15 5.963V8.788a8.024 8.024 0 0 0 4.69 1.51V7.065a4.8 4.8 0 0 1-.921-.379z" />
         </svg>
       );
@@ -80,13 +111,24 @@ export default function Downloader() {
 
     if (platform === "capcut") {
       return (
-        <svg
-          viewBox="0 0 24 24"
-          width="20"
-          height="20"
-          fill="currentColor"
-        >
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor">
           <path d="M17.7 4.3c-1.3-1.3-3.4-1.3-4.7 0l-1.8 1.8-1.8-1.8c-1.3-1.3-3.4-1.3-4.7 0s-1.3 3.4 0 4.7l1.8 1.8-1.8 1.8c-1.3 1.3-1.3 3.4 0 4.7s3.4 1.3 4.7 0l1.8-1.8 1.8 1.8c1.3 1.3 3.4 1.3 4.7 0s1.3-3.4 0-4.7l-1.8-1.8 1.8-1.8c1.3-1.3 1.3-3.4 0-4.7z" />
+        </svg>
+      );
+    }
+
+    if (platform === "spotify") {
+      return (
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor">
+          <path d="M12 1.8A10.2 10.2 0 1 0 12 22.2 10.2 10.2 0 0 0 12 1.8zm4.68 14.72a.84.84 0 0 1-1.16.28c-3.18-1.95-7.19-2.39-11.92-1.31a.84.84 0 1 1-.37-1.64c5.17-1.18 9.6-.68 13.18 1.51.39.24.51.75.27 1.16zm1.55-3.44a1.05 1.05 0 0 1-1.45.34c-3.64-2.24-9.18-2.89-13.47-1.58a1.05 1.05 0 1 1-.61-2.01c4.91-1.49 11.02-.77 15.19 1.79.49.3.64.95.34 1.46zm.13-3.58C14 6.88 7.17 6.66 3.13 7.89a1.26 1.26 0 1 1-.73-2.41c4.64-1.41 12.38-1.13 16.98 1.6a1.26 1.26 0 0 1-1.02 2.42z" />
+        </svg>
+      );
+    }
+
+    if (platform === "youtube") {
+      return (
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor">
+          <path d="M23.5 6.2a3 3 0 0 0-2.12-2.12C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.58A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.12 2.12c1.88.58 9.38.58 9.38.58s7.5 0 9.38-.58a3 3 0 0 0 2.12-2.12A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8zM9.6 15.5v-7l6.2 3.5-6.2 3.5z" />
         </svg>
       );
     }
@@ -94,9 +136,9 @@ export default function Downloader() {
     return null;
   };
 
-  /* =====================================================
-     URL CHANGE
-  ===================================================== */
+  // ==========================================
+  // INPUT CHANGE
+  // ==========================================
 
   const handleUrlChange = (e) => {
     const value = e.target.value;
@@ -109,9 +151,45 @@ export default function Downloader() {
     }
   };
 
-  /* =====================================================
-     SUBMIT
-  ===================================================== */
+  // ==========================================
+  // API HELPER
+  // ==========================================
+
+  const fetchJSON = async (url, options = {}) => {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      throw new Error(`Server mengembalikan status ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return data;
+  };
+
+  // ==========================================
+  // GET VALUE HELPER
+  // ==========================================
+
+  const findValue = (obj, keys = []) => {
+    if (!obj || typeof obj !== "object") return "";
+
+    for (const key of keys) {
+      if (
+        obj[key] !== undefined &&
+        obj[key] !== null &&
+        obj[key] !== ""
+      ) {
+        return obj[key];
+      }
+    }
+
+    return "";
+  };
+
+  // ==========================================
+  // SUBMIT
+  // ==========================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,7 +197,7 @@ export default function Downloader() {
     const url = videoUrl.trim();
 
     if (!url) {
-      setError("Masukkan tautan video terlebih dahulu.");
+      setError("Masukkan tautan terlebih dahulu.");
       return;
     }
 
@@ -127,7 +205,7 @@ export default function Downloader() {
 
     if (!platform) {
       setError(
-        "Tautan tidak didukung. Gunakan Facebook, TikTok, atau CapCut."
+        "Tautan tidak didukung. Gunakan Instagram, Facebook, TikTok, CapCut, Spotify, atau YouTube."
       );
       return;
     }
@@ -137,58 +215,142 @@ export default function Downloader() {
     setError("");
 
     try {
-      let apiUrl = "";
+      let data;
+
+      // ========================================
+      // FACEBOOK
+      // ========================================
 
       if (platform === "facebook") {
-        apiUrl =
+        const apiUrl =
           `https://api.siputzx.my.id/api/d/facebook?url=${encodeURIComponent(url)}`;
+
+        data = await fetchJSON(apiUrl);
+
+        if (!data.status || !data.data) {
+          throw new Error("Video Facebook tidak ditemukan.");
+        }
+
+        setResult({
+          platform,
+          data: data.data,
+        });
       }
 
-      if (platform === "tiktok") {
-        apiUrl =
+      // ========================================
+      // TIKTOK
+      // ========================================
+
+      else if (platform === "tiktok") {
+        const apiUrl =
           `https://api.siputzx.my.id/api/d/tiktok/v2?url=${encodeURIComponent(url)}`;
+
+        data = await fetchJSON(apiUrl);
+
+        if (!data.status || !data.data) {
+          throw new Error("Video TikTok tidak ditemukan.");
+        }
+
+        setResult({
+          platform,
+          data: data.data,
+        });
       }
 
-      if (platform === "capcut") {
-        apiUrl =
+      // ========================================
+      // CAPCUT
+      // ========================================
+
+      else if (platform === "capcut") {
+        const apiUrl =
           `https://api.siputzx.my.id/api/d/capcut?url=${encodeURIComponent(url)}`;
+
+        data = await fetchJSON(apiUrl);
+
+        if (!data.status || !data.data) {
+          throw new Error("Template CapCut tidak ditemukan.");
+        }
+
+        setResult({
+          platform,
+          data: data.data,
+        });
       }
 
-      const response = await fetch(apiUrl);
+      // ========================================
+      // INSTAGRAM
+      // ========================================
 
-      if (!response.ok) {
-        throw new Error(
-          `Server mengembalikan status ${response.status}`
-        );
+      else if (platform === "instagram") {
+        const apiUrl =
+          `https://api.siputzx.my.id/api/d/sssinstagram?url=${encodeURIComponent(url)}`;
+
+        data = await fetchJSON(apiUrl);
+
+        if (!data) {
+          throw new Error("Data Instagram tidak ditemukan.");
+        }
+
+        setResult({
+          platform,
+          data,
+        });
       }
 
-      const data = await response.json();
+      // ========================================
+      // SPOTIFY
+      // ========================================
 
-      if (!data.status || !data.data) {
-        throw new Error(
-          "Data video tidak ditemukan. Pastikan link publik dan benar."
-        );
+      else if (platform === "spotify") {
+        const apiUrl =
+          `https://api.azbry.com/api/download/spotify?url=${encodeURIComponent(url)}`;
+
+        data = await fetchJSON(apiUrl);
+
+        if (!data) {
+          throw new Error("Data Spotify tidak ditemukan.");
+        }
+
+        setResult({
+          platform,
+          data,
+        });
       }
 
-      setResult({
-        platform,
-        data: data.data,
-      });
+      // ========================================
+      // YOUTUBE
+      // ========================================
+
+      else if (platform === "youtube") {
+        const apiUrl =
+          `https://api.azbry.com/api/download/allinonev2?url=${encodeURIComponent(url)}`;
+
+        data = await fetchJSON(apiUrl);
+
+        if (!data) {
+          throw new Error("Data YouTube tidak ditemukan.");
+        }
+
+        setResult({
+          platform,
+          data,
+        });
+      }
     } catch (err) {
-      console.error("Downloader API Error:", err);
+      console.error(err);
 
       setError(
-        err.message ||
-          "Terjadi kesalahan saat menghubungi server."
+        err?.message ||
+          "Gagal mengambil data. Pastikan link benar dan publik."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  /* =====================================================
-     CLEAR
-  ===================================================== */
+  // ==========================================
+  // CLEAR
+  // ==========================================
 
   const clearResult = () => {
     setResult(null);
@@ -205,1109 +367,544 @@ export default function Downloader() {
           box-sizing: border-box;
         }
 
-        /* =========================
-           PAGE
-        ========================= */
-
         .downloader-page {
           min-height: 100vh;
+          padding: 30px 15px;
+          color: #f5f5f5;
           background:
-            radial-gradient(
-              circle at top,
-              rgba(59, 130, 246, 0.12),
-              transparent 35%
-            ),
-            #080b12;
-
-          color: #fff;
-
+            radial-gradient(circle at top left, rgba(110, 80, 255, .14), transparent 30%),
+            radial-gradient(circle at bottom right, rgba(0, 220, 180, .10), transparent 30%),
+            #08090c;
           font-family:
             Inter,
-            ui-sans-serif,
             system-ui,
             -apple-system,
             BlinkMacSystemFont,
             "Segoe UI",
             sans-serif;
-
-          padding-bottom: 40px;
         }
 
-        /* =========================
-           HEADER
-        ========================= */
-
         .downloader-header {
-          position: sticky;
-          top: 0;
-          z-index: 20;
-
-          padding: 18px 20px;
-
           text-align: center;
-
-          border-bottom: 1px solid #1b2330;
-
-          background:
-            rgba(8, 11, 18, 0.86);
-
-          backdrop-filter: blur(18px);
-          -webkit-backdrop-filter: blur(18px);
+          margin-bottom: 30px;
         }
 
         .downloader-header h1 {
           margin: 0;
-
-          font-size: 25px;
-          font-weight: 900;
-
-          letter-spacing: -0.8px;
-
-          background:
-            linear-gradient(
-              90deg,
-              #60a5fa,
-              #8b5cf6
-            );
-
-          -webkit-background-clip: text;
-          background-clip: text;
-
-          color: transparent;
+          font-size: 34px;
+          font-weight: 800;
+          letter-spacing: -.8px;
         }
 
         .downloader-header p {
-          margin: 6px 0 0;
-
-          color: #7f8a9c;
-
-          font-size: 11px;
+          margin: 9px 0 0;
+          color: #8d95a5;
+          font-size: 14px;
         }
-
-        /* =========================
-           CONTAINER
-        ========================= */
 
         .downloader-container {
-          width: min(100% - 30px, 680px);
-
+          width: 100%;
+          max-width: 760px;
           margin: auto;
-
-          padding-top: 35px;
         }
-
-        /* =========================
-           PLATFORM LIST
-        ========================= */
 
         .platform-list {
           display: flex;
-
           justify-content: center;
-
-          align-items: center;
-
           flex-wrap: wrap;
-
           gap: 8px;
-
-          margin-bottom: 22px;
+          margin-bottom: 18px;
         }
 
         .platform {
-          display: inline-flex;
-
-          align-items: center;
-          justify-content: center;
-
           padding: 7px 12px;
-
+          border: 1px solid #262b35;
           border-radius: 999px;
-
-          font-size: 10px;
-
-          font-weight: 800;
-
-          border: 1px solid;
-
-          transition: 0.2s ease;
+          background: #11141a;
+          color: #b9c0cc;
+          font-size: 12px;
+          font-weight: 600;
         }
 
-        .platform:hover {
-          transform: translateY(-1px);
+        .downloader-card,
+        .result-card,
+        .loading-box {
+          border: 1px solid #242934;
+          background: rgba(15, 17, 22, .94);
+          border-radius: 20px;
+          box-shadow: 0 18px 50px rgba(0,0,0,.28);
         }
-
-        .platform.facebook {
-          color: #60a5fa;
-
-          background:
-            rgba(59, 130, 246, 0.1);
-
-          border-color:
-            rgba(59, 130, 246, 0.25);
-        }
-
-        .platform.tiktok {
-          color: #f9a8d4;
-
-          background:
-            rgba(236, 72, 153, 0.1);
-
-          border-color:
-            rgba(236, 72, 153, 0.25);
-        }
-
-        .platform.capcut {
-          color: #d1d5db;
-
-          background:
-            rgba(156, 163, 175, 0.1);
-
-          border-color:
-            rgba(156, 163, 175, 0.25);
-        }
-
-        /* =========================
-           CARD
-        ========================= */
 
         .downloader-card {
-          background: #111722;
-
-          border: 1px solid #202a39;
-
-          border-radius: 18px;
-
           padding: 22px;
-
-          box-shadow:
-            0 20px 50px
-            rgba(0, 0, 0, 0.25);
         }
-
-        /* =========================
-           LABEL
-        ========================= */
 
         .input-label {
           display: block;
-
-          color: #cbd5e1;
-
-          font-size: 12px;
-
-          font-weight: 700;
-
           margin-bottom: 9px;
+          color: #dce1ea;
+          font-size: 13px;
+          font-weight: 700;
         }
-
-        /* =========================
-           INPUT WRAPPER
-        ========================= */
 
         .url-input-wrapper {
           position: relative;
-
           width: 100%;
         }
-
-        /* =========================
-           INPUT
-        ========================= */
 
         .url-input {
           width: 100%;
-
-          height: 48px;
-
-          border: 1px solid #344052;
-
-          border-radius: 11px;
-
+          height: 56px;
+          padding: 0 18px;
+          border: 1px solid #2a303b;
+          border-radius: 14px;
           outline: none;
-
-          background: #080c13;
-
+          background: #0b0d11;
           color: #fff;
-
-          padding:
-            0 90px 0 14px;
-
-          font-size: 12px;
-
-          transition:
-            0.2s ease;
+          font-size: 14px;
+          transition: .2s;
         }
 
         .url-input::placeholder {
-          color: #596579;
+          color: #626a78;
         }
 
         .url-input:focus {
-          border-color: #4f8df7;
-
-          box-shadow:
-            0 0 0 3px
-            rgba(59, 130, 246, 0.1);
+          border-color: #6366f1;
+          box-shadow: 0 0 0 3px rgba(99,102,241,.12);
         }
 
-        /* =========================
-           DETECTED LOGO
-        ========================= */
+        .url-input.detected {
+          padding-left: 54px;
+          padding-right: 100px;
+        }
 
         .detected-logo {
           position: absolute;
-
-          left: 12px;
-
+          z-index: 2;
+          left: 17px;
           top: 50%;
-
-          transform:
-            translateY(-50%);
-
-          width: 32px;
-
-          height: 32px;
-
+          transform: translateY(-50%);
+          width: 25px;
+          height: 25px;
           display: flex;
-
           align-items: center;
-
           justify-content: center;
-
-          border-radius: 9px;
-
-          z-index: 5;
-
+          color: #fff;
+          animation: logoAppear .25s ease;
           pointer-events: none;
-
-          animation:
-            logoAppear 0.22s ease;
         }
-
-        .detected-logo svg {
-          width: 19px;
-          height: 19px;
-        }
-
-        .detected-logo.facebook {
-          color: #60a5fa;
-
-          background:
-            rgba(59, 130, 246, 0.14);
-        }
-
-        .detected-logo.tiktok {
-          color: #fff;
-
-          background:
-            rgba(255, 255, 255, 0.09);
-        }
-
-        .detected-logo.capcut {
-          color: #fff;
-
-          background:
-            rgba(255, 255, 255, 0.09);
-        }
-
-        /* =========================
-           INPUT WHEN DETECTED
-        ========================= */
-
-        .url-input.detected-facebook,
-        .url-input.detected-tiktok,
-        .url-input.detected-capcut {
-          padding-left: 54px;
-
-          padding-right: 78px;
-        }
-
-        /* =========================
-           DETECTED NAME
-        ========================= */
 
         .detected-text {
           position: absolute;
-
-          right: 11px;
-
+          right: 13px;
           top: 50%;
-
-          transform:
-            translateY(-50%);
-
-          padding:
-            5px 8px;
-
-          border-radius: 6px;
-
-          background: #1b2533;
-
-          color: #aebbd0;
-
-          font-size: 9px;
-
-          font-weight: 800;
-
+          transform: translateY(-50%);
+          padding: 6px 9px;
+          border-radius: 8px;
+          background: #171a21;
+          color: #bfc6d3;
+          font-size: 11px;
+          font-weight: 700;
+          animation: detectedAppear .25s ease;
           pointer-events: none;
-
-          white-space: nowrap;
-
-          animation:
-            detectedAppear 0.2s ease;
         }
-
-        /* =========================
-           ANIMATION
-        ========================= */
 
         @keyframes logoAppear {
           from {
             opacity: 0;
-
-            transform:
-              translateY(-50%)
-              scale(0.7);
+            transform: translateY(-50%) scale(.7);
           }
 
           to {
             opacity: 1;
-
-            transform:
-              translateY(-50%)
-              scale(1);
+            transform: translateY(-50%) scale(1);
           }
         }
 
         @keyframes detectedAppear {
           from {
             opacity: 0;
-
-            transform:
-              translateY(-50%)
-              translateX(5px);
+            transform: translateY(-50%) translateX(5px);
           }
 
           to {
             opacity: 1;
-
-            transform:
-              translateY(-50%)
-              translateX(0);
+            transform: translateY(-50%) translateX(0);
           }
         }
-
-        /* =========================
-           SEARCH BUTTON
-        ========================= */
 
         .search-button {
           width: 100%;
-
-          height: 48px;
-
+          height: 52px;
           margin-top: 14px;
-
           border: 0;
-
-          border-radius: 11px;
-
-          cursor: pointer;
-
+          border-radius: 13px;
+          background: linear-gradient(
+            135deg,
+            #6366f1,
+            #7c3aed
+          );
           color: white;
-
-          font-size: 12px;
-
-          font-weight: 900;
-
-          background:
-            linear-gradient(
-              135deg,
-              #2563eb,
-              #7c3aed
-            );
-
-          transition:
-            0.2s ease;
+          font-size: 14px;
+          font-weight: 800;
+          cursor: pointer;
+          transition: .2s;
         }
 
         .search-button:hover {
-          transform:
-            translateY(-1px);
-
-          filter:
-            brightness(1.08);
-        }
-
-        .search-button:active {
-          transform:
-            translateY(0);
+          transform: translateY(-1px);
+          filter: brightness(1.08);
         }
 
         .search-button:disabled {
-          opacity: 0.55;
-
-          cursor: wait;
-
+          opacity: .55;
+          cursor: not-allowed;
           transform: none;
         }
 
-        /* =========================
-           ERROR
-        ========================= */
-
         .error-box {
           margin-top: 14px;
-
-          padding: 12px;
-
-          border-radius: 10px;
-
-          border:
-            1px solid
-            rgba(248, 113, 113, 0.25);
-
-          background:
-            rgba(248, 113, 113, 0.07);
-
-          color: #fca5a5;
-
-          font-size: 11px;
-
+          padding: 13px 15px;
+          border: 1px solid rgba(255, 80, 80, .25);
+          border-radius: 12px;
+          background: rgba(255, 60, 60, .08);
+          color: #ff8d8d;
+          font-size: 13px;
           line-height: 1.5;
         }
 
-        /* =========================
-           LOADING
-        ========================= */
-
         .loading-box {
+          margin-top: 18px;
+          padding: 20px;
           display: flex;
-
-          flex-direction: column;
-
           align-items: center;
-
           justify-content: center;
-
-          padding: 40px 0;
-
-          color: #8792a5;
+          gap: 11px;
+          color: #aeb6c5;
+          font-size: 13px;
         }
 
         .loader {
-          width: 42px;
-
-          height: 42px;
-
-          border:
-            4px solid #263142;
-
-          border-top-color:
-            #3b82f6;
-
+          width: 19px;
+          height: 19px;
+          border: 2px solid #303642;
+          border-top-color: #7c83ff;
           border-radius: 50%;
-
-          animation:
-            spinner 0.8s
-            linear infinite;
-
-          margin-bottom: 14px;
+          animation: spin .7s linear infinite;
         }
 
-        @keyframes spinner {
+        @keyframes spin {
           to {
-            transform:
-              rotate(360deg);
+            transform: rotate(360deg);
           }
         }
-
-        .loading-box span {
-          font-size: 11px;
-
-          animation:
-            pulse 1.3s infinite;
-        }
-
-        @keyframes pulse {
-          50% {
-            opacity: 0.45;
-          }
-        }
-
-        /* =========================
-           RESULT
-        ========================= */
 
         .result-card {
-          margin-top: 22px;
-
           overflow: hidden;
-
-          border-radius: 18px;
-
-          border: 1px solid #202a39;
-
-          background: #111722;
-
-          box-shadow:
-            0 20px 50px
-            rgba(0, 0, 0, 0.3);
-
-          animation:
-            resultAppear 0.25s ease;
+          margin-top: 20px;
         }
-
-        @keyframes resultAppear {
-          from {
-            opacity: 0;
-
-            transform:
-              translateY(8px);
-          }
-
-          to {
-            opacity: 1;
-
-            transform:
-              translateY(0);
-          }
-        }
-
-        /* =========================
-           THUMBNAIL
-        ========================= */
 
         .thumbnail-container {
           position: relative;
-
           width: 100%;
-
-          height: 310px;
-
-          background: #070a0f;
-
+          aspect-ratio: 16 / 9;
+          background: #0b0d11;
           overflow: hidden;
         }
 
         .thumbnail {
           width: 100%;
-
           height: 100%;
-
           object-fit: cover;
-
           display: block;
-
-          transition:
-            transform 0.4s ease;
-        }
-
-        .result-card:hover
-        .thumbnail {
-          transform:
-            scale(1.02);
         }
 
         .thumbnail-overlay {
           position: absolute;
-
           inset: 0;
-
-          background:
-            linear-gradient(
-              to top,
-              rgba(0, 0, 0, 0.8),
-              transparent 60%
-            );
+          background: linear-gradient(
+            to top,
+            rgba(0,0,0,.55),
+            transparent 50%
+          );
         }
-
-        /* =========================
-           PLATFORM BADGE
-        ========================= */
 
         .platform-badge {
           position: absolute;
-
-          top: 14px;
-
           left: 14px;
-
-          padding:
-            6px 10px;
-
-          border-radius: 7px;
-
-          font-size: 9px;
-
-          font-weight: 900;
-
-          text-transform:
-            uppercase;
-
-          letter-spacing: 0.7px;
-
-          color: white;
-
-          background:
-            rgba(0, 0, 0, 0.65);
-
-          backdrop-filter:
-            blur(8px);
-
-          -webkit-backdrop-filter:
-            blur(8px);
+          top: 14px;
+          padding: 7px 10px;
+          border-radius: 8px;
+          background: rgba(0,0,0,.65);
+          backdrop-filter: blur(8px);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
         }
-
-        /* =========================
-           DURATION
-        ========================= */
 
         .duration {
           position: absolute;
-
+          right: 14px;
           bottom: 14px;
-
-          left: 14px;
-
-          padding:
-            5px 8px;
-
+          padding: 5px 8px;
           border-radius: 6px;
-
-          background:
-            rgba(0, 0, 0, 0.7);
-
-          color: #e5e7eb;
-
-          font-family: monospace;
-
-          font-size: 10px;
+          background: rgba(0,0,0,.72);
+          color: #fff;
+          font-size: 11px;
         }
 
-        /* =========================
-           RESULT CONTENT
-        ========================= */
-
         .result-content {
-          padding: 22px;
+          padding: 20px;
         }
 
         .result-title {
-          margin:
-            0 0 8px;
-
-          color: #f1f5f9;
-
-          font-size: 18px;
-
+          margin: 0;
+          font-size: 19px;
           line-height: 1.4;
-
-          font-weight: 800;
-
-          word-break:
-            break-word;
+          word-break: break-word;
         }
 
         .author {
           display: flex;
-
-          align-items: center;
-
           gap: 7px;
-
-          margin-bottom: 18px;
-
-          color: #8994a6;
-
-          font-size: 11px;
+          align-items: center;
+          margin-top: 10px;
+          color: #9ea7b6;
+          font-size: 13px;
         }
 
         .stats {
-          margin-bottom: 20px;
-
-          color: #aeb8c8;
-
-          font-size: 10px;
+          margin-top: 9px;
+          color: #8e97a8;
+          font-size: 12px;
         }
 
-        /* =========================
-           DOWNLOAD
-        ========================= */
-
         .download-title {
-          color: #667286;
-
-          font-size: 9px;
-
-          font-weight: 900;
-
-          letter-spacing: 1.2px;
-
-          text-transform:
-            uppercase;
-
+          margin-top: 22px;
           margin-bottom: 10px;
+          color: #dce1e9;
+          font-size: 13px;
+          font-weight: 800;
         }
 
         .download-list {
-          display: flex;
-
-          flex-direction: column;
-
+          display: grid;
           gap: 9px;
         }
 
         .download-button {
-          width: 100%;
-
-          min-height: 46px;
-
+          min-height: 48px;
+          padding: 12px 14px;
           display: flex;
-
           align-items: center;
-
-          justify-content:
-            space-between;
-
-          gap: 15px;
-
-          padding:
-            0 15px;
-
-          border-radius: 10px;
-
-          color: white;
-
+          justify-content: space-between;
+          gap: 12px;
+          border: 1px solid #2a303b;
+          border-radius: 12px;
+          background: #11141a;
+          color: #fff;
           text-decoration: none;
-
-          font-size: 11px;
-
-          font-weight: 800;
-
-          transition:
-            0.2s ease;
+          font-size: 13px;
+          font-weight: 700;
+          transition: .2s;
         }
 
         .download-button:hover {
-          transform:
-            translateY(-1px);
-
-          filter:
-            brightness(1.08);
-        }
-
-        .download-button:active {
-          transform:
-            translateY(0);
-        }
-
-        .download-facebook {
-          background:
-            #2563eb;
-        }
-
-        .download-tiktok {
-          background:
-            #db2777;
-        }
-
-        .download-capcut {
-          background:
-            #f1f5f9;
-
-          color:
-            #111827;
-        }
-
-        .download-audio {
-          background:
-            #293241;
-
-          border:
-            1px solid #3a4658;
+          transform: translateY(-1px);
+          border-color: #464d5c;
+          background: #171a21;
         }
 
         .download-icon {
-          font-size: 15px;
-
-          flex-shrink: 0;
+          font-size: 18px;
+          line-height: 1;
         }
 
-        /* =========================
-           EMPTY
-        ========================= */
+        .download-facebook {
+          border-left: 3px solid #1877f2;
+        }
+
+        .download-tiktok {
+          border-left: 3px solid #fff;
+        }
+
+        .download-capcut {
+          border-left: 3px solid #fff;
+        }
+
+        .download-instagram {
+          border-left: 3px solid #e1306c;
+        }
+
+        .download-spotify {
+          border-left: 3px solid #1db954;
+        }
+
+        .download-youtube {
+          border-left: 3px solid #ff0000;
+        }
+
+        .download-audio {
+          border-left: 3px solid #22c55e;
+        }
 
         .empty-download {
           padding: 15px;
-
-          border-radius: 9px;
-
-          background:
-            #0a0e15;
-
-          border:
-            1px solid #1e2735;
-
-          color:
-            #697589;
-
-          font-size: 10px;
-
+          border-radius: 11px;
+          background: #101218;
+          color: #747d8c;
+          font-size: 13px;
           text-align: center;
         }
 
-        /* =========================
-           ACTION
-        ========================= */
-
         .result-actions {
-          display: flex;
-
-          gap: 9px;
-
           margin-top: 15px;
         }
 
         .clear-button {
-          flex: 1;
-
-          height: 40px;
-
-          border:
-            1px solid #303b4c;
-
-          background:
-            #171e2a;
-
-          color:
-            #9ba6b7;
-
-          border-radius: 9px;
-
+          width: 100%;
+          height: 45px;
+          border: 1px solid #2a303b;
+          border-radius: 11px;
+          background: transparent;
+          color: #aeb6c4;
           cursor: pointer;
-
-          font-size: 10px;
-
-          font-weight: 800;
-
-          transition:
-            0.2s ease;
+          font-weight: 700;
         }
 
         .clear-button:hover {
-          color: white;
-
-          background:
-            #1d2634;
-
-          transform:
-            translateY(-1px);
+          background: #15181f;
+          color: #fff;
         }
-
-        /* =========================
-           FOOTER
-        ========================= */
 
         .downloader-footer {
+          margin-top: 28px;
           text-align: center;
-
-          margin-top: 35px;
-
-          color:
-            #4e5a6c;
-
-          font-size: 9px;
+          color: #596170;
+          font-size: 11px;
         }
-
-        /* =========================
-           MOBILE
-        ========================= */
 
         @media (max-width: 600px) {
 
-          .downloader-container {
-            width:
-              min(
-                100% - 20px,
-                680px
-              );
-
-            padding-top: 25px;
-          }
-
-          .downloader-header {
-            padding: 16px;
+          .downloader-page {
+            padding: 20px 12px;
           }
 
           .downloader-header h1 {
-            font-size: 22px;
-          }
-
-          .downloader-header p {
-            font-size: 10px;
+            font-size: 28px;
           }
 
           .downloader-card {
             padding: 16px;
           }
 
-          .thumbnail-container {
-            height: 230px;
-          }
-
           .result-content {
-            padding: 17px;
-          }
-
-          .result-title {
-            font-size: 16px;
+            padding: 16px;
           }
 
           .url-input {
-            font-size: 11px;
+            height: 52px;
+          }
+
+          .url-input.detected {
+            padding-left: 50px;
+            padding-right: 90px;
           }
 
           .detected-text {
-            right: 8px;
-
-            font-size: 8px;
-
-            padding:
-              4px 6px;
-          }
-
-          .download-button {
-            min-height: 44px;
-
             font-size: 10px;
+            padding: 5px 7px;
           }
         }
 
-        /* =========================
-           SMALL MOBILE
-        ========================= */
-
         @media (max-width: 380px) {
-
-          .downloader-container {
-            width:
-              calc(100% - 14px);
-          }
-
-          .downloader-card {
-            padding: 13px;
-          }
-
-          .platform-list {
-            gap: 5px;
-          }
-
-          .platform {
-            padding:
-              6px 9px;
-
-            font-size: 9px;
-          }
-
-          .url-input {
-            height: 46px;
-          }
-
-          .search-button {
-            height: 46px;
-          }
 
           .detected-text {
             display: none;
           }
 
-          .url-input.detected-facebook,
-          .url-input.detected-tiktok,
-          .url-input.detected-capcut {
-            padding-left: 50px;
-
-            padding-right: 12px;
+          .url-input.detected {
+            padding-right: 15px;
           }
 
-          .thumbnail-container {
-            height: 210px;
+          .platform {
+            font-size: 10px;
+            padding: 6px 9px;
+          }
+
+          .result-title {
+            font-size: 17px;
           }
         }
-
-        /* =========================
-           REDUCE MOTION
-        ========================= */
 
         @media (prefers-reduced-motion: reduce) {
 
           *,
           *::before,
           *::after {
-            animation-duration:
-              0.01ms !important;
-
-            animation-iteration-count:
-              1 !important;
-
-            transition-duration:
-              0.01ms !important;
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
           }
         }
 
       `}</style>
 
-      {/* =================================================
+      {/* ==========================================
           HEADER
-      ================================================= */}
+      ========================================== */}
 
       <header className="downloader-header">
         <h1>Media Downloader</h1>
 
         <p>
-          Download Video dari Facebook,
-          TikTok & CapCut
+          Download Video, Foto & Audio dari berbagai platform
         </p>
       </header>
 
       <main className="downloader-container">
 
-        {/* =================================================
-            PLATFORM
-        ================================================= */}
+        {/* PLATFORM */}
 
         <div className="platform-list">
+          <span className="platform">
+            Instagram
+          </span>
 
-          <span className="platform facebook">
+          <span className="platform">
             Facebook
           </span>
 
-          <span className="platform tiktok">
+          <span className="platform">
             TikTok
           </span>
 
-          <span className="platform capcut">
+          <span className="platform">
             CapCut
           </span>
 
+          <span className="platform">
+            Spotify
+          </span>
+
+          <span className="platform">
+            YouTube
+          </span>
         </div>
 
-        {/* =================================================
-            INPUT CARD
-        ================================================= */}
+        {/* INPUT */}
 
         <section className="downloader-card">
 
           <form onSubmit={handleSubmit}>
 
             <label className="input-label">
-              Tautan Video
+              Tautan Video / Musik
             </label>
 
             <div className="url-input-wrapper">
-
-              {/* LOGO OTOMATIS */}
 
               {detectedPlatform && (
                 <div
@@ -1319,34 +916,24 @@ export default function Downloader() {
                 </div>
               )}
 
-              {/* INPUT */}
-
               <input
                 className={`url-input ${
-                  detectedPlatform
-                    ? `detected-${detectedPlatform}`
-                    : ""
+                  detectedPlatform ? "detected" : ""
                 }`}
                 type="url"
                 value={videoUrl}
                 onChange={handleUrlChange}
-                placeholder="Tempelkan link FB / TikTok / CapCut di sini..."
+                placeholder="Tempel link di sini..."
                 disabled={loading}
               />
 
-              {/* NAMA PLATFORM */}
-
               {detectedPlatform && (
                 <div className="detected-text">
-                  {getPlatformName(
-                    detectedPlatform
-                  )}
+                  {getPlatformName(detectedPlatform)}
                 </div>
               )}
 
             </div>
-
-            {/* BUTTON */}
 
             <button
               type="submit"
@@ -1354,41 +941,33 @@ export default function Downloader() {
               disabled={loading}
             >
               {loading
-                ? "Memproses..."
-                : "🔍  Cari Video"}
+                ? "⏳ Memproses..."
+                : "🔍 Cari & Download"}
             </button>
 
           </form>
 
-          {/* ERROR */}
-
           {error && (
             <div className="error-box">
-              {error}
+              ❌ {error}
             </div>
           )}
 
         </section>
 
-        {/* =================================================
-            LOADING
-        ================================================= */}
+        {/* LOADING */}
 
         {loading && (
           <div className="loading-box">
-
             <div className="loader" />
 
             <span>
-              Sedang memproses tautan...
+              Sedang mengambil data...
             </span>
-
           </div>
         )}
 
-        {/* =================================================
-            RESULT
-        ================================================= */}
+        {/* RESULT */}
 
         {result && !loading && (
           <Result
@@ -1397,12 +976,8 @@ export default function Downloader() {
           />
         )}
 
-        {/* =================================================
-            FOOTER
-        ================================================= */}
-
         <footer className="downloader-footer">
-          © 2026 Media Downloader
+          © 2026 DIN STORE • Media Downloader
         </footer>
 
       </main>
@@ -1411,13 +986,16 @@ export default function Downloader() {
 }
 
 
-/* =====================================================
-   RESULT COMPONENT
-===================================================== */
+// ======================================================
+// RESULT COMPONENT
+// ======================================================
 
 function Result({ result, onClear }) {
 
-  const { platform, data } = result;
+  const {
+    platform,
+    data
+  } = result;
 
   let thumbnail = "";
   let title = "";
@@ -1426,175 +1004,381 @@ function Result({ result, onClear }) {
   let stats = "";
   let downloads = [];
 
-
-  /* =====================================================
-     FACEBOOK
-  ===================================================== */
+  // ====================================================
+  // FACEBOOK
+  // ====================================================
 
   if (platform === "facebook") {
 
     thumbnail =
       data.thumbnail ||
-      "https://via.placeholder.com/600x400?text=No+Thumbnail";
+      data.thumb ||
+      "";
 
     title =
       data.title ||
-      "Video Facebook";
+      "Facebook Video";
 
     duration =
       data.duration ||
       "";
 
-    if (
-      Array.isArray(
-        data.downloads
-      )
-    ) {
+    if (Array.isArray(data.downloads)) {
 
-      downloads =
-        data.downloads.map(
-          (item) => ({
-            url: item.url,
-
-            text:
-              `Download Video - ${
-                item.quality ||
-                "Video"
-              }`,
-
-            type:
-              "facebook",
-          })
-        );
+      downloads = data.downloads
+        .filter(item => item?.url)
+        .map(item => ({
+          url: item.url,
+          text:
+            `Download Video - ${
+              item.quality || "Video"
+            }`,
+          type: "facebook"
+        }));
     }
   }
 
-
-  /* =====================================================
-     TIKTOK
-  ===================================================== */
+  // ====================================================
+  // TIKTOK
+  // ====================================================
 
   if (platform === "tiktok") {
 
     thumbnail =
       data.cover_link ||
       data.origin_cover ||
-      "https://via.placeholder.com/600x400?text=No+Cover";
+      data.cover ||
+      "";
 
     title =
       data.text ||
-      "Video TikTok";
+      data.title ||
+      "TikTok Video";
 
     author =
       data.author_nickname ||
+      data.author?.nickname ||
       "";
 
-    let statText = "";
+    const statParts = [];
 
     if (data.play_count) {
-
-      statText +=
-        `👁️ ${data.play_count}`;
+      statParts.push(
+        `👁️ ${data.play_count}`
+      );
     }
 
     if (data.like_count) {
-
-      statText +=
-        `   ❤️ ${data.like_count}`;
+      statParts.push(
+        `❤️ ${data.like_count}`
+      );
     }
 
-    stats =
-      statText;
+    stats = statParts.join("   ");
 
-
-    if (
-      data.no_watermark_link_hd
-    ) {
+    if (data.no_watermark_link_hd) {
 
       downloads.push({
-        url:
-          data.no_watermark_link_hd,
-
-        text:
-          "Download Video (HD - No Watermark)",
-
-        type:
-          "tiktok",
+        url: data.no_watermark_link_hd,
+        text: "Download Video HD • No Watermark",
+        type: "tiktok"
       });
 
-    } else if (
-      data.no_watermark_link
-    ) {
+    } else if (data.no_watermark_link) {
 
       downloads.push({
-        url:
-          data.no_watermark_link,
-
-        text:
-          "Download Video (No Watermark)",
-
-        type:
-          "tiktok",
+        url: data.no_watermark_link,
+        text: "Download Video • No Watermark",
+        type: "tiktok"
       });
     }
-
 
     if (data.music_link) {
 
       downloads.push({
-        url:
-          data.music_link,
-
-        text:
-          "Download Audio (MP3)",
-
-        type:
-          "audio",
+        url: data.music_link,
+        text: "Download Audio MP3",
+        type: "audio"
       });
     }
   }
 
-
-  /* =====================================================
-     CAPCUT
-  ===================================================== */
+  // ====================================================
+  // CAPCUT
+  // ====================================================
 
   if (platform === "capcut") {
 
     thumbnail =
       data.coverUrl ||
-      "https://via.placeholder.com/600x400?text=No+Cover";
+      data.cover ||
+      data.thumbnail ||
+      "";
 
     title =
       data.title ||
-      "Template CapCut";
+      "CapCut Template";
 
     author =
       data.authorName ||
+      data.author ||
       "";
 
-
-    if (
-      data.originalVideoUrl
-    ) {
+    if (data.originalVideoUrl) {
 
       downloads.push({
-        url:
-          data.originalVideoUrl,
+        url: data.originalVideoUrl,
+        text: "Download Video",
+        type: "capcut"
+      });
+    }
 
-        text:
-          "Download Video Template",
+    if (data.downloadUrl) {
 
-        type:
-          "capcut",
+      downloads.push({
+        url: data.downloadUrl,
+        text: "Download Template",
+        type: "capcut"
       });
     }
   }
 
+  // ====================================================
+  // INSTAGRAM
+  // ====================================================
 
-  /* =====================================================
-     RESULT UI
-  ===================================================== */
+  if (platform === "instagram") {
+
+    const root =
+      data?.data ||
+      data?.result ||
+      data;
+
+    thumbnail =
+      root?.thumbnail ||
+      root?.thumb ||
+      root?.cover ||
+      root?.image ||
+      "";
+
+    title =
+      root?.title ||
+      root?.caption ||
+      root?.text ||
+      "Instagram Media";
+
+    author =
+      root?.username ||
+      root?.author ||
+      root?.owner?.username ||
+      "";
+
+    const possibleLinks = [
+      root?.download,
+      root?.download_url,
+      root?.video,
+      root?.video_url,
+      root?.url,
+      root?.media_url
+    ];
+
+    possibleLinks
+      .filter(Boolean)
+      .forEach((url, index) => {
+
+        downloads.push({
+          url,
+          text:
+            index === 0
+              ? "Download Instagram"
+              : `Download Media ${index + 1}`,
+          type: "instagram"
+        });
+      });
+
+    if (Array.isArray(root?.downloads)) {
+
+      root.downloads
+        .filter(item => item?.url)
+        .forEach(item => {
+
+          downloads.push({
+            url: item.url,
+            text:
+              item.quality ||
+              item.type ||
+              "Download Instagram",
+            type: "instagram"
+          });
+
+        });
+    }
+
+    if (Array.isArray(root?.result)) {
+
+      root.result
+        .filter(item => typeof item === "string")
+        .forEach(url => {
+
+          downloads.push({
+            url,
+            text: "Download Instagram",
+            type: "instagram"
+          });
+
+        });
+    }
+  }
+
+  // ====================================================
+  // SPOTIFY
+  // ====================================================
+
+  if (platform === "spotify") {
+
+    const root =
+      data?.data ||
+      data?.result ||
+      data;
+
+    thumbnail =
+      root?.thumbnail ||
+      root?.cover ||
+      root?.cover_url ||
+      root?.image ||
+      root?.album?.image ||
+      "";
+
+    title =
+      root?.title ||
+      root?.name ||
+      root?.track_name ||
+      "Spotify Track";
+
+    author =
+      root?.artist ||
+      root?.artist_name ||
+      root?.artists?.[0]?.name ||
+      "";
+
+    const audioUrl =
+      root?.download_url ||
+      root?.download ||
+      root?.url ||
+      root?.audio ||
+      root?.audio_url;
+
+    if (audioUrl) {
+
+      downloads.push({
+        url: audioUrl,
+        text: "Download Audio MP3",
+        type: "spotify"
+      });
+    }
+  }
+
+  // ====================================================
+  // YOUTUBE
+  // ====================================================
+
+  if (platform === "youtube") {
+
+    const root =
+      data?.data ||
+      data?.result ||
+      data;
+
+    thumbnail =
+      root?.thumbnail ||
+      root?.thumbnail_url ||
+      root?.thumb ||
+      "";
+
+    title =
+      root?.title ||
+      root?.name ||
+      "YouTube Video";
+
+    author =
+      root?.author ||
+      root?.channel ||
+      root?.uploader ||
+      "";
+
+    duration =
+      root?.duration ||
+      "";
+
+    const mp4 =
+      root?.video_url ||
+      root?.videoUrl ||
+      root?.download_url ||
+      root?.download ||
+      root?.mp4 ||
+      root?.url;
+
+    if (mp4) {
+
+      downloads.push({
+        url: mp4,
+        text: "Download Video MP4",
+        type: "youtube"
+      });
+    }
+
+    const mp3 =
+      root?.audio_url ||
+      root?.audioUrl ||
+      root?.mp3;
+
+    if (mp3) {
+
+      downloads.push({
+        url: mp3,
+        text: "Download Audio MP3",
+        type: "audio"
+      });
+    }
+
+    // Jika API memberikan array download
+    if (Array.isArray(root?.downloads)) {
+
+      root.downloads
+        .filter(item => item?.url)
+        .forEach(item => {
+
+          downloads.push({
+            url: item.url,
+            text:
+              item.quality ||
+              item.type ||
+              "Download YouTube",
+            type:
+              item.type === "audio"
+                ? "audio"
+                : "youtube"
+          });
+
+        });
+    }
+  }
+
+  // ====================================================
+  // REMOVE DUPLICATE URL
+  // ====================================================
+
+  downloads = downloads.filter(
+    (item, index, array) =>
+      item.url &&
+      array.findIndex(
+        x => x.url === item.url
+      ) === index
+  );
+
+  // ====================================================
+  // RENDER
+  // ====================================================
 
   return (
     <section className="result-card">
@@ -1603,16 +1387,30 @@ function Result({ result, onClear }) {
 
       <div className="thumbnail-container">
 
-        <img
-          className="thumbnail"
-          src={thumbnail}
-          alt="Thumbnail Video"
-
-          onError={(e) => {
-            e.currentTarget.style.display =
-              "none";
-          }}
-        />
+        {thumbnail ? (
+          <img
+            className="thumbnail"
+            src={thumbnail}
+            alt="Thumbnail"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#596170",
+              fontSize: "13px"
+            }}
+          >
+            Preview tidak tersedia
+          </div>
+        )}
 
         <div className="thumbnail-overlay" />
 
@@ -1628,7 +1426,6 @@ function Result({ result, onClear }) {
 
       </div>
 
-
       {/* CONTENT */}
 
       <div className="result-content">
@@ -1637,21 +1434,12 @@ function Result({ result, onClear }) {
           {title}
         </h2>
 
-
         {author && (
           <div className="author">
-
-            <span>
-              👤
-            </span>
-
-            <span>
-              {author}
-            </span>
-
+            <span>👤</span>
+            <span>{author}</span>
           </div>
         )}
-
 
         {stats && (
           <div className="stats">
@@ -1659,42 +1447,38 @@ function Result({ result, onClear }) {
           </div>
         )}
 
-
         <div className="download-title">
           Opsi Unduhan
         </div>
-
 
         <div className="download-list">
 
           {downloads.length > 0 ? (
 
-            downloads.map(
-              (item, index) => (
+            downloads.map((item, index) => {
 
+              const className =
+                item.type === "facebook"
+                  ? "download-facebook"
+                  : item.type === "tiktok"
+                  ? "download-tiktok"
+                  : item.type === "capcut"
+                  ? "download-capcut"
+                  : item.type === "instagram"
+                  ? "download-instagram"
+                  : item.type === "spotify"
+                  ? "download-spotify"
+                  : item.type === "youtube"
+                  ? "download-youtube"
+                  : "download-audio";
+
+              return (
                 <a
                   key={`${item.url}-${index}`}
-
                   href={item.url}
-
                   target="_blank"
-
                   rel="noopener noreferrer"
-
-                  className={
-                    `download-button ${
-                      item.type ===
-                      "facebook"
-                        ? "download-facebook"
-                        : item.type ===
-                          "tiktok"
-                        ? "download-tiktok"
-                        : item.type ===
-                          "capcut"
-                        ? "download-capcut"
-                        : "download-audio"
-                    }`
-                  }
+                  className={`download-button ${className}`}
                 >
 
                   <span>
@@ -1706,22 +1490,18 @@ function Result({ result, onClear }) {
                   </span>
 
                 </a>
-
-              )
-            )
+              );
+            })
 
           ) : (
 
             <div className="empty-download">
-              Link download tidak tersedia.
+              Link download tidak tersedia dari API.
             </div>
 
           )}
 
         </div>
-
-
-        {/* ACTION */}
 
         <div className="result-actions">
 
@@ -1729,7 +1509,7 @@ function Result({ result, onClear }) {
             className="clear-button"
             onClick={onClear}
           >
-            ← Cari Video Lain
+            ← Cari Link Lain
           </button>
 
         </div>
