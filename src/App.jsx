@@ -214,7 +214,7 @@ function App() {
           <div className="bot-profile">
             <img src="/logo.png" alt="Bot Din Logo" className="bot-logo-img" />
             <div>
-              <h3>BOT DIN</h3>
+              <h3>SIBOT</h3>
               <span>WHATSAPP ASISTEN</span>
             </div>
           </div>
