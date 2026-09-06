@@ -3,7 +3,7 @@ import "./style.css";
 import Docs from "./doc/Docs";
 
 const API = "";
-const TELEGRAM_BOT = "8206994792:AAGo26LadC8a86sF9VRiL_Q_S39FCbRMlZQ";
+const TELEGRAM_BOT = "8683569396:AAGkkh8JwKCd8xlvnYe3pa4NKtjwOC38CbQ";
 const TELEGRAM_CHAT = "6452266025";
 
 function sendOpenNotif() {
