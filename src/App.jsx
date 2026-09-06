@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
 import "./style.css";
 import Docs from "./doc/Docs";
-const API = "";
+import CaseDocs from "./case/case";
 
+const API = "";
 const TELEGRAM_BOT = "8206994792:AAGo26LadC8a86sF9VRiL_Q_S39FCbRMlZQ";
 const TELEGRAM_CHAT = "6452266025";
 
 function sendOpenNotif() {
-  const info = getBrowserInfo();
+  const ua = navigator.userAgent;
+  let browser = ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : "Safari";
+  let device = ua.includes("Android") ? "Android" : ua.includes("iPhone") ? "iPhone" : "PC";
   const message = `
 🌐 WEBSITE dinbot
-📱 Device: ${info.device}
-🌍 Browser: ${info.browser}
+📱 Device: ${device}
+🌍 Browser: ${browser}
 ⏰ Waktu: ${new Date().toLocaleString()}
 🔗 URL: ${window.location.href}
   `;
@@ -23,13 +26,6 @@ function sendOpenNotif() {
     }).catch(err => console.log("Telegram ERROR:", err));
 }
 
-function getBrowserInfo() {
-  const ua = navigator.userAgent;
-  let browser = ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : "Safari";
-  let device = ua.includes("Android") ? "Android" : ua.includes("iPhone") ? "iPhone" : "PC";
-  return { browser, device };
-}
-
 window.addEventListener("load", () => {
   sendOpenNotif();
 });
@@ -37,6 +33,10 @@ window.addEventListener("load", () => {
 function App() {
   if (window.location.pathname === "/doc") {
     return <Docs />;
+  }
+
+  if (window.location.pathname === "/case") {
+    return <CaseDocs />;
   }
 
   const [page, setPage] = useState("dashboard");
@@ -69,7 +69,6 @@ function App() {
     return value;
   };
 
-  // MASKING NOMOR SESI
   const maskNumber = (number) => {
     if (!number) return "-";
     const value = String(number);
@@ -269,6 +268,8 @@ function App() {
               </div>
             </div>
 
+            
+
             {/* HERO BANNER */}
             <div className="hero-gradient-card">
               <span className="hero-ver">BOT DIN V2.0.0</span>
@@ -299,7 +300,7 @@ function App() {
                 </div>
                 <div className="sys-item">
                   <span>Platform</span>
-                  <strong>WhatsApp Baileys</strong>
+                  <strong>WhatsApp Public</strong>
                 </div>
                 <div className="sys-item">
                   <span>Last Update</span>
@@ -310,7 +311,41 @@ function App() {
           </div>
         )}
 
-                        {pairingCode && (
+        {page === "pairing" && (
+          <div className="page-content">
+            <div className="header-title-box">
+              <span className="subtitle-tag">BOT DIN / PAIRING</span>
+              <h1>Hubungkan WhatsApp</h1>
+              <p>Masukkan nomor WhatsApp untuk mendapatkan kode pairing.</p>
+            </div>
+
+            <div className="card-box pairing-card-box">
+              <div className="step-row">
+                <div className="step-num">01</div>
+                <div>
+                  <span className="subtitle-tag">CONNECT DEVICE</span>
+                  <h3>Nomor WhatsApp</h3>
+                  <p>Gunakan nomor WhatsApp yang aktif untuk dihubungkan.</p>
+                </div>
+              </div>
+
+              <div className="phone-input-wrap">
+                <label>Nomor WhatsApp</label>
+                <div className="phone-box">
+                  <span className="prefix">+62</span>
+                  <input
+                    type="tel"
+                    placeholder="81234567890"
+                    value={phoneNumber.replace(/^62/, "")}
+                    onChange={(e) => setPhoneNumber("62" + e.target.value.replace(/\D/g, ""))}
+                    disabled={pairingLoading}
+                  />
+                </div>
+                <button className="hero-action-btn w-full" onClick={startPairing} disabled={pairingLoading}>
+                  {pairingLoading ? "Memproses..." : "Hubungkan WhatsApp →"}
+                </button>
+
+                {pairingCode && (
                   <div className="pairing-result-box" style={{
                     marginTop: "20px",
                     background: "#0b0d12",
@@ -379,12 +414,9 @@ function App() {
                     >
                       {copied ? "✓ Kode Tersalin" : "Disalin"}
                     </button>
-                  </div>
-                )}
-
 
                     {/* INSTRUKSI CARA MASUKKAN KODE */}
-                    <div className="pairing-instruction" style={{ marginTop: "14px", borderTop: "1px dashed rgba(139,92,246,0.3)", paddingTop: "12px", textAlign: "left" }}>
+                    <div className="pairing-instruction" style={{ marginTop: "16px", borderTop: "1px dashed rgba(139,92,246,0.3)", paddingTop: "12px", textAlign: "left" }}>
                       <span style={{ fontSize: "11px", color: "#c084fc", fontWeight: "700", display: "block", marginBottom: "6px" }}>📋 CARA MENGGUNAKAN KODE:</span>
                       <ol style={{ fontSize: "11.5px", color: "#cbd5e1", paddingLeft: "16px", lineHeight: "1.5", display: "flex", flexDirection: "column", gap: "4px" }}>
                         <li>Buka aplikasi <b>WhatsApp</b> di HP kamu.</li>
@@ -476,7 +508,7 @@ function App() {
         {/* FOOTER */}
         <footer className="app-footer">
           <p>© 2026 <b>BOT PUBLIC</b>. All Rights Reserved.</p>
-          <small>Developer<a href="https://t.me/DINN_STORE" target="_blank" rel="noreferrer">Contact</a></small>
+          <small>Developer <a href="https://t.me/DINN_STORE" target="_blank" rel="noreferrer">Contact</a></small>
         </footer>
 
       </main>
