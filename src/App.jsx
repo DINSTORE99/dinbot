@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import "./style.css";
 import Docs from "./doc/Docs";
-const API = "";
 
+const API = "";
 const TELEGRAM_BOT = "8206994792:AAGo26LadC8a86sF9VRiL_Q_S39FCbRMlZQ";
 const TELEGRAM_CHAT = "6452266025";
 
 function sendOpenNotif() {
-  const info = getBrowserInfo();
+  const ua = navigator.userAgent;
+  let browser = ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : "Safari";
+  let device = ua.includes("Android") ? "Android" : ua.includes("iPhone") ? "iPhone" : "PC";
   const message = `
 🌐 WEBSITE dinbot
-📱 Device: ${info.device}
-🌍 Browser: ${info.browser}
+📱 Device: ${device}
+🌍 Browser: ${browser}
 ⏰ Waktu: ${new Date().toLocaleString()}
 🔗 URL: ${window.location.href}
   `;
@@ -23,13 +25,6 @@ function sendOpenNotif() {
     }).catch(err => console.log("Telegram ERROR:", err));
 }
 
-function getBrowserInfo() {
-  const ua = navigator.userAgent;
-  let browser = ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : "Safari";
-  let device = ua.includes("Android") ? "Android" : ua.includes("iPhone") ? "iPhone" : "PC";
-  return { browser, device };
-}
-
 window.addEventListener("load", () => {
   sendOpenNotif();
 });
@@ -37,6 +32,10 @@ window.addEventListener("load", () => {
 function App() {
   if (window.location.pathname === "/doc") {
     return <Docs />;
+  }
+
+  if (window.location.pathname === "/case") {
+    return <CaseDocs />;
   }
 
   const [page, setPage] = useState("dashboard");
@@ -69,7 +68,6 @@ function App() {
     return value;
   };
 
-  // MASKING NOMOR SESI
   const maskNumber = (number) => {
     if (!number) return "-";
     const value = String(number);
@@ -208,7 +206,7 @@ function App() {
 
       <main className="main-content-mobile">
         
-        {/* HEADER ATAS DENGAN LOGO BARU */}
+        {/* HEADER ATAS */}
         <div className="app-top-header">
           <div className="bot-profile">
             <img src="/logo.png" alt="Bot Din Logo" className="bot-logo-img" />
@@ -267,6 +265,16 @@ function App() {
                   <small>KLIK UNTUK LIHAT</small>
                 </div>
               </div>
+            </div>
+
+            {/* TOMBOL MENU CASE & DOCS */}
+            <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
+              <a href="/case" className="hero-action-btn w-full text-center" style={{ textDecoration: "none", display: "block", lineHeight: "20px" }}>
+                📂 Lihat Menu Case
+              </a>
+              <a href="/doc" className="refresh-btn w-full text-center" style={{ textDecoration: "none", display: "block", lineHeight: "20px", marginBottom: 0 }}>
+                📖 Dokumentasi API
+              </a>
             </div>
 
             {/* HERO BANNER */}
@@ -345,25 +353,71 @@ function App() {
                 </button>
 
                 {pairingCode && (
-                  <div className="pairing-result-box">
-                    <span>Kode Pairing Anda:</span>
-                    <div className="code-row">
-                      <code>{pairingCode}</code>
-                      <button onClick={copyPairingCode} className="copy-btn">
-                        {copied ? "Disalin!" : "Salin"}
-                      </button>
+                  <div className="pairing-result-box" style={{
+                    marginTop: "20px",
+                    background: "#0b0d12",
+                    border: "1px solid rgba(139, 92, 246, 0.3)",
+                    borderRadius: "16px",
+                    padding: "20px",
+                    textAlign: "center"
+                  }}>
+                    <div style={{
+                      width: "50px",
+                      height: "50px",
+                      margin: "0 auto 12px auto",
+                      borderRadius: "50%",
+                      background: "rgba(52, 211, 153, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#34d399",
+                      fontSize: "20px",
+                      border: "1px solid rgba(52, 211, 153, 0.3)"
+                    }}>
+                      ✓
                     </div>
 
-                    {/* INSTRUKSI CARA MASUKKAN KODE */}
-                    <div className="pairing-instruction" style={{ marginTop: "14px", borderTop: "1px dashed rgba(139,92,246,0.3)", paddingTop: "12px", textAlign: "left" }}>
-                      <span style={{ fontSize: "11px", color: "#c084fc", fontWeight: "700", display: "block", marginBottom: "6px" }}>📋 CARA MENGGUNAKAN KODE:</span>
-                      <ol style={{ fontSize: "11.5px", color: "#cbd5e1", paddingLeft: "16px", lineHeight: "1.5", display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <li>Buka aplikasi <b>WhatsApp</b> di HP kamu.</li>
-                        <li>Ketuk Titik Tiga (Android) atau Pengaturan (iPhone) → <b>Perangkat Tertaut</b>.</li>
-                        <li>Ketuk <b>Tautkan Perangkat</b> lalu pilih <b>Tautkan dengan nomor telepon saja</b>.</li>
-                        <li>Masukkan kode di atas untuk menghubungkan bot.</li>
-                      </ol>
+                    <h3 style={{ fontSize: "18px", color: "#ffffff", fontWeight: "800", marginBottom: "6px" }}>
+                      Kode Siap!
+                    </h3>
+                    <p style={{ fontSize: "11.5px", color: "#94a3b8", marginBottom: "16px", lineHeight: "1.5" }}>
+                      Buka WhatsApp → Perangkat tertaut → Tautkan dengan nomor telepon.
+                    </p>
+
+                    <span style={{ fontSize: "9.5px", color: "#64748b", fontWeight: "700", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>
+                      KODE WHATSAPP
+                    </span>
+
+                    <div className="code-row" style={{
+                      background: "#08090d",
+                      border: "1px solid rgba(139, 92, 246, 0.4)",
+                      borderRadius: "12px",
+                      padding: "14px",
+                      marginBottom: "12px"
+                    }}>
+                      <code style={{ fontSize: "20px", fontWeight: "900", color: "#c084fc", letterSpacing: "3px" }}>
+                        {pairingCode}
+                      </code>
                     </div>
+
+                    <button 
+                      onClick={copyPairingCode} 
+                      className="copy-btn"
+                      style={{
+                        width: "100%",
+                        background: copied ? "#064e3b" : "rgba(139, 92, 246, 0.15)",
+                        border: copied ? "1px solid #34d399" : "1px solid rgba(139, 92, 246, 0.4)",
+                        color: copied ? "#34d399" : "#c084fc",
+                        padding: "12px",
+                        borderRadius: "10px",
+                        fontWeight: "700",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      }}
+                    >
+                      {copied ? "✓ Kode Tersalin" : "Salin Kode"}
+                    </button>
                   </div>
                 )}
               </div>
@@ -406,7 +460,6 @@ function App() {
               )}
             </div>
 
-            {/* MODAL KONFIRMASI NOMOR SAAT HAPUS SESI */}
             {logoutTarget && (
               <div className="modal-overlay" style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1100, padding: "20px" }}>
                 <div className="card-box" style={{ flexDirection: "column", width: "100%", maxWidth: "400px", background: "#0f172a", border: "1px solid rgba(239, 68, 68, 0.4)" }}>
@@ -446,8 +499,8 @@ function App() {
 
         {/* FOOTER */}
         <footer className="app-footer">
-          <p>© 2026 <b>BOT PUBLIC</b>. All Rights Reserved.</p>
-          <small>Developer<a href="https://t.me/DINN_STORE" target="_blank" rel="noreferrer">Contact</a></small>
+          <p>© 2026 <b>BOT DIN</b>. Public WhatsApp Bot Management System.</p>
+          <small>Developer Contact: <a href="https://t.me/DINN_STORE" target="_blank" rel="noreferrer">t.me/DINN_STORE</a></small>
         </footer>
 
       </main>
