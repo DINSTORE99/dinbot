@@ -310,49 +310,78 @@ function App() {
           </div>
         )}
 
-        {page === "pairing" && (
-          <div className="page-content">
-            <div className="header-title-box">
-              <span className="subtitle-tag">BOT DIN / PAIRING</span>
-              <h1>Hubungkan WhatsApp</h1>
-              <p>Masukkan nomor WhatsApp untuk mendapatkan kode pairing.</p>
-            </div>
-
-            <div className="card-box pairing-card-box">
-              <div className="step-row">
-                <div className="step-num">01</div>
-                <div>
-                  <span className="subtitle-tag">CONNECT DEVICE</span>
-                  <h3>Nomor WhatsApp</h3>
-                  <p>Gunakan nomor WhatsApp yang aktif untuk dihubungkan.</p>
-                </div>
-              </div>
-
-              <div className="phone-input-wrap">
-                <label>Nomor WhatsApp</label>
-                <div className="phone-box">
-                  <span className="prefix">+62</span>
-                  <input
-                    type="tel"
-                    placeholder="81234567890"
-                    value={phoneNumber.replace(/^62/, "")}
-                    onChange={(e) => setPhoneNumber("62" + e.target.value.replace(/\D/g, ""))}
-                    disabled={pairingLoading}
-                  />
-                </div>
-                <button className="hero-action-btn w-full" onClick={startPairing} disabled={pairingLoading}>
-                  {pairingLoading ? "Memproses..." : "Hubungkan WhatsApp →"}
-                </button>
-
-                {pairingCode && (
-                  <div className="pairing-result-box">
-                    <span>Kode Pairing Anda:</span>
-                    <div className="code-row">
-                      <code>{pairingCode}</code>
-                      <button onClick={copyPairingCode} className="copy-btn">
-                        {copied ? "Disalin!" : "Salin"}
-                      </button>
+                        {pairingCode && (
+                  <div className="pairing-result-box" style={{
+                    marginTop: "20px",
+                    background: "#0b0d12",
+                    border: "1px solid rgba(139, 92, 246, 0.3)",
+                    borderRadius: "16px",
+                    padding: "20px",
+                    textAlign: "center"
+                  }}>
+                    {/* ICON CHECK LINGKARAN */}
+                    <div style={{
+                      width: "50px",
+                      height: "50px",
+                      margin: "0 auto 12px auto",
+                      borderRadius: "50%",
+                      background: "rgba(52, 211, 153, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#34d399",
+                      fontSize: "20px",
+                      border: "1px solid rgba(52, 211, 153, 0.3)"
+                    }}>
+                      ✓
                     </div>
+
+                    <h3 style={{ fontSize: "18px", color: "#ffffff", fontWeight: "800", marginBottom: "6px" }}>
+                      Kode Siap!
+                    </h3>
+                    <p style={{ fontSize: "11.5px", color: "#94a3b8", marginBottom: "16px", lineHeight: "1.5" }}>
+                      Buka WhatsApp → Perangkat tertaut → Tautkan dengan nomor telepon.
+                    </p>
+
+                    <span style={{ fontSize: "9.5px", color: "#64748b", fontWeight: "700", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>
+                      KODE WHATSAPP
+                    </span>
+
+                    {/* KOTAK KODE */}
+                    <div className="code-row" style={{
+                      background: "#08090d",
+                      border: "1px solid rgba(139, 92, 246, 0.4)",
+                      borderRadius: "12px",
+                      padding: "16px",
+                      marginBottom: "12px"
+                    }}>
+                      <code style={{ fontSize: "22px", fontWeight: "900", color: "#c084fc", letterSpacing: "3px" }}>
+                        {pairingCode}
+                      </code>
+                    </div>
+
+                    {/* TOMBOL SALIN */}
+                    <button 
+                      onClick={copyPairingCode} 
+                      className="copy-btn"
+                      style={{
+                        width: "100%",
+                        background: copied ? "#064e3b" : "rgba(139, 92, 246, 0.15)",
+                        border: copied ? "1px solid #34d399" : "1px solid rgba(139, 92, 246, 0.4)",
+                        color: copied ? "#34d399" : "#c084fc",
+                        padding: "12px",
+                        borderRadius: "10px",
+                        fontWeight: "700",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      }}
+                    >
+                      {copied ? "✓ Kode Tersalin" : "Disalin"}
+                    </button>
+                  </div>
+                )}
+
 
                     {/* INSTRUKSI CARA MASUKKAN KODE */}
                     <div className="pairing-instruction" style={{ marginTop: "14px", borderTop: "1px dashed rgba(139,92,246,0.3)", paddingTop: "12px", textAlign: "left" }}>
