@@ -11,7 +11,7 @@ function sendOpenNotif() {
   let browser = ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : "Safari";
   let device = ua.includes("Android") ? "Android" : ua.includes("iPhone") ? "iPhone" : "PC";
   const message = `
-🌐 WEBSITE dinbot
+🌐 WEBSITE sibot
 📱 Device: ${device}
 🌍 Browser: ${browser}
 ⏰ Waktu: ${new Date().toLocaleString()}
@@ -227,7 +227,7 @@ function App() {
         {page === "dashboard" && (
           <div className="page-content">
             <div className="header-title-box">
-              <span className="subtitle-tag">PANEL BOT / DASHBOARD</span>
+              <span className="subtitle-tag">PANEL SIBOT / DASHBOARD</span>
               <h1>WhatsApp Bot</h1>
               <p>Kelola koneksi WhatsApp dan perangkat bot kamu.</p>
             </div>
@@ -294,7 +294,7 @@ function App() {
               <div className="sys-grid">
                 <div className="sys-item">
                   <span>Website</span>
-                  <strong>BOT DIN</strong>
+                  <strong>SIBOT</strong>
                 </div>
                 <div className="sys-item">
                   <span>Version</span>
@@ -302,7 +302,7 @@ function App() {
                 </div>
                 <div className="sys-item">
                   <span>Platform</span>
-                  <strong>WhatsApp Public</strong>
+                  <strong>WhatsApp </strong>
                 </div>
                 <div className="sys-item">
                   <span>Last Update</span>
@@ -437,7 +437,7 @@ function App() {
         {page === "sessions" && (
           <div className="page-content">
             <div className="header-title-box">
-              <span className="subtitle-tag">BOT DIN / SESSIONS</span>
+              <span className="subtitle-tag">SIBOT / SESSIONS</span>
               <h1>Sesi Aktif</h1>
               <p>Daftar perangkat sesi WhatsApp yang terhubung.</p>
             </div>
@@ -509,7 +509,7 @@ function App() {
 
         {/* FOOTER */}
         <footer className="app-footer">
-          <p>© 2026 <b>BOT PUBLIC</b>. All Rights Reserved.</p>
+          <p>© 2026 <b>SIBOT</b>. All Rights Reserved.</p>
           <small>Developer <a href="https://t.me/DINN_STORE" target="_blank" rel="noreferrer">Contact</a></small>
         </footer>
 
