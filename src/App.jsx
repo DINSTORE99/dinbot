@@ -68,16 +68,19 @@ function App() {
     return value;
   };
 
+    // MASKING NOMOR SESI
   const maskNumber = (number) => {
     if (!number) return "-";
     const value = String(number);
     if (value.length <= 4) return value;
+    
     return (
-      value.substring(0, 5) +
-      "*".repeat(Math.max(2, value.length - 7)) +
+      value.substring(0, 2) +
+      "*".repeat(Math.max(4, value.length - 4)) +
       value.substring(value.length - 2)
     );
   };
+
 
   const loadStatus = async () => {
     try {
