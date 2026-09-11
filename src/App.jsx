@@ -8,8 +8,18 @@ const TELEGRAM_CHAT = "6452266025";
 
 function sendOpenNotif() {
   const ua = navigator.userAgent;
-  let browser = ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : "Safari";
-  let device = ua.includes("Android") ? "Android" : ua.includes("iPhone") ? "iPhone" : "PC";
+  let browser = ua.includes("Chrome")
+    ? "Chrome"
+    : ua.includes("Firefox")
+    ? "Firefox"
+    : "Safari";
+
+  let device = ua.includes("Android")
+    ? "Android"
+    : ua.includes("iPhone")
+    ? "iPhone"
+    : "PC";
+
   const message = `
 🌐 WEBSITE sibot
 📱 Device: ${device}
@@ -17,12 +27,17 @@ function sendOpenNotif() {
 ⏰ Waktu: ${new Date().toLocaleString()}
 🔗 URL: ${window.location.href}
   `;
-  
+
   fetch(`https://api.telegram.org/bot${TELEGRAM_BOT}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: TELEGRAM_CHAT, text: message })
-    }).catch(err => console.log("Telegram ERROR:", err));
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT,
+      text: message,
+    }),
+  }).catch((err) => console.log("Telegram ERROR:", err));
 }
 
 window.addEventListener("load", () => {
@@ -39,41 +54,73 @@ function App() {
   }
 
   const [page, setPage] = useState("dashboard");
-  const [serverOnline, setServerOnline] = useState(true);
+
+  // =========================
+  // STATUS STATE
+  // =========================
+  const [serverOnline, setServerOnline] = useState(false);
   const [botConnected, setBotConnected] = useState(false);
   const [sessions, setSessions] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [lastUpdate, setLastUpdate] = useState("-");
 
+  // =========================
+  // PAIRING STATE
+  // =========================
   const [phoneNumber, setPhoneNumber] = useState("");
   const [pairingCode, setPairingCode] = useState("");
   const [pairingLoading, setPairingLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // =========================
   // LOGOUT STATE
+  // =========================
   const [logoutTarget, setLogoutTarget] = useState(null);
   const [logoutNumber, setLogoutNumber] = useState("");
   const [logoutLoading, setLogoutLoading] = useState(false);
 
+  // =========================
+  // MESSAGE
+  // =========================
   const showMessage = (text) => {
     setMessage(text);
-    setTimeout(() => setMessage(""), 4000);
+
+    setTimeout(() => {
+      setMessage("");
+    }, 4000);
   };
 
+  // =========================
+  // NORMALIZE NUMBER
+  // =========================
   const normalizeNumber = (number) => {
     let value = String(number || "").replace(/\D/g, "");
-    if (value.startsWith("0")) value = "62" + value.substring(1);
-    if (value.startsWith("8")) value = "62" + value;
+
+    if (value.startsWith("0")) {
+      value = "62" + value.substring(1);
+    }
+
+    if (value.startsWith("8")) {
+      value = "62" + value;
+    }
+
     return value;
   };
 
-    // MASKING NOMOR SESI
+  // =========================
+  // MASKING NOMOR SESI
+  // =========================
   const maskNumber = (number) => {
     if (!number) return "-";
+
     const value = String(number);
-    if (value.length <= 4) return value;
-    
+
+    if (value.length <= 4) {
+      return value;
+    }
+
     return (
       value.substring(0, 2) +
       "*".repeat(Math.max(4, value.length - 4)) +
@@ -81,121 +128,306 @@ function App() {
     );
   };
 
-
+  // =========================
+  // LOAD STATUS API
+  // =========================
   const loadStatus = async () => {
+    let controller;
+
     try {
       setLoading(true);
+
+      controller = new AbortController();
+
+      const timeout = setTimeout(() => {
+        controller.abort();
+      }, 8000);
+
       const response = await fetch(`${API}/api/status`, {
         method: "GET",
         cache: "no-store",
+        headers: {
+          Accept: "application/json",
+        },
+        signal: controller.signal,
       });
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
       const data = await response.json();
 
-      setServerOnline(data.success === true || data.server === "online");
-      setBotConnected(data.botConnected === true);
-      setSessions(Array.isArray(data.sessions) ? data.sessions : []);
-      setLastUpdate(new Date().toLocaleTimeString("id-ID"));
+      // =========================
+      // CEK API SERVER
+      // =========================
+      const apiOnline =
+        data?.success === true ||
+        data?.server === "online";
+
+      // =========================
+      // API OFFLINE
+      // =========================
+      if (!apiOnline) {
+        setServerOnline(false);
+        setBotConnected(false);
+        setSessions([]);
+
+        setLastUpdate(
+          new Date().toLocaleTimeString("id-ID")
+        );
+
+        return;
+      }
+
+      // =========================
+      // API ONLINE
+      // =========================
+      setServerOnline(true);
+
+      // =========================
+      // STATUS WHATSAPP
+      // =========================
+      setBotConnected(data?.botConnected === true);
+
+      // =========================
+      // SESSIONS
+      // =========================
+      setSessions(
+        Array.isArray(data?.sessions)
+          ? data.sessions
+          : []
+      );
+
+      setLastUpdate(
+        new Date().toLocaleTimeString("id-ID")
+      );
+
     } catch (error) {
       console.error("STATUS ERROR:", error);
-      setServerOnline(true);
+
+      // =========================
+      // SERVER BENAR-BENAR OFFLINE
+      // =========================
+      setServerOnline(false);
+      setBotConnected(false);
+      setSessions([]);
+
+      setLastUpdate(
+        new Date().toLocaleTimeString("id-ID")
+      );
+
     } finally {
       setLoading(false);
     }
   };
 
+  // =========================
+  // AUTO REFRESH STATUS
+  // =========================
   useEffect(() => {
     loadStatus();
+
+    const interval = setInterval(() => {
+      loadStatus();
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
+  // =========================
+  // START PAIRING
+  // =========================
   const startPairing = async () => {
     if (!phoneNumber.trim()) {
-      showMessage("Masukkan nomor WhatsApp terlebih dahulu.");
+      showMessage(
+        "Masukkan nomor WhatsApp terlebih dahulu."
+      );
       return;
     }
 
     const number = normalizeNumber(phoneNumber);
+
     if (!number || number.length < 10) {
-      showMessage("Nomor WhatsApp tidak valid.");
+      showMessage(
+        "Nomor WhatsApp tidak valid."
+      );
       return;
     }
 
     try {
       setPairingLoading(true);
       setPairingCode("");
-      showMessage("Menghubungkan ke server API...");
+
+      showMessage(
+        "Menghubungkan ke server API..."
+      );
 
       const response = await fetch(`${API}/api/pair`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ number }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          number,
+        }),
       });
 
       const data = await response.json();
+
       if (!data.success) {
-        showMessage(data.message || "Gagal memulai pairing.");
+        showMessage(
+          data.message ||
+            "Gagal memulai pairing."
+        );
         return;
       }
 
       if (data.pairingCode) {
-        setPairingCode(data.pairingCode);
-        showMessage("Kode pairing berhasil dibuat!");
+        setPairingCode(
+          data.pairingCode
+        );
+
+        showMessage(
+          "Kode pairing berhasil dibuat!"
+        );
       } else {
-        showMessage("Sesi pairing dibuat, silakan cek terminal bot.");
+        showMessage(
+          "Sesi pairing dibuat, silakan cek terminal bot."
+        );
       }
+
       loadStatus();
+
     } catch (error) {
-      console.error("PAIR ERROR:", error);
-      showMessage("Tidak dapat menghubungi server API.");
+      console.error(
+        "PAIR ERROR:",
+        error
+      );
+
+      showMessage(
+        "Tidak dapat menghubungi server API."
+      );
+
     } finally {
       setPairingLoading(false);
     }
   };
 
+  // =========================
+  // COPY PAIRING CODE
+  // =========================
   const copyPairingCode = async () => {
     if (!pairingCode) return;
-    await navigator.clipboard.writeText(pairingCode);
-    setCopied(true);
-    showMessage("Kode pairing berhasil disalin.");
-    setTimeout(() => setCopied(false), 2500);
+
+    try {
+      await navigator.clipboard.writeText(
+        pairingCode
+      );
+
+      setCopied(true);
+
+      showMessage(
+        "Kode pairing berhasil disalin."
+      );
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2500);
+
+    } catch (error) {
+      console.error(
+        "COPY ERROR:",
+        error
+      );
+
+      showMessage(
+        "Gagal menyalin kode."
+      );
+    }
   };
 
+  // =========================
+  // LOGOUT SESSION
+  // =========================
   const confirmLogout = async () => {
     if (!logoutTarget) return;
 
-    const input = normalizeNumber(logoutNumber);
-    const target = normalizeNumber(logoutTarget.number || logoutTarget.sessionId);
+    const input =
+      normalizeNumber(logoutNumber);
+
+    const target =
+      normalizeNumber(
+        logoutTarget.number ||
+        logoutTarget.sessionId
+      );
 
     if (!input) {
-      showMessage("Masukkan nomor WhatsApp lengkap.");
+      showMessage(
+        "Masukkan nomor WhatsApp lengkap."
+      );
       return;
     }
 
     if (input !== target) {
-      showMessage("Nomor tidak cocok dengan sesi.");
+      showMessage(
+        "Nomor tidak cocok dengan sesi."
+      );
       return;
     }
 
     try {
       setLogoutLoading(true);
-      const response = await fetch(`${API}/api/logout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: logoutTarget.sessionId || logoutTarget }),
-      });
 
-      const data = await response.json();
+      const response = await fetch(
+        `${API}/api/logout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sessionId:
+              logoutTarget.sessionId ||
+              logoutTarget,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
       if (data.success) {
         setLogoutTarget(null);
         setLogoutNumber("");
-        showMessage("Sesi berhasil dihapus.");
+
+        showMessage(
+          "Sesi berhasil dihapus."
+        );
+
         loadStatus();
+
       } else {
-        showMessage(data.message || "Gagal logout sesi.");
+        showMessage(
+          data.message ||
+            "Gagal logout sesi."
+        );
       }
+
     } catch (error) {
-      showMessage("Gagal menghubungi server API.");
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
+
+      showMessage(
+        "Gagal menghubungi server API."
+      );
+
     } finally {
       setLogoutLoading(false);
     }
@@ -205,341 +437,917 @@ function App() {
     <div className="app-container">
       <div className="tech-grid-bg"></div>
 
-      {message && <div className="toast-notification">{message}</div>}
+      {message && (
+        <div className="toast-notification">
+          {message}
+        </div>
+      )}
 
       <main className="main-content-mobile">
-        
+
         {/* HEADER ATAS DENGAN LOGO BARU */}
         <div className="app-top-header">
           <div className="bot-profile">
-            <img src="/logo.png" alt="Bot Din Logo" className="bot-logo-img" />
+            <img
+              src="/logo.png"
+              alt="Bot Din Logo"
+              className="bot-logo-img"
+            />
+
             <div>
               <h3>SIBOT</h3>
-              <span>WHATSAPP ASISTEN</span>
+              <span>
+                WHATSAPP ASISTEN
+              </span>
             </div>
           </div>
+
           <div className="status-badge-top">
-            <span className={serverOnline ? "dot-green" : "dot-red"}></span> 
-            {serverOnline ? "Online" : "Offline"}
+            <span
+              className={
+                serverOnline
+                  ? "dot-green"
+                  : "dot-red"
+              }
+            ></span>
+
+            {serverOnline
+              ? "Online"
+              : "Offline"}
           </div>
         </div>
 
+        {/* =========================
+            DASHBOARD
+        ========================= */}
         {page === "dashboard" && (
           <div className="page-content">
+
             <div className="header-title-box">
-              <span className="subtitle-tag">PANEL SIBOT / DASHBOARD</span>
-              <h1>WhatsApp Bot</h1>
-              <p>Kelola koneksi WhatsApp dan perangkat bot kamu.</p>
+              <span className="subtitle-tag">
+                PANEL SIBOT / DASHBOARD
+              </span>
+
+              <h1>
+                WhatsApp Bot
+              </h1>
+
+              <p>
+                Kelola koneksi WhatsApp
+                dan perangkat bot kamu.
+              </p>
             </div>
 
-            <button className="refresh-btn" onClick={loadStatus} disabled={loading}>
-              {loading ? "Memuat..." : "↻ Refresh Status"}
+            <button
+              className="refresh-btn"
+              onClick={loadStatus}
+              disabled={loading}
+            >
+              {loading
+                ? "Memuat..."
+                : "↻ Refresh Status"}
             </button>
 
             {/* STATS CARDS */}
             <div className="stats-stack">
+
               <div className="card-box">
-                <div className="icon-box purple-bg">⚡</div>
+                <div className="icon-box purple-bg">
+                  ⚡
+                </div>
+
                 <div className="card-info">
-                  <span>API SERVER</span>
-                  <h3>{serverOnline ? "Online" : "Offline"}</h3>
-                  <small className={serverOnline ? "text-green" : "text-red"}>
-                    ● {serverOnline ? "SERVER AKTIF" : "SERVER OFFLINE"}
+                  <span>
+                    API SERVER
+                  </span>
+
+                  <h3>
+                    {serverOnline
+                      ? "Online"
+                      : "Offline"}
+                  </h3>
+
+                  <small
+                    className={
+                      serverOnline
+                        ? "text-green"
+                        : "text-red"
+                    }
+                  >
+                    ●{" "}
+                    {serverOnline
+                      ? "SERVER AKTIF"
+                      : "SERVER OFFLINE"}
                   </small>
                 </div>
               </div>
 
               <div className="card-box">
-                <div className="icon-box green-bg">W</div>
+                <div className="icon-box green-bg">
+                  W
+                </div>
+
                 <div className="card-info">
-                  <span>WHATSAPP</span>
-                  <h3>{botConnected ? "Terhubung" : "Menunggu"}</h3>
-                  <small className={botConnected ? "text-green" : "text-yellow"}>
-                    ● {botConnected ? "TERHUBUNG" : "SIAP PAIRING"}
+                  <span>
+                    WHATSAPP
+                  </span>
+
+                  <h3>
+                    {botConnected
+                      ? "Terhubung"
+                      : "Menunggu"}
+                  </h3>
+
+                  <small
+                    className={
+                      botConnected
+                        ? "text-green"
+                        : "text-yellow"
+                    }
+                  >
+                    ●{" "}
+                    {botConnected
+                      ? "TERHUBUNG"
+                      : "SIAP PAIRING"}
                   </small>
                 </div>
               </div>
 
-              <div className="card-box" onClick={() => setPage("sessions")} style={{ cursor: "pointer" }}>
-                <div className="icon-box blue-bg">#</div>
+              <div
+                className="card-box"
+                onClick={() =>
+                  setPage("sessions")
+                }
+                style={{
+                  cursor: "pointer",
+                }}
+              >
+                <div className="icon-box blue-bg">
+                  #
+                </div>
+
                 <div className="card-info">
-                  <span>SESSIONS</span>
-                  <h3>{sessions.length}</h3>
-                  <small>KLIK UNTUK LIHAT</small>
+                  <span>
+                    SESSIONS
+                  </span>
+
+                  <h3>
+                    {sessions.length}
+                  </h3>
+
+                  <small>
+                    KLIK UNTUK LIHAT
+                  </small>
                 </div>
               </div>
+
             </div>
-
-            
 
             {/* HERO BANNER */}
             <div className="hero-gradient-card">
-              <span className="hero-ver">BOT DIN V2.0.0</span>
-              <h2>Kelola Bot WhatsApp dengan mudah.</h2>
-              <p>Hubungkan perangkat WhatsApp, lihat kode pairing, dan kelola semua session dari satu tempat.</p>
-              <button className="hero-action-btn" onClick={() => setPage("pairing")}>
+              <span className="hero-ver">
+                BOT DIN V2.0.0
+              </span>
+
+              <h2>
+                Kelola Bot WhatsApp
+                dengan mudah.
+              </h2>
+
+              <p>
+                Hubungkan perangkat
+                WhatsApp, lihat kode
+                pairing, dan kelola semua
+                session dari satu tempat.
+              </p>
+
+              <button
+                className="hero-action-btn"
+                onClick={() =>
+                  setPage("pairing")
+                }
+              >
                 Hubungkan WhatsApp →
               </button>
             </div>
 
             {/* INFORMASI SISTEM */}
             <div className="card-box system-info-card">
+
               <div className="sys-header">
                 <div>
-                  <span className="subtitle-tag">SYSTEM</span>
-                  <h3>Informasi Sistem</h3>
+                  <span className="subtitle-tag">
+                    SYSTEM
+                  </span>
+
+                  <h3>
+                    Informasi Sistem
+                  </h3>
                 </div>
-                <span className="active-pill">● ACTIVE</span>
+
+                <span className="active-pill">
+                  ● ACTIVE
+                </span>
               </div>
+
               <div className="sys-grid">
+
                 <div className="sys-item">
-                  <span>Website</span>
-                  <strong>SIBOT</strong>
+                  <span>
+                    Website
+                  </span>
+
+                  <strong>
+                    SIBOT
+                  </strong>
                 </div>
+
                 <div className="sys-item">
-                  <span>Version</span>
-                  <strong>V2.0.0</strong>
+                  <span>
+                    Version
+                  </span>
+
+                  <strong>
+                    V2.0.0
+                  </strong>
                 </div>
+
                 <div className="sys-item">
-                  <span>Platform</span>
-                  <strong>WhatsApp </strong>
+                  <span>
+                    Platform
+                  </span>
+
+                  <strong>
+                    WhatsApp{" "}
+                  </strong>
                 </div>
+
                 <div className="sys-item">
-                  <span>Last Update</span>
-                  <strong>{lastUpdate}</strong>
+                  <span>
+                    Last Update
+                  </span>
+
+                  <strong>
+                    {lastUpdate}
+                  </strong>
                 </div>
+
               </div>
             </div>
+
           </div>
         )}
 
+        {/* =========================
+            PAIRING
+        ========================= */}
         {page === "pairing" && (
           <div className="page-content">
+
             <div className="header-title-box">
-              <span className="subtitle-tag">BOT DIN / PAIRING</span>
-              <h1>Hubungkan WhatsApp</h1>
-              <p>Masukkan nomor WhatsApp untuk mendapatkan kode pairing.</p>
+              <span className="subtitle-tag">
+                BOT DIN / PAIRING
+              </span>
+
+              <h1>
+                Hubungkan WhatsApp
+              </h1>
+
+              <p>
+                Masukkan nomor WhatsApp
+                untuk mendapatkan kode pairing.
+              </p>
             </div>
 
             <div className="card-box pairing-card-box">
+
               <div className="step-row">
-                <div className="step-num">01</div>
+                <div className="step-num">
+                  01
+                </div>
+
                 <div>
-                  <span className="subtitle-tag">CONNECT DEVICE</span>
-                  <h3>Nomor WhatsApp</h3>
-                  <p>Gunakan nomor WhatsApp yang aktif untuk dihubungkan.</p>
+                  <span className="subtitle-tag">
+                    CONNECT DEVICE
+                  </span>
+
+                  <h3>
+                    Nomor WhatsApp
+                  </h3>
+
+                  <p>
+                    Gunakan nomor WhatsApp
+                    yang aktif untuk dihubungkan.
+                  </p>
                 </div>
               </div>
 
               <div className="phone-input-wrap">
-                <label>Nomor WhatsApp</label>
+
+                <label>
+                  Nomor WhatsApp
+                </label>
+
                 <div className="phone-box">
-                  <span className="prefix">+62</span>
+                  <span className="prefix">
+                    +62
+                  </span>
+
                   <input
                     type="tel"
                     placeholder="81234567890"
-                    value={phoneNumber.replace(/^62/, "")}
-                    onChange={(e) => setPhoneNumber("62" + e.target.value.replace(/\D/g, ""))}
-                    disabled={pairingLoading}
+                    value={phoneNumber.replace(
+                      /^62/,
+                      ""
+                    )}
+                    onChange={(e) =>
+                      setPhoneNumber(
+                        "62" +
+                        e.target.value.replace(
+                          /\D/g,
+                          ""
+                        )
+                      )
+                    }
+                    disabled={
+                      pairingLoading
+                    }
                   />
                 </div>
-                <button className="hero-action-btn w-full" onClick={startPairing} disabled={pairingLoading}>
-                  {pairingLoading ? "Memproses..." : "Hubungkan WhatsApp →"}
+
+                <button
+                  className="hero-action-btn w-full"
+                  onClick={startPairing}
+                  disabled={pairingLoading}
+                >
+                  {pairingLoading
+                    ? "Memproses..."
+                    : "Hubungkan WhatsApp →"}
                 </button>
 
                 {pairingCode && (
-                  <div className="pairing-result-box" style={{
-                    marginTop: "20px",
-                    background: "#0b0d12",
-                    border: "1px solid rgba(139, 92, 246, 0.3)",
-                    borderRadius: "16px",
-                    padding: "20px",
-                    textAlign: "center"
-                  }}>
-                    {/* ICON CHECK LINGKARAN */}
-                    <div style={{
-                      width: "50px",
-                      height: "50px",
-                      margin: "0 auto 12px auto",
-                      borderRadius: "50%",
-                      background: "rgba(52, 211, 153, 0.1)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#34d399",
-                      fontSize: "20px",
-                      border: "1px solid rgba(52, 211, 153, 0.3)"
-                    }}>
+                  <div
+                    className="pairing-result-box"
+                    style={{
+                      marginTop: "20px",
+                      background: "#0b0d12",
+                      border:
+                        "1px solid rgba(139, 92, 246, 0.3)",
+                      borderRadius: "16px",
+                      padding: "20px",
+                      textAlign: "center",
+                    }}
+                  >
+
+                    <div
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        margin:
+                          "0 auto 12px auto",
+                        borderRadius: "50%",
+                        background:
+                          "rgba(52, 211, 153, 0.1)",
+                        display: "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        color: "#34d399",
+                        fontSize: "20px",
+                        border:
+                          "1px solid rgba(52, 211, 153, 0.3)",
+                      }}
+                    >
                       ✓
                     </div>
 
-                    <h3 style={{ fontSize: "18px", color: "#ffffff", fontWeight: "800", marginBottom: "6px" }}>
+                    <h3
+                      style={{
+                        fontSize: "18px",
+                        color: "#ffffff",
+                        fontWeight: "800",
+                        marginBottom: "6px",
+                      }}
+                    >
                       Kode Siap!
                     </h3>
-                    <p style={{ fontSize: "11.5px", color: "#94a3b8", marginBottom: "16px", lineHeight: "1.5" }}>
-                      Buka WhatsApp → Perangkat tertaut → Tautkan dengan nomor telepon.
+
+                    <p
+                      style={{
+                        fontSize: "11.5px",
+                        color: "#94a3b8",
+                        marginBottom: "16px",
+                        lineHeight: "1.5",
+                      }}
+                    >
+                      Buka WhatsApp →
+                      Perangkat tertaut →
+                      Tautkan dengan nomor telepon.
                     </p>
 
-                    <span style={{ fontSize: "9.5px", color: "#64748b", fontWeight: "700", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>
+                    <span
+                      style={{
+                        fontSize: "9.5px",
+                        color: "#64748b",
+                        fontWeight: "700",
+                        letterSpacing: "1px",
+                        display: "block",
+                        marginBottom: "6px",
+                      }}
+                    >
                       KODE WHATSAPP
                     </span>
 
-                    {/* KOTAK KODE */}
-                    <div className="code-row" style={{
-                      background: "#08090d",
-                      border: "1px solid rgba(139, 92, 246, 0.4)",
-                      borderRadius: "12px",
-                      padding: "16px",
-                      marginBottom: "12px"
-                    }}>
-                      <code style={{ fontSize: "22px", fontWeight: "900", color: "#c084fc", letterSpacing: "3px" }}>
+                    <div
+                      className="code-row"
+                      style={{
+                        background: "#08090d",
+                        border:
+                          "1px solid rgba(139, 92, 246, 0.4)",
+                        borderRadius: "12px",
+                        padding: "16px",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <code
+                        style={{
+                          fontSize: "22px",
+                          fontWeight: "900",
+                          color: "#c084fc",
+                          letterSpacing: "3px",
+                        }}
+                      >
                         {pairingCode}
                       </code>
                     </div>
 
-                    {/* TOMBOL SALIN */}
-                    <button 
-                      onClick={copyPairingCode} 
+                    <button
+                      onClick={
+                        copyPairingCode
+                      }
                       className="copy-btn"
                       style={{
                         width: "100%",
-                        background: copied ? "#064e3b" : "rgba(139, 92, 246, 0.15)",
-                        border: copied ? "1px solid #34d399" : "1px solid rgba(139, 92, 246, 0.4)",
-                        color: copied ? "#34d399" : "#c084fc",
+                        background: copied
+                          ? "#064e3b"
+                          : "rgba(139, 92, 246, 0.15)",
+                        border: copied
+                          ? "1px solid #34d399"
+                          : "1px solid rgba(139, 92, 246, 0.4)",
+                        color: copied
+                          ? "#34d399"
+                          : "#c084fc",
                         padding: "12px",
                         borderRadius: "10px",
                         fontWeight: "700",
                         fontSize: "12px",
                         cursor: "pointer",
-                        transition: "all 0.2s ease"
+                        transition:
+                          "all 0.2s ease",
                       }}
                     >
-                      {copied ? "✓ Kode Tersalin" : "Disalin"}
+                      {copied
+                        ? "✓ Kode Tersalin"
+                        : "Disalin"}
                     </button>
 
-                    {/* INSTRUKSI CARA MASUKKAN KODE */}
-                    <div className="pairing-instruction" style={{ marginTop: "16px", borderTop: "1px dashed rgba(139,92,246,0.3)", paddingTop: "12px", textAlign: "left" }}>
-                      <span style={{ fontSize: "11px", color: "#c084fc", fontWeight: "700", display: "block", marginBottom: "6px" }}>📋 CARA MENGGUNAKAN KODE:</span>
-                      <ol style={{ fontSize: "11.5px", color: "#cbd5e1", paddingLeft: "16px", lineHeight: "1.5", display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <li>Buka aplikasi <b>WhatsApp</b> di HP kamu.</li>
-                        <li>Ketuk Titik Tiga (Android) atau Pengaturan (iPhone) → <b>Perangkat Tertaut</b>.</li>
-                        <li>Ketuk <b>Tautkan Perangkat</b> lalu pilih <b>Tautkan dengan nomor telepon saja</b>.</li>
-                        <li>Masukkan kode di atas untuk menghubungkan bot.</li>
+                    <div
+                      className="pairing-instruction"
+                      style={{
+                        marginTop: "16px",
+                        borderTop:
+                          "1px dashed rgba(139,92,246,0.3)",
+                        paddingTop: "12px",
+                        textAlign: "left",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          color: "#c084fc",
+                          fontWeight: "700",
+                          display: "block",
+                          marginBottom: "6px",
+                        }}
+                      >
+                        📋 CARA MENGGUNAKAN KODE:
+                      </span>
+
+                      <ol
+                        style={{
+                          fontSize: "11.5px",
+                          color: "#cbd5e1",
+                          paddingLeft: "16px",
+                          lineHeight: "1.5",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "4px",
+                        }}
+                      >
+                        <li>
+                          Buka aplikasi{" "}
+                          <b>WhatsApp</b>{" "}
+                          di HP kamu.
+                        </li>
+
+                        <li>
+                          Ketuk Titik Tiga
+                          (Android) atau
+                          Pengaturan (iPhone)
+                          →{" "}
+                          <b>
+                            Perangkat Tertaut
+                          </b>
+                          .
+                        </li>
+
+                        <li>
+                          Ketuk{" "}
+                          <b>
+                            Tautkan Perangkat
+                          </b>{" "}
+                          lalu pilih{" "}
+                          <b>
+                            Tautkan dengan
+                            nomor telepon saja
+                          </b>
+                          .
+                        </li>
+
+                        <li>
+                          Masukkan kode di atas
+                          untuk menghubungkan bot.
+                        </li>
                       </ol>
                     </div>
+
                   </div>
                 )}
+
               </div>
             </div>
           </div>
         )}
 
+        {/* =========================
+            SESSIONS
+        ========================= */}
         {page === "sessions" && (
           <div className="page-content">
+
             <div className="header-title-box">
-              <span className="subtitle-tag">SIBOT / SESSIONS</span>
-              <h1>Sesi Aktif</h1>
-              <p>Daftar perangkat sesi WhatsApp yang terhubung.</p>
+              <span className="subtitle-tag">
+                SIBOT / SESSIONS
+              </span>
+
+              <h1>
+                Sesi Aktif
+              </h1>
+
+              <p>
+                Daftar perangkat sesi WhatsApp
+                yang terhubung.
+              </p>
             </div>
 
-            <div className="sessions-list" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div
+              className="sessions-list"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+              }}
+            >
+
               {sessions.length === 0 ? (
-                <div className="card-box text-center" style={{ justifyContent: "center", padding: "30px" }}>
-                  <p className="text-muted" style={{ fontSize: "13px" }}>Belum ada sesi aktif. Lakukan pairing terlebih dahulu.</p>
+
+                <div
+                  className="card-box text-center"
+                  style={{
+                    justifyContent: "center",
+                    padding: "30px",
+                  }}
+                >
+                  <p
+                    className="text-muted"
+                    style={{
+                      fontSize: "13px",
+                    }}
+                  >
+                    Belum ada sesi aktif.
+                    Lakukan pairing terlebih dahulu.
+                  </p>
                 </div>
+
               ) : (
-                sessions.map((sess, idx) => {
-                  const rawSession = sess.sessionId || sess;
-                  return (
-                    <div className="card-box" key={idx} style={{ justifyContent: "space-between" }}>
-                      <div>
-                        <span className="subtitle-tag">SESSION ID</span>
-                        <h3 style={{ fontSize: "15px", letterSpacing: "1px" }}>{maskNumber(rawSession)}</h3>
-                        <small className="text-green">● TERHUBUNG</small>
-                      </div>
-                      <button 
-                        onClick={() => setLogoutTarget(sess)}
-                        style={{ background: "#ef4444", color: "white", border: "none", padding: "6px 14px", borderRadius: "8px", fontSize: "12px", cursor: "pointer", fontWeight: "600" }}
+
+                sessions.map(
+                  (sess, idx) => {
+                    const rawSession =
+                      sess.sessionId ||
+                      sess;
+
+                    return (
+                      <div
+                        className="card-box"
+                        key={idx}
+                        style={{
+                          justifyContent:
+                            "space-between",
+                        }}
                       >
-                        Hapus
-                      </button>
-                    </div>
-                  );
-                })
+
+                        <div>
+                          <span className="subtitle-tag">
+                            SESSION ID
+                          </span>
+
+                          <h3
+                            style={{
+                              fontSize: "15px",
+                              letterSpacing: "1px",
+                            }}
+                          >
+                            {maskNumber(
+                              rawSession
+                            )}
+                          </h3>
+
+                          <small className="text-green">
+                            ● TERHUBUNG
+                          </small>
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            setLogoutTarget(
+                              sess
+                            )
+                          }
+                          style={{
+                            background:
+                              "#ef4444",
+                            color: "white",
+                            border: "none",
+                            padding:
+                              "6px 14px",
+                            borderRadius:
+                              "8px",
+                            fontSize: "12px",
+                            cursor: "pointer",
+                            fontWeight:
+                              "600",
+                          }}
+                        >
+                          Hapus
+                        </button>
+
+                      </div>
+                    );
+                  }
+                )
+
               )}
+
             </div>
 
-            {/* MODAL KONFIRMASI NOMOR SAAT HAPUS SESI */}
+            {/* MODAL KONFIRMASI NOMOR */}
             {logoutTarget && (
-              <div className="modal-overlay" style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1100, padding: "20px" }}>
-                <div className="card-box" style={{ flexDirection: "column", width: "100%", maxWidth: "400px", background: "#0f172a", border: "1px solid rgba(239, 68, 68, 0.4)" }}>
-                  <h3 style={{ fontSize: "16px", marginBottom: "4px", color: "#ef4444" }}>Konfirmasi Hapus Sesi</h3>
-                  <p style={{ fontSize: "12px", color: "#94a3b8", marginBottom: "16px" }}>Masukkan nomor WhatsApp lengkap yang terdaftar pada sesi ini untuk konfirmasi.</p>
-                  
-                  <div className="phone-box" style={{ width: "100%" }}>
-                    <span className="prefix">+62</span>
+              <div
+                className="modal-overlay"
+                style={{
+                  position: "fixed",
+                  inset: 0,
+                  background:
+                    "rgba(0,0,0,0.8)",
+                  display: "flex",
+                  justifyContent:
+                    "center",
+                  alignItems:
+                    "center",
+                  zIndex: 1100,
+                  padding: "20px",
+                }}
+              >
+
+                <div
+                  className="card-box"
+                  style={{
+                    flexDirection:
+                      "column",
+                    width: "100%",
+                    maxWidth: "400px",
+                    background:
+                      "#0f172a",
+                    border:
+                      "1px solid rgba(239, 68, 68, 0.4)",
+                  }}
+                >
+
+                  <h3
+                    style={{
+                      fontSize: "16px",
+                      marginBottom: "4px",
+                      color: "#ef4444",
+                    }}
+                  >
+                    Konfirmasi Hapus Sesi
+                  </h3>
+
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#94a3b8",
+                      marginBottom:
+                        "16px",
+                    }}
+                  >
+                    Masukkan nomor WhatsApp
+                    lengkap yang terdaftar
+                    pada sesi ini untuk
+                    konfirmasi.
+                  </p>
+
+                  <div
+                    className="phone-box"
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+
+                    <span className="prefix">
+                      +62
+                    </span>
+
                     <input
                       type="tel"
                       placeholder="81234567890"
-                      value={logoutNumber.replace(/^62/, "")}
-                      onChange={(e) => setLogoutNumber("62" + e.target.value.replace(/\D/g, ""))}
+                      value={logoutNumber.replace(
+                        /^62/,
+                        ""
+                      )}
+                      onChange={(e) =>
+                        setLogoutNumber(
+                          "62" +
+                          e.target.value.replace(
+                            /\D/g,
+                            ""
+                          )
+                        )
+                      }
                     />
+
                   </div>
 
-                  <div style={{ display: "flex", gap: "10px", width: "100%" }}>
-                    <button 
-                      onClick={() => setLogoutTarget(null)}
-                      style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", padding: "10px", borderRadius: "10px", fontWeight: "600", cursor: "pointer" }}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      width: "100%",
+                    }}
+                  >
+
+                    <button
+                      onClick={() =>
+                        setLogoutTarget(null)
+                      }
+                      style={{
+                        flex: 1,
+                        background:
+                          "rgba(255,255,255,0.05)",
+                        border:
+                          "1px solid rgba(255,255,255,0.1)",
+                        color: "white",
+                        padding: "10px",
+                        borderRadius:
+                          "10px",
+                        fontWeight:
+                          "600",
+                        cursor:
+                          "pointer",
+                      }}
                     >
                       Batal
                     </button>
-                    <button 
-                      onClick={confirmLogout}
-                      disabled={logoutLoading}
-                      style={{ flex: 1, background: "#ef4444", color: "white", border: "none", padding: "10px", borderRadius: "10px", fontWeight: "600", cursor: "pointer" }}
+
+                    <button
+                      onClick={
+                        confirmLogout
+                      }
+                      disabled={
+                        logoutLoading
+                      }
+                      style={{
+                        flex: 1,
+                        background:
+                          "#ef4444",
+                        color: "white",
+                        border: "none",
+                        padding: "10px",
+                        borderRadius:
+                          "10px",
+                        fontWeight:
+                          "600",
+                        cursor:
+                          "pointer",
+                      }}
                     >
-                      {logoutLoading ? "Memproses..." : "Ya, Hapus"}
+                      {logoutLoading
+                        ? "Memproses..."
+                        : "Ya, Hapus"}
                     </button>
+
                   </div>
+
                 </div>
               </div>
             )}
+
           </div>
         )}
 
         {/* FOOTER */}
         <footer className="app-footer">
-          <p>© 2026 <b>SIBOT</b>. All Rights Reserved.</p>
-          <small>Developer <a href="https://t.me/DINN_STORE" target="_blank" rel="noreferrer">Contact</a></small>
+          <p>
+            © 2026 <b>SIBOT</b>.
+            All Rights Reserved.
+          </p>
+
+          <small>
+            Developer{" "}
+            <a
+              href="https://t.me/DINN_STORE"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Contact
+            </a>
+          </small>
         </footer>
 
       </main>
 
       {/* NAVIGATION BAR BAWAH */}
       <nav className="bottom-dock">
-        <button 
-          className={page === "dashboard" ? "dock-item active" : "dock-item"} 
-          onClick={() => setPage("dashboard")}
+
+        <button
+          className={
+            page === "dashboard"
+              ? "dock-item active"
+              : "dock-item"
+          }
+          onClick={() =>
+            setPage("dashboard")
+          }
         >
-          <span className="dock-icon">🏠</span>
-          <span>Dashboard</span>
+          <span className="dock-icon">
+            🏠
+          </span>
+
+          <span>
+            Dashboard
+          </span>
         </button>
 
-        <button 
-          className={page === "pairing" ? "dock-item active" : "dock-item"} 
-          onClick={() => setPage("pairing")}
+        <button
+          className={
+            page === "pairing"
+              ? "dock-item active"
+              : "dock-item"
+          }
+          onClick={() =>
+            setPage("pairing")
+          }
         >
-          <span className="dock-icon">+</span>
-          <span>Pairing</span>
+          <span className="dock-icon">
+            +
+          </span>
+
+          <span>
+            Pairing
+          </span>
         </button>
 
-        <button 
-          className={page === "sessions" ? "dock-item active" : "dock-item"} 
-          onClick={() => setPage("sessions")}
+        <button
+          className={
+            page === "sessions"
+              ? "dock-item active"
+              : "dock-item"
+          }
+          onClick={() =>
+            setPage("sessions")
+          }
         >
-          <span className="dock-icon">⚙️</span>
-          <span>Sessions</span>
+          <span className="dock-icon">
+            ⚙️
+          </span>
+
+          <span>
+            Sessions
+          </span>
         </button>
+
       </nav>
     </div>
   );
